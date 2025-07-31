@@ -78,6 +78,8 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+      config:
+        schema: HC_BTP
   - name: STE-BTP-CAP-CORE-destination
     type: org.cloudfoundry.managed-service
     parameters:

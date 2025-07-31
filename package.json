@@ -23,6 +23,9 @@
     "start": "cds-serve"
   },
   "cds": {
+    "hana": {
+      "schema": "HC_BTP"
+    },
     "requires": {
       "[production]": {
         "db": "hana",
