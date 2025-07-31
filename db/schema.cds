@@ -1,6 +1,6 @@
-namespace HC_BTP;
+namespace BTP;
 
-entity BTP_CORE_USERS {
+entity CORE_USERS {
   key USER_EMAIL : String(241);
   USER_ID        : String(120);
   USER_HP        : String(30);
