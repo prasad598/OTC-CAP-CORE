@@ -24,7 +24,7 @@
   },
   "cds": {
     "hana": {
-      "schema": "HC_BTP"
+      "schema": "BTP"
     },
     "requires": {
       "[production]": {
