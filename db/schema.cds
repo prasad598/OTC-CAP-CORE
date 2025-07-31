@@ -1,7 +1,14 @@
-namespace my.bookshop;
+namespace HC_BTP;
 
-entity Books {
-  key ID : Integer;
-  title  : String;
-  stock  : Integer;
+entity BTP_CORE_USERS {
+  key USER_EMAIL : String(241);
+  USER_ID        : String(120);
+  USER_HP        : String(30);
+  USER_FNAME     : String(40);
+  USER_LNAME     : String(40);
+  IS_ACTIVE      : String(1);
+  CREATED_AT     : Timestamp;
+  CREATED_BY     : String(12);
+  UPDATED_AT     : Timestamp;
+  UPDATED_BY     : String(12);
 }
