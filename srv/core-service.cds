@@ -1,5 +1,5 @@
-using { BTP_CORE_USERS } from '../db/schema';
+using HC_BTP as core from '../db/schema';
 
 service UserService {
-  entity BTP_CORE_USERS as projection on BTP_CORE_USERS;
+  @readonly entity BTP_CORE_USERS as projection on core.BTP_CORE_USERS;
 }
