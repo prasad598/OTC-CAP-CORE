@@ -2,7 +2,7 @@
   "name": "STE-BTP-CAP-CORE",
   "version": "1.0.0",
   "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
+  "repository": "https://github.com/prasad598/STE-BTP-CAP-CORE",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
