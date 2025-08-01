@@ -63,3 +63,36 @@ entity CORE_COMMENTS {
   CREATED_BY         : userId not null; // author
   CREATED_DATE       : dateTime default current_timestamp not null;
 }
+
+entity TE_SR {
+  key REQ_TXN_ID       : uuid @Core.Computed : true;
+  DRAFT_ID             : String(12);
+  REQUEST_ID           : String(14);
+
+  REQUESTER_ID         : emailId;
+  SRV_CAT_CD           : lookupCode;
+  SR_DETAILS           : shortText;
+  CASE_REQ_ID          : String(14);
+  REQ_FOR_NAME         : fName;
+  REQ_FOR_EMAIL        : emailId;
+  REPORT_NO            : String(14);
+  CASE_PRIO            : String(1);
+  ENTITY_CD            : lookupCode;
+  SECTOR_CD            : lookupCode;
+  STATUS_CD            : lookupCode;
+  RESOLUTION_RES       : shortText;
+  CASE_BCG             : shortText;
+  SRC_PROB_CD          : lookupCode;
+
+  IS_CLAR_REQ          : booleanYN;
+  IS_CLAR_REQ_DATETIME : dateTime;
+  IS_ESCALATED         : booleanYN;
+  ESCALATED_DATETIME   : dateTime;
+  IS_CONFIRMED         : booleanYN;
+  CONFIRMED_DATETIME   : dateTime;
+
+  CREATED_BY           : userId;
+  CREATED_DATETIME     : dateTime @cds.on.insert : $now;
+  UPDATED_BY           : userId;
+  UPDATED_DATETIME     : dateTime @cds.on.insert : $now @cds.on.update : $now;
+}
