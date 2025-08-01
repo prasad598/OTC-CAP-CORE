@@ -33,8 +33,8 @@ entity CORE_USERS {
 }
 
 entity CORE_ATTACHMENTS {
-  key UUID           : uuid    not null;
-  TRANSACTION_ID     : id      not null;
+  key UUID           : uuid    @Core.Computed : true;
+  REQ_TXN_ID         : id      not null;
   REQUEST_NO         : String(14);
   FILE_NAME          : fileName not null;
   FILE_SIZE          : fileSize;
@@ -48,12 +48,12 @@ entity CORE_ATTACHMENTS {
   IS_ARCHIVED        : flag;
   ARCH_FILE_PATH     : filePath;
   CREATED_BY         : userId not null;
-  CREATED_DATE       : dateTime not null;
+  CREATED_DATE       : dateTime default current_timestamp not null;
 }
 
 entity CORE_COMMENTS {
-  key UUID           : uuid not null;
-  TRANSACTION_ID     : uuid not null;
+  key UUID           : uuid @Core.Computed : true;
+  REQ_TXN_ID         : uuid not null;
   REQUEST_NO         : String(14);
   COMMENTS           : shortText not null;
   COMMENT_TYPE       : String(30); // type - document , milestone
@@ -61,5 +61,5 @@ entity CORE_COMMENTS {
   USER_TYPE          : userType; // role - Expense Controller
   EVENT_STATUS_CD    : lookupCode;
   CREATED_BY         : userId not null; // author
-  CREATED_DATE       : dateTime not null;
+  CREATED_DATE       : dateTime default current_timestamp not null;
 }
