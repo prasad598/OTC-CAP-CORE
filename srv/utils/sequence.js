@@ -7,7 +7,8 @@ async function generateCustomRequestId(tx, { prefix, requestType, isDraft = fals
   const month = String(now.getMonth() + 1).padStart(2, '0')
 
   const entity = 'BTP.CORE_REQ_SEQ'
-  const key = { SEQ_YEAR: year }
+  const idType = isDraft ? 'DRAFT' : 'REQUEST'
+  const key = { SEQ_YEAR: year, REQUEST_TYPE: requestType, ID_TYPE: idType }
 
   const row = await tx.run(
     SELECT.one.from(entity).where(key).forUpdate()
@@ -20,6 +21,8 @@ async function generateCustomRequestId(tx, { prefix, requestType, isDraft = fals
     await tx.run(
       INSERT.into(entity).entries({
         SEQ_YEAR: year,
+        REQUEST_TYPE: requestType,
+        ID_TYPE: idType,
         LAST_SEQ_NO: seq,
         CREATED_BY: user
       })
