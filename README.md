@@ -13,6 +13,32 @@ File or Folder | Purpose
 `readme.md` | this getting started guide
 
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v20 or later
+- Install project dependencies with:
+
+  ```bash
+  npm install
+  ```
+
+## Run the Service
+
+Start the CAP service locally:
+
+```bash
+npm start
+```
+
+## Run Tests
+
+After adding tests, execute them with:
+
+```bash
+npm test
+```
+
+
 ## Next Steps
 
 - Open a new terminal and run `cds watch`
