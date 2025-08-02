@@ -1,8 +1,26 @@
 const cds = require('@sap/cds')
 const { SELECT } = cds.ql
+const { generateCustomRequestId } = require('./utils/sequence')
 
 module.exports = (srv) => {
   const { CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
+
+  srv.before('CREATE', 'TE_SR', async (req) => {
+    const tx = cds.transaction(req)
+    req.data.DRAFT_ID = await generateCustomRequestId(tx, {
+      prefix: 'CASE',
+      requestType: req.data.REQUEST_TYPE,
+      isDraft: true,
+    })
+  })
+
+  srv.before('CREATE', 'MON_WF_PROCESS', async (req) => {
+    const tx = cds.transaction(req)
+    req.data.REQUEST_ID = await generateCustomRequestId(tx, {
+      prefix: 'CASE',
+      requestType: req.data.REQUEST_TYPE,
+    })
+  })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
     if (results == null) return

@@ -16,6 +16,7 @@ describe('TE_SR enrichment', () => {
       after: (event, entity, handler) => {
         if (event === 'READ' && entity === 'TE_SR') srv._afterRead = handler
       },
+      before: () => {},
     }
     require('../srv/core-service')(srv)
   })
