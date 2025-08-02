@@ -7,20 +7,28 @@ module.exports = (srv) => {
 
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
-    req.data.REQUEST_TYPE = 'TE'
-    req.data.DRAFT_ID = await generateCustomRequestId(tx, {
-      prefix: 'CASE',
-      requestType: req.data.REQUEST_TYPE,
-      isDraft: true,
-    })
+    try {
+      req.data.REQUEST_TYPE = 'TE'
+      req.data.DRAFT_ID = await generateCustomRequestId(tx, {
+        prefix: 'CASE',
+        requestType: req.data.REQUEST_TYPE,
+        isDraft: true,
+      })
+    } catch (error) {
+      req.error(500, `Failed to prepare TE_SR: ${error.message}`)
+    }
   })
 
-  srv.before('CREATE', 'MON_WF_PROCESS', async (req) => {
+  srv.before('CREATE', 'workflow', async (req) => {
     const tx = cds.transaction(req)
-    req.data.REQUEST_ID = await generateCustomRequestId(tx, {
-      prefix: 'CASE',
-      requestType: req.data.REQUEST_TYPE,
-    })
+    try {
+      req.data.REQUEST_ID = await generateCustomRequestId(tx, {
+        prefix: 'CASE',
+        requestType: req.data.REQUEST_TYPE,
+      })
+    } catch (error) {
+      req.error(500, `Failed to create workflow: ${error.message}`)
+    }
   })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
@@ -37,9 +45,8 @@ module.exports = (srv) => {
             SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key })
           )
         } catch (error) {
-          console.error(
-            `Error fetching CORE_COMMENTS for REQ_TXN_ID ${key}:`,
-            error
+          req.warn(
+            `Error fetching CORE_COMMENTS for REQ_TXN_ID ${key}: ${error.message}`
           )
           item.CORE_COMMENTS = []
         }
@@ -48,9 +55,8 @@ module.exports = (srv) => {
             SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key })
           )
         } catch (error) {
-          console.error(
-            `Error fetching CORE_ATTACHMENTS for REQ_TXN_ID ${key}:`,
-            error
+          req.warn(
+            `Error fetching CORE_ATTACHMENTS for REQ_TXN_ID ${key}: ${error.message}`
           )
           item.CORE_ATTACHMENTS = []
         }
