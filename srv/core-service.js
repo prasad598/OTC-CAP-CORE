@@ -7,6 +7,7 @@ module.exports = (srv) => {
 
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
+    req.data.REQUEST_TYPE = 'TE'
     req.data.DRAFT_ID = await generateCustomRequestId(tx, {
       prefix: 'CASE',
       requestType: req.data.REQUEST_TYPE,
