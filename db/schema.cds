@@ -64,6 +64,60 @@ entity CORE_COMMENTS {
   CREATED_DATE       : dateTime default current_timestamp not null;
 }
 
+entity MON_WF_PROCESS {
+  key WF_INSTANCE_ID    : id;
+
+  WF_DESC               : String(255);
+  WF_SUBJ               : String(255);
+  WF_STATUS             : String(20);
+  REQUEST_TYPE          : String(50);
+  REQUEST_ID            : String(50);
+  REQ_TXN_ID            : id;
+
+  EST_COMPLETION        : dateTime;
+  ACTUAL_COMPLETION     : dateTime;
+  COMPLETED_BY          : userId;
+  SLA_DAYS              : Integer;
+
+  IS_ACTIVE             : flag;
+  IS_ARCHIVED           : flag;
+  IS_DELETED            : flag;
+
+  CREATED_BY            : userId;
+  CREATED_DATETIME      : dateTime default current_timestamp;
+  UPDATED_BY            : userId;
+  UPDATED_DATETIME      : dateTime default current_timestamp;
+}
+
+entity MON_WF_TASK {
+  key TASK_INSTANCE_ID  : id;
+
+  WF_INSTANCE_ID        : id;
+  REQ_TXN_ID            : id;
+
+  TASK_DESC             : String(200);
+  TASK_SUBJ             : String(250);
+  TASK_STATUS           : String(20);
+  COMPLETION_SOURCE     : String(50);
+  USER_ACTION           : String(50);
+  ACTION_TYPE           : String(50);
+  ASSIGNED_GROUP        : String(250);
+
+  EST_COMPLETION        : dateTime;
+  ACTUAL_COMPLETION     : dateTime;
+  COMPLETED_DATE        : dateTime;
+  COMPLETED_BY          : userId;
+  SLA_DAYS              : Integer;
+
+  IS_ARCHIVED           : flag;
+  IS_DELETED            : flag;
+
+  CREATED_BY            : userId;
+  CREATED_DATETIME      : dateTime default current_timestamp;
+  UPDATED_BY            : userId;
+  UPDATED_DATETIME      : dateTime default current_timestamp;
+}
+
 entity TE_SR {
   key REQ_TXN_ID       : uuid @Core.Computed : true;
   DRAFT_ID             : String(12);
