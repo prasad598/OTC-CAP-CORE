@@ -19,7 +19,7 @@ module.exports = (srv) => {
     }
   })
 
-  srv.before('CREATE', 'workflow', async (req) => {
+  srv.before('CREATE', 'MON_WF_PROCESS', async (req) => {
     const tx = cds.transaction(req)
     try {
       req.data.REQUEST_ID = await generateCustomRequestId(tx, {
