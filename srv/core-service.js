@@ -5,6 +5,18 @@ const { generateCustomRequestId } = require('./utils/sequence')
 module.exports = (srv) => {
   const { CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
 
+  if (typeof srv.on === 'function') {
+    srv.on('error', (err) => {
+      if (err.code === 'SQLITE_CONSTRAINT' || /unique constraint/i.test(err.message)) {
+        err.statusCode = 409
+        err.message = 'Record already exists'
+      } else {
+        err.statusCode = err.statusCode || 500
+        err.message = err.message || 'Unexpected error'
+      }
+    })
+  }
+
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
     try {
