@@ -5,13 +5,13 @@ service UserService {
 }
 
 service RestService @(path: '/rest/btp/core', protocol: 'rest') {
-  entity CORE_ATTACHMENTS as projection on core.CORE_ATTACHMENTS;
+  entity CORE_ATTACHMENTS @(path: 'attachments') as projection on core.CORE_ATTACHMENTS;
 
-  entity CORE_COMMENTS as projection on core.CORE_COMMENTS;
+  entity CORE_COMMENTS @(path: 'comments') as projection on core.CORE_COMMENTS;
 
-  entity MON_WF_PROCESS as projection on core.MON_WF_PROCESS;
+  entity MON_WF_PROCESS @(path: 'workflow-process') as projection on core.MON_WF_PROCESS;
 
-  entity MON_WF_TASK as projection on core.MON_WF_TASK;
+  entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;
 
-  entity TE_SR as projection on core.TE_SR;
+  entity TE_SR @(path: 'te-servicerequest') as projection on core.TE_SR;
 }

@@ -36,11 +36,11 @@ describe('REST service endpoints', () => {
 
   it('responds with 200 for all entities', async () => {
     const endpoints = [
-      'CORE_ATTACHMENTS',
-      'CORE_COMMENTS',
-      'MON_WF_PROCESS',
-      'MON_WF_TASK',
-      'TE_SR',
+      'attachments',
+      'comments',
+      'workflow-process',
+      'workflow-task',
+      'te-servicerequest',
     ];
     for (const ep of endpoints) {
       const res = await fetch(`http://localhost:4005/rest/btp/core/${ep}`);
