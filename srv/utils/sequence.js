@@ -1,31 +1,41 @@
 const cds = require('@sap/cds')
 const { SELECT, INSERT, UPDATE } = cds.ql
 
-async function generateCustomRequestId(tx, { prefix, requestType, isDraft }) {
+async function generateCustomRequestId(tx, { prefix, requestType, isDraft = false }) {
   const now = new Date()
   const year = now.getFullYear()
   const month = String(now.getMonth() + 1).padStart(2, '0')
 
+  const entity = 'BTP.CORE_REQ_SEQ'
+  const key = { SEQ_YEAR: year }
+
   const row = await tx.run(
-    SELECT.one.from('CORE_REQ_SEQ').where({ YEAR: year })
+    SELECT.one.from(entity).where(key).forUpdate()
   )
 
+  const user = tx.user && tx.user.id
   let seq
   if (!row) {
     seq = 1
     await tx.run(
-      INSERT.into('CORE_REQ_SEQ').entries({ YEAR: year, LAST_SEQ_NO: seq })
+      INSERT.into(entity).entries({
+        SEQ_YEAR: year,
+        LAST_SEQ_NO: seq,
+        CREATED_BY: user
+      })
     )
   } else {
     seq = row.LAST_SEQ_NO + 1
     await tx.run(
-      UPDATE('CORE_REQ_SEQ').set({ LAST_SEQ_NO: seq }).where({ YEAR: year })
+      UPDATE(entity)
+        .set({ LAST_SEQ_NO: seq, UPDATED_BY: user, UPDATED_DATETIME: now })
+        .where(key)
     )
   }
 
   const base = `${prefix}${year}${month}${requestType}`
-  const draft = isDraft ? '-DRFT' : ''
   const formatted = String(seq).padStart(5, '0')
+  const draft = isDraft ? '-DRFT' : ''
   return `${base}${draft}${formatted}`
 }
 
