@@ -152,7 +152,9 @@ entity TE_SR {
 }
 
 entity CORE_REQ_SEQ {
-  key SEQ_YEAR        : Integer;
+  key SEQ_YEAR       : Integer;
+  key REQUEST_TYPE   : String(50);
+  key ID_TYPE        : String(10); // DRAFT or REQUEST
   LAST_SEQ_NO        : Integer;
   CREATED_BY         : userId;
   CREATED_DATETIME   : dateTime default current_timestamp;
