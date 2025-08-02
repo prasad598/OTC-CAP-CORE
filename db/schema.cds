@@ -120,8 +120,8 @@ entity MON_WF_TASK {
 
 entity TE_SR {
   key REQ_TXN_ID       : uuid @Core.Computed : true;
-  DRAFT_ID             : String(12);
-  REQUEST_ID           : String(14);
+  DRAFT_ID             : String(30);
+  REQUEST_ID           : String(30);
 
   REQUESTER_ID         : emailId;
   SRV_CAT_CD           : lookupCode;
@@ -149,4 +149,13 @@ entity TE_SR {
   CREATED_DATETIME     : dateTime @cds.on.insert : $now;
   UPDATED_BY           : userId;
   UPDATED_DATETIME     : dateTime @cds.on.insert : $now @cds.on.update : $now;
+}
+
+entity CORE_REQ_SEQ {
+  key SEQ_YEAR        : Integer;
+  LAST_SEQ_NO        : Integer;
+  CREATED_BY         : userId;
+  CREATED_DATETIME   : dateTime default current_timestamp;
+  UPDATED_BY         : userId;
+  UPDATED_DATETIME   : dateTime default current_timestamp;
 }
