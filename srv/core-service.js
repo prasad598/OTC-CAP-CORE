@@ -1,5 +1,5 @@
 const cds = require('@sap/cds')
-const { SELECT } = cds
+const { SELECT } = cds.ql
 
 module.exports = (srv) => {
   const { CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
