@@ -34,7 +34,8 @@ module.exports = (srv) => {
       // Step 1: Update workflow task via destination
       try {
         const wfSrv = await cds.connect.to('sap_process_automation_service')
-        await wfSrv.send({
+        const wfSrvForUser = wfSrv.tx(req)
+        await wfSrvForUser.send({
           method: 'PATCH',
           path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
           data: {
