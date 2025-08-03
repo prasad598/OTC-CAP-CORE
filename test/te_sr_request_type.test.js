@@ -15,13 +15,19 @@ describe('TE_SR draft id generation', () => {
       before: (event, entity, handler) => {
         if (event === 'CREATE' && entity === 'TE_SR') srv._beforeCreate = handler
       },
+      on: (event, entity, handler) => {
+        if (event === 'PATCH' && entity === 'TE_SR') srv._onPatch = handler
+      },
       after: () => {},
     }
     require('../srv/core-service')(srv)
   })
 
   it('hard codes REQUEST_TYPE as TE and generates draft id', async () => {
-    const req = { data: {}, user: { id: 'tester' } }
+    const req = {
+      data: { DECISION: 'DRAFT', TASK_TYPE: 'TE_REQUESTER' },
+      user: { id: 'tester' },
+    }
     await srv._beforeCreate(req)
     assert.strictEqual(req.data.REQUEST_TYPE, 'TE')
     assert.ok(req.data.DRAFT_ID)
