@@ -32,7 +32,13 @@
         "db": "hana",
         "auth": "xsuaa"
       },
-      "destinations": true
+      "destinations": true,
+      "sap_process_automation_service": {
+        "kind": "rest",
+        "credentials": {
+          "destination": "sap_process_automation"
+        }
+      }
     }
   }
 }
