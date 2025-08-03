@@ -14,4 +14,15 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;
 
   entity TE_SR @(path: 'te-servicerequest') as projection on core.TE_SR;
+
+  action processTaskUpdate(
+    REQ_TXN_ID       : UUID,
+    TASK_INSTANCE_ID : String,
+    TASK_TYPE        : String,
+    DECISION         : String,
+    CASE_BCG         : String,
+    SRC_PROB_CD      : String
+  ) returns {
+    status : String;
+  };
 }
