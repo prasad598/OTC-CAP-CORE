@@ -18,6 +18,110 @@ module.exports = (srv) => {
         err.message = err.message || 'Unexpected error'
       }
     })
+
+    srv.on('processTaskUpdate', async (req) => {
+      const {
+        TASK_INSTANCE_ID,
+        TASK_TYPE,
+        DECISION: decision,
+        REQ_TXN_ID,
+        CASE_BCG,
+        SRC_PROB_CD,
+      } = req.data
+
+      const user = req.user && req.user.id
+
+      // Step 1: Update workflow task via destination
+      try {
+        const wfSrv = await cds.connect.to('sap_process_automation_service')
+        await wfSrv.send({
+          method: 'PATCH',
+          path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
+          data: {
+            status: 'COMPLETED',
+            decision: decision && decision.toLowerCase(),
+            context: {},
+          },
+          headers: { 'Content-Type': 'application/json' },
+        })
+      } catch (error) {
+        return req.error(502, `Workflow update failed: ${error.message}`)
+      }
+
+      // Step 2: Transactional DB update
+      const tx = srv.transaction(req)
+      const now = new Date()
+      let wfInstanceId
+      try {
+        const existingTask = await tx.run(
+          SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID })
+        )
+        wfInstanceId = existingTask && existingTask.WF_INSTANCE_ID
+
+        await tx.run(
+          UPDATE('BTP.MON_WF_TASK')
+            .set({
+              USER_ACTION: decision,
+              ACTUAL_COMPLETION: now,
+              UPDATED_BY: user,
+              UPDATED_DATETIME: now,
+            })
+            .where({ TASK_INSTANCE_ID })
+        )
+
+        if (
+          TASK_TYPE === TaskType.TE_REQUESTER ||
+          TASK_TYPE === TaskType.TE_RESO ||
+          TASK_TYPE === TaskType.TE_RESO_LEAD
+        ) {
+          const statusCd = generateReqNextStatus(
+            RequestType.TE,
+            TASK_TYPE,
+            decision
+          )
+
+          await tx.run(
+            UPDATE('BTP.TE_SR')
+              .set({
+                STATUS_CD: statusCd,
+                CASE_BCG,
+                SRC_PROB_CD,
+                UPDATED_BY: user,
+                UPDATED_DATETIME: now,
+              })
+              .where({ REQ_TXN_ID })
+          )
+        }
+
+        await tx.commit()
+      } catch (error) {
+        await tx.rollback(error)
+
+        const body = [
+          `Exception: ${error.message}`,
+          `REQ_TXN_ID: ${REQ_TXN_ID}`,
+          `REQUEST_TYPE: ${RequestType.TE}`,
+          `TASK_TYPE: ${TASK_TYPE}`,
+          `DECISION: ${decision}`,
+          `TASK_INSTANCE_ID: ${TASK_INSTANCE_ID}`,
+          `WF_INSTANCE_ID: ${wfInstanceId}`,
+        ].join('\n')
+
+        await sendEmail(
+          `BTP TE Technical Error - ${REQ_TXN_ID}`,
+          'nagavaraprasad.bandaru@stengg.com',
+          'srisaisatya.mamidi@stengg.com',
+          body
+        )
+
+        return req.error(
+          500,
+          'Technical error occurred, contact system admin'
+        )
+      }
+
+      return { status: 'success' }
+    })
   }
 
   srv.before('CREATE', 'TE_SR', async (req) => {
@@ -87,107 +191,4 @@ module.exports = (srv) => {
     )
   })
 
-  srv.on('PATCH', 'TE_SR', async (req) => {
-    const {
-      TASK_INSTANCE_ID,
-      TASK_TYPE,
-      DECISION: decision,
-      REQ_TXN_ID,
-      CASE_BCG,
-      SRC_PROB_CD,
-    } = req.data
-
-    const user = req.user && req.user.id
-
-    // Step 1: Update workflow task via destination
-    try {
-      const wfSrv = await cds.connect.to('sap_process_automation_service')
-      await wfSrv.send({
-        method: 'PATCH',
-        path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
-        data: {
-          status: 'COMPLETED',
-          decision: decision && decision.toLowerCase(),
-          context: {},
-        },
-        headers: { 'Content-Type': 'application/json' },
-      })
-    } catch (error) {
-      return req.error(502, `Workflow update failed: ${error.message}`)
-    }
-
-    // Step 2: Transactional DB update
-    const tx = srv.transaction(req)
-    const now = new Date()
-    let wfInstanceId
-    try {
-      const existingTask = await tx.run(
-        SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID })
-      )
-      wfInstanceId = existingTask && existingTask.WF_INSTANCE_ID
-
-      await tx.run(
-        UPDATE('BTP.MON_WF_TASK')
-          .set({
-            USER_ACTION: decision,
-            ACTUAL_COMPLETION: now,
-            UPDATED_BY: user,
-            UPDATED_DATETIME: now,
-          })
-          .where({ TASK_INSTANCE_ID })
-      )
-
-      if (
-        TASK_TYPE === TaskType.TE_REQUESTER ||
-        TASK_TYPE === TaskType.TE_RESO ||
-        TASK_TYPE === TaskType.TE_RESO_LEAD
-      ) {
-        const statusCd = generateReqNextStatus(
-          RequestType.TE,
-          TASK_TYPE,
-          decision
-        )
-
-        await tx.run(
-          UPDATE('BTP.TE_SR')
-            .set({
-              STATUS_CD: statusCd,
-              CASE_BCG,
-              SRC_PROB_CD,
-              UPDATED_BY: user,
-              UPDATED_DATETIME: now,
-            })
-            .where({ REQ_TXN_ID })
-        )
-      }
-
-      await tx.commit()
-    } catch (error) {
-      await tx.rollback(error)
-
-      const body = [
-        `Exception: ${error.message}`,
-        `REQ_TXN_ID: ${REQ_TXN_ID}`,
-        `REQUEST_TYPE: ${RequestType.TE}`,
-        `TASK_TYPE: ${TASK_TYPE}`,
-        `DECISION: ${decision}`,
-        `TASK_INSTANCE_ID: ${TASK_INSTANCE_ID}`,
-        `WF_INSTANCE_ID: ${wfInstanceId}`,
-      ].join('\n')
-
-      await sendEmail(
-        `BTP TE Technical Error - ${REQ_TXN_ID}`,
-        'nagavaraprasad.bandaru@stengg.com',
-        'srisaisatya.mamidi@stengg.com',
-        body
-      )
-
-      return req.error(
-        500,
-        'Technical error occurred, contact system admin'
-      )
-    }
-
-    return { status: 'success' }
-  })
 }
