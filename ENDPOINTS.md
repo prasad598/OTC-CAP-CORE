@@ -156,10 +156,12 @@ Retrieves service request records.
 
 **POST** `/rest/btp/core/te-servicerequest`
 
+Submits a new service request. Provide `DECISION` as "DRAFT" or "SUBMIT" to
+have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
+
 ```json
 {
-  "DRAFT_ID": "CASE-0001",
-  "REQUEST_ID": "REQ-0001",
+  "DECISION": "DRAFT",
   "REQUESTER_ID": "requester@example.com",
   "SRV_CAT_CD": "CAT1",
   "SR_DETAILS": "Details of the service request",

@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 const assert = require('assert')
 const { describe, it, before } = require('node:test')
 
-describe('TE_SR draft id generation', () => {
+describe('TE_SR id generation based on decision', () => {
   let srv
   before(async () => {
     cds.SELECT = cds.ql.SELECT
@@ -28,9 +28,25 @@ describe('TE_SR draft id generation', () => {
       data: { DECISION: 'DRAFT', TASK_TYPE: 'TE_REQUESTER' },
       user: { id: 'tester' },
     }
+    const tx = cds.transaction(req)
     await srv._beforeCreate(req)
+    await tx.commit()
     assert.strictEqual(req.data.REQUEST_TYPE, 'TE')
     assert.ok(req.data.DRAFT_ID)
     assert.ok(req.data.DRAFT_ID.includes('TE-DRFT'))
+  })
+
+  it('generates request id when decision is SUBMIT', async () => {
+    const req = {
+      data: { DECISION: 'SUBMIT', TASK_TYPE: 'TE_REQUESTER' },
+      user: { id: 'tester' },
+    }
+    const tx = cds.transaction(req)
+    await srv._beforeCreate(req)
+    await tx.commit()
+    assert.strictEqual(req.data.REQUEST_TYPE, 'TE')
+    assert.ok(req.data.REQUEST_ID)
+    assert.ok(!req.data.REQUEST_ID.includes('DRFT'))
+    assert.ok(!req.data.DRAFT_ID)
   })
 })
