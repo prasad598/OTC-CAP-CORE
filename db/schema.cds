@@ -122,6 +122,7 @@ entity TE_SR {
   key REQ_TXN_ID       : uuid @Core.Computed : true;
   DRAFT_ID             : String(30);
   REQUEST_ID           : String(30);
+  DECISION             : String(10) @cds.persistence.skip;
 
   REQUESTER_ID         : emailId;
   SRV_CAT_CD           : lookupCode;
