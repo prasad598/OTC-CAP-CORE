@@ -28,7 +28,7 @@ service ReportService {
   @readonly
   entity TE_REPORT_VIEW as select from core.TE_SR as sr
     left outer join (
-    select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, ACTION_TYPE, UPDATED_DATETIME }
+    select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, UPDATED_DATETIME }
     where t.UPDATED_DATETIME = (
         select max(x.UPDATED_DATETIME)
         from core.MON_WF_TASK as x
@@ -57,7 +57,7 @@ service ReportService {
     concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME,
 
     task.ASSIGNED_GROUP,
-    task.ACTION_TYPE     as TASK_TYPE
+    task.TASK_TYPE
   };
 
   entity CONFIG_LDATA as projection on core.CONFIG_LDATA;
