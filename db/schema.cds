@@ -17,6 +17,8 @@ using {
   BTP.shortText
 } from './types';
 
+using { commonTypes } from './commonTypes';
+
 namespace BTP;
 
 entity CORE_USERS {
@@ -161,4 +163,34 @@ entity CORE_REQ_SEQ {
   CREATED_DATETIME   : dateTime default current_timestamp;
   UPDATED_BY         : userId;
   UPDATED_DATETIME   : dateTime default current_timestamp;
+}
+
+entity AUTH_MATRIX {
+  key ASSIGNED_GROUP    : commonTypes.lookupCode;
+  key USER_EMAIL        : commonTypes.emailId;
+  FIELD1                : commonTypes.field50;
+  FIELD2                : commonTypes.field50;
+  FIELD3                : commonTypes.field100;
+  CREATED_BY            : commonTypes.userId;
+  CREATED_TIMESTAMP     : commonTypes.dateTime;
+  UPDATED_BY            : commonTypes.userId;
+  UPDATED_TIMESTAMP     : commonTypes.dateTime;
+}
+
+entity CONFIG_LDATA {
+  key PROJECT           : String(10) not null;
+  key OBJECT            : String(10) not null;
+  key CODE              : String(10) not null;
+  DESC                  : String(100) not null;
+  FIELD1                : commonTypes.field50;
+  FIELD2                : commonTypes.field50;
+  FIELD3                : commonTypes.field50;
+  FIELD4                : commonTypes.field50;
+  FIELD5                : commonTypes.field50;
+  FIELD6                : commonTypes.field100;
+  ACTIVE_FLAG           : String(1);
+  CREATED_BY            : commonTypes.userId not null;
+  CREATED_TIMESTAMP     : commonTypes.dateTime not null;
+  UPDATED_BY            : commonTypes.userId not null;
+  UPDATED_TIMESTAMP     : commonTypes.dateTime not null;
 }
