@@ -131,6 +131,7 @@ Lists workflow tasks.
   "COMPLETION_SOURCE": "manual",
   "USER_ACTION": "approve",
   "ACTION_TYPE": "decision",
+  "TASK_TYPE": "TE_REQUESTER",
   "ASSIGNED_GROUP": "Approvers",
   "EST_COMPLETION": "2024-01-02T00:00:00Z",
   "ACTUAL_COMPLETION": "2024-01-03T00:00:00Z",

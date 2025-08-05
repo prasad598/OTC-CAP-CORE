@@ -103,6 +103,7 @@ entity MON_WF_TASK {
   COMPLETION_SOURCE     : String(50);
   USER_ACTION           : String(50);
   ACTION_TYPE           : String(50);
+  TASK_TYPE             : lookupCode;
   ASSIGNED_GROUP        : String(250);
 
   EST_COMPLETION        : dateTime;
