@@ -40,6 +40,7 @@ service ReportService {
     left outer join core.CONFIG_LDATA as status on status.CODE = sr.STATUS_CD and status.OBJECT = 'STATUS'
     left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.OBJECT = 'ENTITY'
   {
+    key sr.REQ_TXN_ID   as REQ_TXN_ID,
     sr.REQUEST_ID       as CASE_ID,
     sr.SRV_CAT_CD       as SERVICE_CATEGORY_CODE,
     cat.DESC            as SERVICE_CATEGORY,
@@ -54,7 +55,7 @@ service ReportService {
 
     sr.CREATED_BY       as CREATED_BY_EMAIL,
     user.USER_ID        as CREATED_BY,
-    concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME,
+    concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
 
     task.ASSIGNED_GROUP,
     task.TASK_TYPE
