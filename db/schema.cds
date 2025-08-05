@@ -1,101 +1,82 @@
-using {
-  BTP.id,
-  BTP.emailId,
-  BTP.mobile,
-  BTP.fName,
-  BTP.booleanYN,
-  BTP.userId,
-  BTP.uuid,
-  BTP.fileName,
-  BTP.fileSize,
-  BTP.filePath,
-  BTP.mimeType,
-  BTP.userType,
-  BTP.flag,
-  BTP.dateTime,
-  BTP.lookupCode,
-  BTP.shortText
-} from './types';
-
 using { commonTypes } from './commonTypes';
 
 namespace BTP;
 
 entity CORE_USERS {
-  key USER_EMAIL : emailId;
-  USER_ID        : id;
-  USER_HP        : mobile;
-  USER_FNAME     : fName;
-  USER_LNAME     : fName;
-  IS_ACTIVE      : booleanYN;
+  key USER_EMAIL : commonTypes.emailId;
+  USER_ID        : commonTypes.id;
+  USER_HP        : commonTypes.mobile;
+  USER_FNAME     : commonTypes.fName;
+  USER_LNAME     : commonTypes.fName;
+  IS_ACTIVE      : commonTypes.booleanYN;
   CREATED_AT     : Timestamp;
-  CREATED_BY     : userId;
+  CREATED_BY     : commonTypes.userId;
   UPDATED_AT     : Timestamp;
-  UPDATED_BY     : userId;
+  UPDATED_BY     : commonTypes.userId;
 }
 
 entity CORE_ATTACHMENTS {
-  key UUID           : uuid    @Core.Computed : true;
-  REQ_TXN_ID         : id      not null;
+  key UUID           : commonTypes.uuid    @Core.Computed : true;
+  REQ_TXN_ID         : commonTypes.id      not null;
   REQUEST_NO         : String(14);
-  FILE_NAME          : fileName not null;
-  FILE_SIZE          : fileSize;
-  FILE_PATH          : filePath not null;
-  MIME_TYPE          : mimeType not null;
+  FILE_NAME          : commonTypes.fileName not null;
+  FILE_SIZE          : commonTypes.fileSize;
+  FILE_PATH          : commonTypes.filePath not null;
+  MIME_TYPE          : commonTypes.mimeType not null;
   DOCUMENT_TYPE      : String(50);
   PROJECT_TYPE       : String(30) not null;
-  USER_TYPE          : userType; // Requester Approver
+  USER_TYPE          : commonTypes.userType; // Requester Approver
   RESTRICTED_USR_TY  : String(255);
-  INC_AS_ATTACHMENT  : flag;
-  IS_ARCHIVED        : flag;
-  ARCH_FILE_PATH     : filePath;
-  CREATED_BY         : userId not null;
-  CREATED_DATE       : dateTime default current_timestamp not null;
+  INC_AS_ATTACHMENT  : commonTypes.flag;
+  IS_ARCHIVED        : commonTypes.flag;
+  ARCH_FILE_PATH     : commonTypes.filePath;
+  CREATED_BY         : commonTypes.userId not null;
+  CREATED_DATE       : commonTypes.dateTime default current_timestamp not null;
 }
 
 entity CORE_COMMENTS {
-  key UUID           : uuid @Core.Computed : true;
-  REQ_TXN_ID         : uuid not null;
+  key UUID           : commonTypes.uuid @Core.Computed : true;
+  REQ_TXN_ID         : commonTypes.uuid not null;
   REQUEST_NO         : String(14);
-  COMMENTS           : shortText not null;
+  COMMENTS           : commonTypes.shortText not null;
   COMMENT_TYPE       : String(30); // type - document , milestone
   COMMENT_EVENT      : String(30); // title - Service Request Created
-  USER_TYPE          : userType; // role - Expense Controller
-  EVENT_STATUS_CD    : lookupCode;
-  CREATED_BY         : userId not null; // author
-  CREATED_DATE       : dateTime default current_timestamp not null;
+  USER_TYPE          : commonTypes.userType; // role - Expense Controller
+  EVENT_STATUS_CD    : commonTypes.lookupCode;
+  CREATED_BY         : commonTypes.userId not null; // author
+  CREATED_DATE       : commonTypes.dateTime default current_timestamp not null;
 }
 
 entity MON_WF_PROCESS {
-  key WF_INSTANCE_ID    : id;
+  key WF_INSTANCE_ID    : commonTypes.id;
 
   WF_DESC               : String(255);
   WF_SUBJ               : String(255);
   WF_STATUS             : String(20);
   REQUEST_TYPE          : String(50);
   REQUEST_ID            : String(50);
-  REQ_TXN_ID            : id;
+  REQ_TXN_ID            : commonTypes.id;
 
-  EST_COMPLETION        : dateTime;
-  ACTUAL_COMPLETION     : dateTime;
-  COMPLETED_BY          : userId;
+  EST_COMPLETION        : commonTypes.dateTime;
+  ACTUAL_COMPLETION     : commonTypes.dateTime;
+  COMPLETED_BY          : commonTypes.userId;
   SLA_DAYS              : Integer;
 
-  IS_ACTIVE             : flag;
-  IS_ARCHIVED           : flag;
-  IS_DELETED            : flag;
+  IS_ACTIVE             : commonTypes.flag;
+  IS_ARCHIVED           : commonTypes.flag;
+  IS_DELETED            : commonTypes.flag;
 
-  CREATED_BY            : userId;
-  CREATED_DATETIME      : dateTime default current_timestamp;
-  UPDATED_BY            : userId;
-  UPDATED_DATETIME      : dateTime default current_timestamp;
+  CREATED_BY            : commonTypes.userId;
+  CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
+  UPDATED_BY            : commonTypes.userId;
+  UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
 entity MON_WF_TASK {
-  key TASK_INSTANCE_ID  : id;
+  key TASK_INSTANCE_ID  : commonTypes.id;
 
-  WF_INSTANCE_ID        : id;
-  REQ_TXN_ID            : id;
+  WF_INSTANCE_ID        : commonTypes.id;
+  REQ_TXN_ID            : commonTypes.id;
 
   TASK_DESC             : String(200);
   TASK_SUBJ             : String(250);
@@ -103,56 +84,56 @@ entity MON_WF_TASK {
   COMPLETION_SOURCE     : String(50);
   USER_ACTION           : String(50);
   ACTION_TYPE           : String(50);
-  TASK_TYPE             : lookupCode;
+  TASK_TYPE             : commonTypes.lookupCode;
   ASSIGNED_GROUP        : String(250);
 
-  EST_COMPLETION        : dateTime;
-  ACTUAL_COMPLETION     : dateTime;
-  COMPLETED_DATE        : dateTime;
-  COMPLETED_BY          : userId;
+  EST_COMPLETION        : commonTypes.dateTime;
+  ACTUAL_COMPLETION     : commonTypes.dateTime;
+  COMPLETED_DATE        : commonTypes.dateTime;
+  COMPLETED_BY          : commonTypes.userId;
   SLA_DAYS              : Integer;
 
-  IS_ARCHIVED           : flag;
-  IS_DELETED            : flag;
+  IS_ARCHIVED           : commonTypes.flag;
+  IS_DELETED            : commonTypes.flag;
 
-  CREATED_BY            : userId;
-  CREATED_DATETIME      : dateTime default current_timestamp;
-  UPDATED_BY            : userId;
-  UPDATED_DATETIME      : dateTime default current_timestamp;
+  CREATED_BY            : commonTypes.userId;
+  CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
+  UPDATED_BY            : commonTypes.userId;
+  UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
 entity TE_SR {
-  key REQ_TXN_ID       : uuid @Core.Computed : true;
+  key REQ_TXN_ID       : commonTypes.uuid @Core.Computed : true;
   DRAFT_ID             : String(30);
   REQUEST_ID           : String(30);
   DECISION             : String(10) @cds.persistence.skip;
 
-  REQUESTER_ID         : emailId;
-  SRV_CAT_CD           : lookupCode;
-  SR_DETAILS           : shortText;
+  REQUESTER_ID         : commonTypes.emailId;
+  SRV_CAT_CD           : commonTypes.lookupCode;
+  SR_DETAILS           : commonTypes.shortText;
   CASE_REQ_ID          : String(14);
-  REQ_FOR_NAME         : fName;
-  REQ_FOR_EMAIL        : emailId;
+  REQ_FOR_NAME         : commonTypes.fName;
+  REQ_FOR_EMAIL        : commonTypes.emailId;
   REPORT_NO            : String(14);
   CASE_PRIO            : String(1);
-  ENTITY_CD            : lookupCode;
-  SECTOR_CD            : lookupCode;
-  STATUS_CD            : lookupCode;
-  RESOLUTION_RES       : shortText;
-  CASE_BCG             : shortText;
-  SRC_PROB_CD          : lookupCode;
+  ENTITY_CD            : commonTypes.lookupCode;
+  SECTOR_CD            : commonTypes.lookupCode;
+  STATUS_CD            : commonTypes.lookupCode;
+  RESOLUTION_RES       : commonTypes.shortText;
+  CASE_BCG             : commonTypes.shortText;
+  SRC_PROB_CD          : commonTypes.lookupCode;
 
-  IS_CLAR_REQ          : booleanYN;
-  IS_CLAR_REQ_DATETIME : dateTime;
-  IS_ESCALATED         : booleanYN;
-  ESCALATED_DATETIME   : dateTime;
-  IS_CONFIRMED         : booleanYN;
-  CONFIRMED_DATETIME   : dateTime;
+  IS_CLAR_REQ          : commonTypes.booleanYN;
+  IS_CLAR_REQ_DATETIME : commonTypes.dateTime;
+  IS_ESCALATED         : commonTypes.booleanYN;
+  ESCALATED_DATETIME   : commonTypes.dateTime;
+  IS_CONFIRMED         : commonTypes.booleanYN;
+  CONFIRMED_DATETIME   : commonTypes.dateTime;
 
-  CREATED_BY           : userId;
-  CREATED_DATETIME     : dateTime @cds.on.insert : $now;
-  UPDATED_BY           : userId;
-  UPDATED_DATETIME     : dateTime @cds.on.insert : $now @cds.on.update : $now;
+  CREATED_BY           : commonTypes.userId;
+  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
+  UPDATED_BY           : commonTypes.userId;
+  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
 entity CORE_REQ_SEQ {
@@ -160,10 +141,10 @@ entity CORE_REQ_SEQ {
   key REQUEST_TYPE   : String(50);
   key ID_TYPE        : String(10); // DRAFT or REQUEST
   LAST_SEQ_NO        : Integer;
-  CREATED_BY         : userId;
-  CREATED_DATETIME   : dateTime default current_timestamp;
-  UPDATED_BY         : userId;
-  UPDATED_DATETIME   : dateTime default current_timestamp;
+  CREATED_BY         : commonTypes.userId;
+  CREATED_DATETIME   : commonTypes.dateTime default current_timestamp;
+  UPDATED_BY         : commonTypes.userId;
+  UPDATED_DATETIME   : commonTypes.dateTime default current_timestamp;
 }
 
 entity AUTH_MATRIX {

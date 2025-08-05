@@ -1,6 +1,6 @@
 namespace commonTypes;
 
-type lookupCode : String(10);
+type lookupCode : String(30);
 type emailId    : String(241);
 type field50    : String(50);
 type field100   : String(100);
@@ -12,3 +12,12 @@ type fName      : String(40);
 type cc         : String(10);
 type department : String(100);
 type entity     : String(100);
+type booleanYN  : String(1);
+type uuid       : UUID;
+type fileName   : String(255);
+type fileSize   : Integer;
+type filePath   : String(1024);
+type mimeType   : String(100);
+type userType   : String(50);
+type flag       : String(1);
+type shortText  : String(255);
