@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 const { SELECT, UPDATE } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
-const { Decision, RequestType, TaskType } = require('./utils/enums')
+const { Decision, RequestType, TaskType, Status } = require('./utils/enums')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 
@@ -125,6 +125,19 @@ module.exports = (srv) => {
               })
               .where({ REQ_TXN_ID })
           )
+
+          if (statusCd === Status.RESOLVED && wfInstanceId) {
+            await tx.run(
+              UPDATE('BTP.MON_WF_PROCESS')
+                .set({
+                  WF_STATUS: 'COMPLETED',
+                  UPDATED_BY: user,
+                  COMPLETED_BY: user,
+                  ACTUAL_COMPLETION: now,
+                })
+                .where({ WF_INSTANCE_ID: wfInstanceId })
+            )
+          }
         }
 
         await tx.commit()
