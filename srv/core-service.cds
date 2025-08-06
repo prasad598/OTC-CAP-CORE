@@ -28,7 +28,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 }
 
 service ReportService {
-  @cds.persistence.exists
+  
   @readonly
   entity TE_REPORT_VIEW as select from core.TE_SR as sr
     left outer join (
