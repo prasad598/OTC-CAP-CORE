@@ -4,6 +4,39 @@ const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
 const { Decision, RequestType, TaskType } = require('./utils/enums')
 const { sendEmail } = require('./utils/mail')
+const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
+
+async function triggerWorkflow(te_sr) {
+  const workflowPayload = {
+    definitionId:
+      'us10.stengg-sap-btp-qas.stecasemanagement.caseManagementMainProcess',
+    context: {
+      caseDetails: {
+        CaseType: 'TE',
+        Priority: 'HIGH',
+        RequestId: te_sr.REQUEST_ID,
+        RequesterEmail: te_sr.CREATED_BY,
+        RequesterId: te_sr.REQUESTER_ID,
+        SRCategory: te_sr.SRV_CAT_CD,
+        TransactionId: te_sr.REQ_TXN_ID,
+      },
+    },
+  }
+
+  try {
+    const response = await executeHttpRequest(
+      { destinationName: 'sap_process_automation_service' },
+      {
+        method: 'POST',
+        url: '/public/workflow/rest/v1/workflow-instances',
+        data: workflowPayload,
+      }
+    )
+    console.log('Workflow triggered successfully:', response.data)
+  } catch (err) {
+    console.error('Error triggering workflow:', err.message)
+  }
+}
 
 module.exports = (srv) => {
   const { CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
@@ -144,6 +177,52 @@ module.exports = (srv) => {
       }
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
+    }
+  })
+
+  srv.before('PATCH', 'TE_SR', async (req) => {
+    if (!req.data || !req.data.REQ_TXN_ID) return
+    const tx = cds.transaction(req)
+    try {
+      const { REQUEST_ID } = await tx.run(
+        SELECT.one.from('BTP.TE_SR').columns('REQUEST_ID').where({
+          REQ_TXN_ID: req.data.REQ_TXN_ID,
+        })
+      )
+      req._oldRequestId = REQUEST_ID
+      if (!REQUEST_ID && req.data.DECISION === Decision.SUBMIT) {
+        req.data.REQUEST_ID = await generateCustomRequestId(tx, {
+          prefix: 'CASE',
+          requestType: RequestType.TE,
+        })
+      }
+    } catch (error) {
+      req.error(500, `Failed to prepare TE_SR: ${error.message}`)
+    }
+  })
+
+  srv.after('CREATE', 'TE_SR', async (data, req) => {
+    if (!data || !data.REQUEST_ID) return
+    try {
+      await triggerWorkflow(data)
+    } catch (error) {
+      req.warn(`Workflow trigger failed: ${error.message}`)
+    }
+  })
+
+  srv.after('PATCH', 'TE_SR', async (_, req) => {
+    if (!req.data || !req.data.REQ_TXN_ID) return
+    if (req._oldRequestId) return
+    try {
+      const tx = srv.transaction(req)
+      const latest = await tx.run(
+        SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
+      )
+      if (latest && latest.REQUEST_ID) {
+        await triggerWorkflow(latest)
+      }
+    } catch (error) {
+      req.warn(`Workflow trigger failed: ${error.message}`)
     }
   })
 
