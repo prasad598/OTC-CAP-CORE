@@ -16,7 +16,7 @@ function generateReqNextStatus(requestType, taskType, decision) {
       case TaskType.TE_RESO:
         switch (decision) {
           case Decision.APPROVED:
-            return Status.CLOSED;
+            return Status.RESOLVED;
           case Decision.REJECT:
             return Status['RE-SUBMIT'];
           case Decision.ESCALATED:
@@ -27,7 +27,7 @@ function generateReqNextStatus(requestType, taskType, decision) {
       case TaskType.TE_RESO_LEAD:
         switch (decision) {
           case Decision.APPROVED:
-            return Status.CLOSED;
+            return Status.RESOLVED;
           case Decision.REJECT:
             return Status['RE-SUBMIT'];
           default:

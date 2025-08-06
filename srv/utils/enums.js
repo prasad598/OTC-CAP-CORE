@@ -24,6 +24,7 @@ const Status = Object.freeze({
   'RE-SUBMIT': 'RE-SUBMIT',
   PR: 'PR',
   PRL: 'PRL',
+  RESOLVED: 'RESOLVED',
   CLOSED: 'CLOSED',
   ERROR: 'ERROR'
 });
