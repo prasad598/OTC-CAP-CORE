@@ -68,6 +68,6 @@ service ReportService {
   entity CONFIG_LDATA as projection on core.CONFIG_LDATA;
 }
 
-service WorkflowService @(path: '/workflow') {
+service WorkflowService {
   entity MON_WF_TASK @(path: '') as projection on core.MON_WF_TASK;
 }
