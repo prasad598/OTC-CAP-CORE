@@ -199,3 +199,22 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
 }
 ```
 
+---
+
+## /odata/v4/workflow
+
+**POST** `/odata/v4/workflow`
+
+Creates a workflow task using the same logic as the REST endpoint. Provide the
+`SWF_INSTANCE_ID` to retrieve task details from the workflow service. Fields
+such as `TASK_INSTANCE_ID`, `TASK_STATUS`, `TASK_SUBJ`, and `ASSIGNED_GROUP` are
+populated automatically.
+
+```json
+{
+  "WF_INSTANCE_ID": 1,
+  "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
+  "REQ_TXN_ID": 1001
+}
+```
+
