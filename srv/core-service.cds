@@ -5,6 +5,10 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
   entity CORE_COMMENTS @(path: 'comments') as projection on core.CORE_COMMENTS;
 
+  entity CORE_USERS @(path: 'users') as projection on core.CORE_USERS;
+
+  entity AUTH_MATRIX @(path: 'auth-matrix') as projection on core.AUTH_MATRIX;
+
   entity MON_WF_PROCESS @(path: 'workflow-process') as projection on core.MON_WF_PROCESS;
 
   entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;

@@ -37,7 +37,9 @@ describe('REST service endpoints', () => {
   it('responds with 200 for all entities', async () => {
     const endpoints = [
       'attachments',
+      'auth-matrix',
       'comments',
+      'users',
       'workflow-process',
       'workflow-task',
       'te-servicerequest',

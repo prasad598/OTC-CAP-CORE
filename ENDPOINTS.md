@@ -2,13 +2,13 @@
 
 Below are the REST paths and example payloads for the services exposed by this project.
 
-## /UserService/CORE_USERS
+## /rest/btp/core/users
 
-**GET** `/UserService/CORE_USERS`
+**GET** `/rest/btp/core/users`
 
 Returns a list of user records.
 
-**POST** `/UserService/CORE_USERS`
+**POST** `/rest/btp/core/users`
 
 ```json
 {
@@ -49,7 +49,31 @@ Retrieves uploaded attachments.
   "IS_ARCHIVED": "N",
   "ARCH_FILE_PATH": "/archive/document.pdf",
   "CREATED_BY": "admin",
-  "CREATED_DATE": "2024-01-01T00:00:00Z"
+"CREATED_DATE": "2024-01-01T00:00:00Z"
+}
+```
+
+---
+
+## /rest/btp/core/auth-matrix
+
+**GET** `/rest/btp/core/auth-matrix`
+
+Retrieves authorization matrix records.
+
+**POST** `/rest/btp/core/auth-matrix`
+
+```json
+{
+  "ASSIGNED_GROUP": "Approvers",
+  "USER_EMAIL": "user@example.com",
+  "FIELD1": "value1",
+  "FIELD2": "value2",
+  "FIELD3": "value3",
+  "CREATED_BY": "admin",
+  "CREATED_TIMESTAMP": "2024-01-01T00:00:00Z",
+  "UPDATED_BY": "admin",
+  "UPDATED_TIMESTAMP": "2024-01-01T00:00:00Z"
 }
 ```
 
