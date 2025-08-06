@@ -144,30 +144,15 @@ Lists workflow tasks.
 
 **POST** `/rest/btp/core/workflow-task`
 
+Provide the `SWF_INSTANCE_ID` to retrieve task details from the workflow
+service. Fields such as `TASK_INSTANCE_ID`, `TASK_STATUS`, `TASK_SUBJ`, and
+`ASSIGNED_GROUP` are populated automatically.
+
 ```json
 {
-  "TASK_INSTANCE_ID": 1,
   "WF_INSTANCE_ID": 1,
-  "REQ_TXN_ID": 1001,
-  "TASK_DESC": "Task description",
-  "TASK_SUBJ": "Task subject",
-  "TASK_STATUS": "OPEN",
-  "COMPLETION_SOURCE": "manual",
-  "USER_ACTION": "approve",
-  "ACTION_TYPE": "decision",
-  "TASK_TYPE": "TE_REQUESTER",
-  "ASSIGNED_GROUP": "Approvers",
-  "EST_COMPLETION": "2024-01-02T00:00:00Z",
-  "ACTUAL_COMPLETION": "2024-01-03T00:00:00Z",
-  "COMPLETED_DATE": "2024-01-03T00:00:00Z",
-  "COMPLETED_BY": "user@example.com",
-  "SLA_DAYS": 5,
-  "IS_ARCHIVED": "N",
-  "IS_DELETED": "N",
-  "CREATED_BY": "admin",
-  "CREATED_DATETIME": "2024-01-01T00:00:00Z",
-  "UPDATED_BY": "admin",
-  "UPDATED_DATETIME": "2024-01-01T00:00:00Z"
+  "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
+  "REQ_TXN_ID": 1001
 }
 ```
 

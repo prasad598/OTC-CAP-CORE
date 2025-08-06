@@ -251,6 +251,35 @@ module.exports = (srv) => {
     }
   })
 
+  srv.before('CREATE', 'MON_WF_TASK', async (req) => {
+    const { SWF_INSTANCE_ID } = req.data
+    if (!SWF_INSTANCE_ID) return
+
+    try {
+      const wfSrv = await cds.connect.to('sap_process_automation_service')
+      const wfSrvForUser = wfSrv.tx(req)
+      const tasks = await wfSrvForUser.send({
+        method: 'GET',
+        path: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
+      })
+
+      if (Array.isArray(tasks) && tasks.length > 0) {
+        const task = tasks[0]
+        req.data.TASK_INSTANCE_ID = task.id
+        req.data.SWF_INSTANCE_ID = task.workflowInstanceId
+        req.data.TASK_STATUS = task.status
+        req.data.TASK_SUBJ = task.subject
+        req.data.ASSIGNED_GROUP =
+          Array.isArray(task.recipientGroups) && task.recipientGroups.length > 0
+            ? task.recipientGroups[0]
+            : null
+        req.data.CREATED_DATETIME = task.createdAt
+      }
+    } catch (error) {
+      req.error(502, `Failed to fetch task instance: ${error.message}`)
+    }
+  })
+
   srv.after('READ', 'TE_SR', async (results, req) => {
     if (results == null) return
     const db = srv.transaction(req)

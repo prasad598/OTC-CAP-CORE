@@ -76,6 +76,7 @@ entity MON_WF_TASK {
   key TASK_INSTANCE_ID  : commonTypes.id;
 
   WF_INSTANCE_ID        : commonTypes.id;
+  SWF_INSTANCE_ID       : commonTypes.id;
   REQ_TXN_ID            : commonTypes.id;
 
   TASK_DESC             : String(200);
