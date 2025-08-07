@@ -146,7 +146,8 @@ Lists workflow tasks.
 
 Provide the `SWF_INSTANCE_ID` to retrieve task details from the workflow
 service. Fields such as `TASK_INSTANCE_ID`, `TASK_STATUS`, `TASK_SUBJ`, and
-`ASSIGNED_GROUP` are populated automatically.
+`ASSIGNED_GROUP` are populated automatically. Any `TASK_INSTANCE_ID` supplied
+in the request body is ignored.
 
 ```json
 {

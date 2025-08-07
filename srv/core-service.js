@@ -253,6 +253,9 @@ module.exports = (srv) => {
 
   srv.before('CREATE', 'MON_WF_TASK', async (req) => {
     const { SWF_INSTANCE_ID } = req.data
+
+    delete req.data.TASK_INSTANCE_ID
+
     if (!SWF_INSTANCE_ID) return
 
     try {
@@ -274,6 +277,8 @@ module.exports = (srv) => {
             ? task.recipientGroups[0]
             : null
         req.data.CREATED_DATETIME = task.createdAt
+      } else {
+        req.error(404, `No task instance found for workflowInstanceId ${SWF_INSTANCE_ID}`)
       }
     } catch (error) {
       req.error(502, `Failed to fetch task instance: ${error.message}`)
