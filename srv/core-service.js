@@ -133,7 +133,7 @@ module.exports = (srv) => {
 
         if (
           TASK_TYPE === TaskType.TE_REQUESTER ||
-          TASK_TYPE === TaskType.TE_RESO ||
+          TASK_TYPE === TaskType.TE_RESO_TEAM ||
           TASK_TYPE === TaskType.TE_RESO_LEAD
         ) {
           const statusCd = generateReqNextStatus(
@@ -154,7 +154,7 @@ module.exports = (srv) => {
               .where({ REQ_TXN_ID })
           )
 
-          if (statusCd === Status.RESOLVED && wfInstanceId) {
+          if (statusCd === Status.RSL && wfInstanceId) {
             await tx.run(
               UPDATE('BTP.MON_WF_PROCESS')
                 .set({
@@ -204,13 +204,13 @@ module.exports = (srv) => {
       req.data.REQUEST_TYPE = RequestType.TE
       req.data.TASK_TYPE = TaskType.TE_REQUESTER
       const decision = req.data.DECISION
-      if (decision === Decision.DRAFT) {
+      if (decision === Decision.DRF) {
         req.data.DRAFT_ID = await generateCustomRequestId(tx, {
           prefix: 'CASE',
           requestType: req.data.REQUEST_TYPE,
           isDraft: true,
         })
-      } else if (decision === Decision.SUBMIT) {
+      } else if (decision === Decision.SUB) {
         req.data.REQUEST_ID = await generateCustomRequestId(tx, {
           prefix: 'CASE',
           requestType: req.data.REQUEST_TYPE,
@@ -236,7 +236,7 @@ module.exports = (srv) => {
         })
       )
       req._oldRequestId = REQUEST_ID
-      if (!REQUEST_ID && req.data.DECISION === Decision.SUBMIT) {
+      if (!REQUEST_ID && req.data.DECISION === Decision.SUB) {
         req.data.REQUEST_ID = await generateCustomRequestId(tx, {
           prefix: 'CASE',
           requestType: RequestType.TE,
@@ -348,7 +348,7 @@ module.exports = (srv) => {
           item.CORE_ATTACHMENTS = []
         }
         try {
-          if (['PRT', 'PRL', 'CLR'].includes(item.STATUS_CD)) {
+          if ([Status.PRT, Status.PRL, Status.CLD].includes(item.STATUS_CD)) {
             item.MON_WF_TASK = await db.run(
               SELECT.one.from(MON_WF_TASK)
                 .where({ REQ_TXN_ID: key })
