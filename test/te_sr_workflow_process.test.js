@@ -34,7 +34,7 @@ describe('TE_SR workflow process logging', () => {
   it('creates MON_WF_PROCESS entry when workflow triggered', async () => {
     const data = {
       REQUEST_ID: 'REQ123',
-      REQ_TXN_ID: 'TXN123',
+      REQ_TXN_ID: '00000000-0000-0000-0000-000000000123',
       CREATED_BY: 'creator@example.com',
     }
     const req = { user: { id: 'tester' }, warn: () => {} }
@@ -43,7 +43,7 @@ describe('TE_SR workflow process logging', () => {
     assert.strictEqual(record.WF_INSTANCE_ID, wfResponse.id)
     assert.strictEqual(record.WF_STATUS, wfResponse.status)
     assert.strictEqual(record.REQUEST_ID, 'REQ123')
-    assert.strictEqual(record.REQ_TXN_ID, 'TXN123')
+    assert.strictEqual(record.REQ_TXN_ID, '00000000-0000-0000-0000-000000000123')
     assert.strictEqual(record.CREATED_BY, 'tester')
   })
 })

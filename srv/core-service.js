@@ -64,10 +64,18 @@ module.exports = (srv) => {
       if (err.code === 'SQLITE_CONSTRAINT' || /unique constraint/i.test(err.message)) {
         err.statusCode = 409
         err.message = 'Record already exists'
-      } else {
-        err.statusCode = err.statusCode || 500
-        err.message = err.message || 'Unexpected error'
+        return
       }
+      if (err.response && err.response.data && err.response.data.message) {
+        err.statusCode = err.response.status
+        err.message = err.response.data.message
+        return
+      }
+      if (err.cause && err.cause.message) {
+        err.message = err.cause.message
+      }
+      err.statusCode = err.statusCode || 500
+      err.message = err.message || 'Unexpected error'
     })
 
     srv.on('processTaskUpdate', async (req) => {
@@ -113,7 +121,8 @@ module.exports = (srv) => {
         await tx.run(
           UPDATE('BTP.MON_WF_TASK')
             .set({
-              USER_ACTION: decision,
+              DECISION: decision,
+              PROCESSOR: user,
               ACTUAL_COMPLETION: now,
               UPDATED_BY: user,
               UPDATED_DATETIME: now,
@@ -150,7 +159,6 @@ module.exports = (srv) => {
                 .set({
                   WF_STATUS: 'COMPLETED',
                   UPDATED_BY: user,
-                  COMPLETED_BY: user,
                   ACTUAL_COMPLETION: now,
                 })
                 .where({ WF_INSTANCE_ID: wfInstanceId })

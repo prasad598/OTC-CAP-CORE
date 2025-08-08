@@ -29,4 +29,26 @@ const Status = Object.freeze({
   ERROR: 'ERROR'
 });
 
-module.exports = { Decision, TaskType, RequestType, Status };
+const UserType = Object.freeze({});
+
+const CommentType = Object.freeze({
+  DOCUMENT: 'document',
+  MILESTONE: 'milestone'
+});
+
+const CommentEvent = Object.freeze({
+  SERVICE_REQUEST_CREATED: 'Service Request Created'
+});
+
+const EventStatus = Object.freeze({});
+
+module.exports = {
+  Decision,
+  TaskType,
+  RequestType,
+  Status,
+  UserType,
+  CommentType,
+  CommentEvent,
+  EventStatus
+};
