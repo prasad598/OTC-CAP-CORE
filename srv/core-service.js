@@ -193,6 +193,7 @@ module.exports = (srv) => {
     const tx = cds.transaction(req)
     try {
       req.data.REQUEST_TYPE = RequestType.TE
+      req.data.TASK_TYPE = TaskType.TE_REQUESTER
       const decision = req.data.DECISION
       if (decision === Decision.DRAFT) {
         req.data.DRAFT_ID = await generateCustomRequestId(tx, {
@@ -206,6 +207,11 @@ module.exports = (srv) => {
           requestType: req.data.REQUEST_TYPE,
         })
       }
+      req.data.STATUS_CD = generateReqNextStatus(
+        RequestType.TE,
+        req.data.TASK_TYPE,
+        decision
+      )
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
     }
