@@ -40,9 +40,9 @@ service ReportService {
       )
     ) as task on sr.REQ_TXN_ID = task.REQ_TXN_ID
     left outer join core.CORE_USERS as user on sr.CREATED_BY = user.USER_EMAIL
-    left outer join core.CONFIG_LDATA as cat on cat.CODE = sr.SRV_CAT_CD and cat.OBJECT = 'SRV_CAT'
-    left outer join core.CONFIG_LDATA as status on status.CODE = sr.STATUS_CD and status.OBJECT = 'STATUS'
-    left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.OBJECT = 'ENTITY'
+    left outer join core.CONFIG_LDATA as cat on cat.CODE = sr.SRV_CAT_CD and cat.REQUEST_TYPE = 'SRV_CAT'
+    left outer join core.CONFIG_LDATA as status on status.CODE = sr.STATUS_CD and status.REQUEST_TYPE = 'STATUS'
+    left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.REQUEST_TYPE = 'ENTITY'
   {
     key sr.REQ_TXN_ID   as REQ_TXN_ID,
     sr.REQUEST_ID       as CASE_ID,

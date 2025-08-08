@@ -15,6 +15,12 @@ cds.on('bootstrap', (app) => {
       res.redirect(307, target + req.originalUrl.slice(alias.length))
     })
   }
+
+  app.use((err, req, res, _next) => {
+    const status = err.statusCode || err.status || 500
+    const message = err.cause?.message || err.message || 'Unexpected error'
+    res.status(status).json({ error: { message } })
+  })
 })
 
 module.exports = cds.server

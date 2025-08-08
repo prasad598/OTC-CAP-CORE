@@ -75,23 +75,23 @@ Retrieves uploaded attachments.
 **POST** `/rest/btp/core/attachments`
 
 ```json
-{
-  "REQ_TXN_ID": 1001,
-  "REQUEST_NO": "REQ-0001",
-  "FILE_NAME": "document.pdf",
-  "FILE_SIZE": 1024,
-  "FILE_PATH": "/files/document.pdf",
-  "MIME_TYPE": "application/pdf",
-  "DOCUMENT_TYPE": "invoice",
-  "PROJECT_TYPE": "PROJECT_A",
-  "USER_TYPE": "Requester",
-  "RESTRICTED_USR_TY": "Manager",
-  "INC_AS_ATTACHMENT": "Y",
-  "IS_ARCHIVED": "N",
-  "ARCH_FILE_PATH": "/archive/document.pdf",
-  "CREATED_BY": "admin",
-  "CREATED_DATE": "2024-01-01T00:00:00Z"
-}
+  {
+    "REQ_TXN_ID": 1001,
+    "REQUEST_ID": "REQ-0001",
+    "FILE_NAME": "document.pdf",
+    "FILE_SIZE": 1024,
+    "FILE_PATH": "/files/document.pdf",
+    "MIME_TYPE": "application/pdf",
+    "DOCUMENT_TYPE": "invoice",
+    "PROJECT_TYPE": "PROJECT_A",
+    "USER_TYPE": "Requester",
+    "RESTRICTED_USR_TY": "Manager",
+    "INC_AS_ATTACHMENT": "Y",
+    "IS_ARCHIVED": "N",
+    "ARCH_FILE_PATH": "/archive/document.pdf",
+    "CREATED_BY": "admin",
+    "CREATED_DATETIME": "2024-01-01T00:00:00Z"
+  }
 ```
 
 ---
@@ -106,16 +106,16 @@ Retrieves authorization matrix records.
 
 ```json
 {
-  "ASSIGNED_GROUP": "Approvers",
-  "USER_EMAIL": "user@example.com",
-  "FIELD1": "value1",
-  "FIELD2": "value2",
-  "FIELD3": "value3",
-  "CREATED_BY": "admin",
-  "CREATED_TIMESTAMP": "2024-01-01T00:00:00Z",
-  "UPDATED_BY": "admin",
-  "UPDATED_TIMESTAMP": "2024-01-01T00:00:00Z"
-}
+    "ASSIGNED_GROUP": "Approvers",
+    "USER_EMAIL": "user@example.com",
+    "FIELD1": "value1",
+    "FIELD2": "value2",
+    "FIELD3": "value3",
+    "CREATED_BY": "admin",
+    "CREATED_DATETIME": "2024-01-01T00:00:00Z",
+    "UPDATED_BY": "admin",
+    "UPDATED_DATETIME": "2024-01-01T00:00:00Z"
+  }
 ```
 
 ---
@@ -130,16 +130,16 @@ Retrieves comments associated with requests.
 
 ```json
 {
-  "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
-  "REQUEST_NO": "REQ-0001",
-  "COMMENTS": "Sample comment",
-  "COMMENT_TYPE": "document",
-  "COMMENT_EVENT": "Service Request Created",
-  "USER_TYPE": "Requester",
-  "EVENT_STATUS_CD": "NEW",
-  "CREATED_BY": "user@example.com",
-  "CREATED_DATE": "2024-01-01T00:00:00Z"
-}
+    "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
+    "REQUEST_ID": "REQ-0001",
+    "COMMENTS": "Sample comment",
+    "COMMENT_TYPE": "document",
+    "COMMENT_EVENT": "Service Request Created",
+    "USER_TYPE": "Requester",
+    "EVENT_STATUS_CD": "NEW",
+    "CREATED_BY": "user@example.com",
+    "CREATED_DATETIME": "2024-01-01T00:00:00Z"
+  }
 ```
 
 ---
@@ -223,7 +223,6 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
   "REPORT_NO": "REP-0001",
   "CASE_PRIO": "1",
   "ENTITY_CD": "ENT1",
-  "SECTOR_CD": "SEC1",
   "STATUS_CD": "NEW",
   "RESOLUTION_RES": "Resolution details",
   "CASE_BCG": "Background info",
@@ -232,8 +231,8 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
   "IS_CLAR_REQ_DATETIME": "2024-01-02T00:00:00Z",
   "IS_ESCALATED": false,
   "ESCALATED_DATETIME": "2024-01-03T00:00:00Z",
-  "IS_CONFIRMED": false,
-  "CONFIRMED_DATETIME": "2024-01-04T00:00:00Z",
+  "IS_RESOLVED": false,
+  "RESOLVED_DATETIME": "2024-01-04T00:00:00Z",
   "CREATED_BY": "admin",
   "CREATED_DATETIME": "2024-01-01T00:00:00Z",
   "UPDATED_BY": "admin",
