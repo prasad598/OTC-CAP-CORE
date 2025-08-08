@@ -10,9 +10,9 @@ entity CORE_USERS {
   USER_LNAME     : commonTypes.fName;
   IS_ACTIVE      : commonTypes.booleanYN;
   CREATED_AT     : Timestamp;
-  CREATED_BY     : commonTypes.userId;
+  CREATED_BY     : commonTypes.emailId;
   UPDATED_AT     : Timestamp;
-  UPDATED_BY     : commonTypes.userId;
+  UPDATED_BY     : commonTypes.emailId;
 }
 
 entity CORE_ATTACHMENTS {
@@ -30,7 +30,7 @@ entity CORE_ATTACHMENTS {
   INC_AS_ATTACHMENT  : commonTypes.flag;
   IS_ARCHIVED        : commonTypes.flag;
   ARCH_FILE_PATH     : commonTypes.filePath;
-  CREATED_BY         : commonTypes.userId not null;
+  CREATED_BY         : commonTypes.emailId not null;
   CREATED_DATE       : commonTypes.dateTime default current_timestamp not null;
 }
 
@@ -43,7 +43,7 @@ entity CORE_COMMENTS {
   COMMENT_EVENT      : String(30); // title - Service Request Created
   USER_TYPE          : commonTypes.userType; // role - Expense Controller
   EVENT_STATUS_CD    : commonTypes.lookupCode;
-  CREATED_BY         : commonTypes.userId not null; // author
+  CREATED_BY         : commonTypes.emailId not null; // author
   CREATED_DATE       : commonTypes.dateTime default current_timestamp not null;
 }
 
@@ -66,9 +66,9 @@ entity MON_WF_PROCESS {
   IS_ARCHIVED           : commonTypes.flag;
   IS_DELETED            : commonTypes.flag;
 
-  CREATED_BY            : commonTypes.userId;
+  CREATED_BY            : commonTypes.emailId;
   CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
-  UPDATED_BY            : commonTypes.userId;
+  UPDATED_BY            : commonTypes.emailId;
   UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
@@ -97,9 +97,9 @@ entity MON_WF_TASK {
   IS_ARCHIVED           : commonTypes.flag;
   IS_DELETED            : commonTypes.flag;
 
-  CREATED_BY            : commonTypes.userId;
+  CREATED_BY            : commonTypes.emailId;
   CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
-  UPDATED_BY            : commonTypes.userId;
+  UPDATED_BY            : commonTypes.emailId;
   UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
@@ -131,9 +131,9 @@ entity TE_SR {
   IS_CONFIRMED         : commonTypes.booleanYN;
   CONFIRMED_DATETIME   : commonTypes.dateTime;
 
-  CREATED_BY           : commonTypes.userId;
+  CREATED_BY           : commonTypes.emailId;
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.userId;
+  UPDATED_BY           : commonTypes.emailId;
   UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
@@ -142,9 +142,9 @@ entity CORE_REQ_SEQ {
   key REQUEST_TYPE   : String(50);
   key ID_TYPE        : String(10); // DRAFT or REQUEST
   LAST_SEQ_NO        : Integer;
-  CREATED_BY         : commonTypes.userId;
+  CREATED_BY         : commonTypes.emailId;
   CREATED_DATETIME   : commonTypes.dateTime default current_timestamp;
-  UPDATED_BY         : commonTypes.userId;
+  UPDATED_BY         : commonTypes.emailId;
   UPDATED_DATETIME   : commonTypes.dateTime default current_timestamp;
 }
 
@@ -154,9 +154,9 @@ entity AUTH_MATRIX {
   FIELD1                : commonTypes.field50;
   FIELD2                : commonTypes.field50;
   FIELD3                : commonTypes.field100;
-  CREATED_BY            : commonTypes.userId;
+  CREATED_BY            : commonTypes.emailId;
   CREATED_TIMESTAMP     : commonTypes.dateTime;
-  UPDATED_BY            : commonTypes.userId;
+  UPDATED_BY            : commonTypes.emailId;
   UPDATED_TIMESTAMP     : commonTypes.dateTime;
 }
 
@@ -172,8 +172,8 @@ entity CONFIG_LDATA {
   FIELD5                : commonTypes.field50;
   FIELD6                : commonTypes.field100;
   ACTIVE_FLAG           : String(1);
-  CREATED_BY            : commonTypes.userId not null;
+  CREATED_BY            : commonTypes.emailId not null;
   CREATED_TIMESTAMP     : commonTypes.dateTime not null;
-  UPDATED_BY            : commonTypes.userId not null;
+  UPDATED_BY            : commonTypes.emailId not null;
   UPDATED_TIMESTAMP     : commonTypes.dateTime not null;
 }
