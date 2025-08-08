@@ -58,7 +58,7 @@ async function triggerWorkflow(te_sr, user) {
 }
 
 module.exports = (srv) => {
-  const { CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
+  const { CORE_COMMENTS, CORE_ATTACHMENTS, MON_WF_TASK } = srv.entities
 
   if (typeof srv.on === 'function') {
     srv.on('error', (err) => {
@@ -346,6 +346,22 @@ module.exports = (srv) => {
             `Error fetching CORE_ATTACHMENTS for REQ_TXN_ID ${key}: ${error.message}`
           )
           item.CORE_ATTACHMENTS = []
+        }
+        try {
+          if (['PRT', 'PRL', 'CLR'].includes(item.STATUS_CD)) {
+            item.MON_WF_TASK = await db.run(
+              SELECT.one.from(MON_WF_TASK)
+                .where({ REQ_TXN_ID: key })
+                .orderBy('UPDATED_DATETIME desc')
+            )
+          } else {
+            item.MON_WF_TASK = null
+          }
+        } catch (error) {
+          req.warn(
+            `Error fetching MON_WF_TASK for REQ_TXN_ID ${key}: ${error.message}`
+          )
+          item.MON_WF_TASK = null
         }
       })
     )
