@@ -38,6 +38,7 @@ async function triggerWorkflow(te_sr, user) {
 
     await cds.run(
       INSERT.into('BTP.MON_WF_PROCESS').entries({
+        language: 'EN',
         WF_INSTANCE_ID: payload.id,
         WF_DESC: payload.subject,
         WF_SUBJ: payload.subject,
