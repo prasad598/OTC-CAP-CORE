@@ -9,6 +9,8 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
   entity AUTH_MATRIX @(path: 'auth-matrix') as projection on core.AUTH_MATRIX;
 
+  entity CONFIG_LDATA @(path: 'config-ldata') as projection on core.CONFIG_LDATA;
+
   entity MON_WF_PROCESS @(path: 'workflow-process') as projection on core.MON_WF_PROCESS;
 
   entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;
@@ -25,6 +27,22 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   ) returns {
     status : String;
   };
+
+    action massCreateUsers (entries: array of CORE_USERS);
+    action massDeleteUsers (emails: array of String);
+
+    action massCreateAuthMatrix (entries: array of AUTH_MATRIX);
+    action massDeleteAuthMatrix (keys: array of {
+      ASSIGNED_GROUP: String;
+      USER_EMAIL: String;
+    });
+
+    action massCreateConfigLdata (entries: array of CONFIG_LDATA);
+    action massDeleteConfigLdata (keys: array of {
+      REQUEST_TYPE: String;
+      OBJECT: String;
+      CODE: String;
+    });
 }
 
 service ReportService {

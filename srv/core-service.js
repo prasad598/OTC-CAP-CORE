@@ -1,5 +1,5 @@
 const cds = require('@sap/cds')
-const { SELECT, UPDATE, INSERT } = cds.ql
+const { SELECT, UPDATE, INSERT, DELETE } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
 const { Decision, RequestType, TaskType, Status } = require('./utils/enums')
@@ -58,7 +58,14 @@ async function triggerWorkflow(te_sr, user) {
 }
 
 module.exports = (srv) => {
-  const { CORE_COMMENTS, CORE_ATTACHMENTS, MON_WF_TASK } = srv.entities
+  const {
+    CORE_COMMENTS,
+    CORE_ATTACHMENTS,
+    MON_WF_TASK,
+    CORE_USERS,
+    AUTH_MATRIX,
+    CONFIG_LDATA,
+  } = srv.entities
 
   if (typeof srv.on === 'function') {
     srv.on('error', (err) => {
@@ -195,6 +202,83 @@ module.exports = (srv) => {
       }
 
       return { status: 'success' }
+    })
+
+    srv.on('massCreateUsers', async (req) => {
+      const { entries } = req.data || {}
+      const list = Array.isArray(entries) ? entries : []
+      list.forEach((e) => {
+        if (!e.language) e.language = 'EN'
+      })
+      const tx = srv.transaction(req)
+      await tx.run(INSERT.into(CORE_USERS).entries(list))
+      return { inserted: list.length }
+    })
+
+    srv.on('massDeleteUsers', async (req) => {
+      const { emails } = req.data || {}
+      if (!emails || emails.length === 0) return { deleted: 0 }
+      const tx = srv.transaction(req)
+      const result = await tx.run(
+        DELETE.from(CORE_USERS).where({
+          USER_EMAIL: { in: emails },
+          language: 'EN',
+        })
+      )
+      return { deleted: result }
+    })
+
+    srv.on('massCreateAuthMatrix', async (req) => {
+      const { entries } = req.data || {}
+      const list = Array.isArray(entries)
+        ? entries.map((e) => ({ language: 'EN', ...e }))
+        : []
+      const tx = srv.transaction(req)
+      await tx.run(INSERT.into(AUTH_MATRIX).entries(list))
+      return { inserted: list.length }
+    })
+
+    srv.on('massDeleteAuthMatrix', async (req) => {
+      const { keys } = req.data || {}
+      const tx = srv.transaction(req)
+      let count = 0
+      for (const k of keys || []) {
+        count += await tx.run(
+          DELETE.from(AUTH_MATRIX).where({
+            ASSIGNED_GROUP: k.ASSIGNED_GROUP,
+            USER_EMAIL: k.USER_EMAIL,
+            language: 'EN',
+          })
+        )
+      }
+      return { deleted: count }
+    })
+
+    srv.on('massCreateConfigLdata', async (req) => {
+      const { entries } = req.data || {}
+      const list = Array.isArray(entries)
+        ? entries.map((e) => ({ language: 'EN', ...e }))
+        : []
+      const tx = srv.transaction(req)
+      await tx.run(INSERT.into(CONFIG_LDATA).entries(list))
+      return { inserted: list.length }
+    })
+
+    srv.on('massDeleteConfigLdata', async (req) => {
+      const { keys } = req.data || {}
+      const tx = srv.transaction(req)
+      let count = 0
+      for (const k of keys || []) {
+        count += await tx.run(
+          DELETE.from(CONFIG_LDATA).where({
+            REQUEST_TYPE: k.REQUEST_TYPE,
+            OBJECT: k.OBJECT,
+            CODE: k.CODE,
+            language: 'EN',
+          })
+        )
+      }
+      return { deleted: count }
     })
   }
 
