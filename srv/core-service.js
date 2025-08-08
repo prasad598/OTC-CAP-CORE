@@ -285,6 +285,8 @@ module.exports = (srv) => {
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
     try {
+      req.data.REQ_TXN_ID = req.data.REQ_TXN_ID || cds.utils.uuid()
+      if (!req.data.language) req.data.language = 'EN'
       req.data.REQUEST_TYPE = RequestType.TE
       req.data.TASK_TYPE = TaskType.TE_REQUESTER
       const decision = req.data.DECISION
