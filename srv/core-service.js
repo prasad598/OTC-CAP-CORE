@@ -1,12 +1,12 @@
 const cds = require('@sap/cds')
-const { SELECT, UPDATE } = cds.ql
+const { SELECT, UPDATE, INSERT } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
 const { Decision, RequestType, TaskType, Status } = require('./utils/enums')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 
-async function triggerWorkflow(te_sr) {
+async function triggerWorkflow(te_sr, user) {
   const workflowPayload = {
     definitionId:
       'us10.stengg-sap-btp-qas.stecasemanagement.caseManagementMainProcess',
@@ -32,9 +32,27 @@ async function triggerWorkflow(te_sr) {
         data: workflowPayload,
       }
     )
-    console.log('Workflow triggered successfully:', response.data)
+
+    const payload = response.data || {}
+    const now = new Date()
+
+    await cds.run(
+      INSERT.into('BTP.MON_WF_PROCESS').entries({
+        WF_INSTANCE_ID: payload.id,
+        WF_DESC: payload.subject,
+        WF_SUBJ: payload.subject,
+        WF_STATUS: payload.status,
+        REQUEST_TYPE: RequestType.TE,
+        REQUEST_ID: te_sr.REQUEST_ID,
+        REQ_TXN_ID: te_sr.REQ_TXN_ID,
+        CREATED_BY: user,
+        CREATED_DATETIME: now,
+        UPDATED_BY: user,
+        UPDATED_DATETIME: now,
+      })
+    )
   } catch (err) {
-    console.error('Error triggering workflow:', err.message)
+    console.warn('Error triggering workflow:', err.message)
   }
 }
 
@@ -217,7 +235,7 @@ module.exports = (srv) => {
   srv.after('CREATE', 'TE_SR', async (data, req) => {
     if (!data || !data.REQUEST_ID) return
     try {
-      await triggerWorkflow(data)
+      await triggerWorkflow(data, req.user && req.user.id)
     } catch (error) {
       req.warn(`Workflow trigger failed: ${error.message}`)
     }
@@ -232,7 +250,7 @@ module.exports = (srv) => {
         SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
       )
       if (latest && latest.REQUEST_ID) {
-        await triggerWorkflow(latest)
+        await triggerWorkflow(latest, req.user && req.user.id)
       }
     } catch (error) {
       req.warn(`Workflow trigger failed: ${error.message}`)
