@@ -39,6 +39,7 @@ describe('Error handling', () => {
     const payload = {
       UUID: '11111111-1111-1111-1111-111111111111',
       REQ_TXN_ID: '00000000-0000-0000-0000-000000000001',
+      language: 'EN',
       COMMENTS: 'test',
       CREATED_BY: 'tester'
     };

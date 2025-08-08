@@ -25,14 +25,16 @@ describe('TE_SR enrichment', () => {
     const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
     const id = '11111111-1111-1111-1111-111111111111'
 
-    await INSERT.into(TE_SR).entries({ REQ_TXN_ID: id })
+    await INSERT.into(TE_SR).entries({ REQ_TXN_ID: id, language: 'EN' })
     await INSERT.into(CORE_COMMENTS).entries({
       REQ_TXN_ID: id,
+      language: 'EN',
       COMMENTS: 'test comment',
       CREATED_BY: 'tester',
     })
     await INSERT.into(CORE_ATTACHMENTS).entries({
       REQ_TXN_ID: id,
+      language: 'EN',
       FILE_NAME: 'file.txt',
       FILE_PATH: '/tmp/file.txt',
       MIME_TYPE: 'text/plain',
