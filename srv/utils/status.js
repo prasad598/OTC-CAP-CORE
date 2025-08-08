@@ -5,39 +5,39 @@ function generateReqNextStatus(requestType, taskType, decision) {
     switch (taskType) {
       case TaskType.TE_REQUESTER:
         switch (decision) {
-          case Decision.DRAFT:
-            return Status.DRAFT;
-          case Decision.SUBMIT:
-          case Decision['RE-SUBMIT']:
-            return Status.PR;
+          case Decision.DRF:
+            return Status.DRF;
+          case Decision.SUB:
+          case Decision.RSB:
+            return Status.PRT;
           default:
-            return Status.ERROR;
+            return Status.ERR;
         }
-      case TaskType.TE_RESO:
+      case TaskType.TE_RESO_TEAM:
         switch (decision) {
-          case Decision.APPROVED:
-            return Status.RESOLVED;
-          case Decision.REJECT:
-            return Status['RE-SUBMIT'];
-          case Decision.ESCALATED:
+          case Decision.APR:
+            return Status.RSL;
+          case Decision.REJ:
+            return Status.CLD;
+          case Decision.ESL:
             return Status.PRL;
           default:
-            return Status.ERROR;
+            return Status.ERR;
         }
       case TaskType.TE_RESO_LEAD:
         switch (decision) {
-          case Decision.APPROVED:
-            return Status.RESOLVED;
-          case Decision.REJECT:
-            return Status['RE-SUBMIT'];
+          case Decision.APR:
+            return Status.RSL;
+          case Decision.REJ:
+            return Status.CLD;
           default:
-            return Status.ERROR;
+            return Status.ERR;
         }
       default:
-        return Status.ERROR;
+        return Status.ERR;
     }
   }
-  return Status.ERROR;
+  return Status.ERR;
 }
 
 module.exports = { generateReqNextStatus };

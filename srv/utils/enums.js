@@ -1,15 +1,15 @@
 const Decision = Object.freeze({
-  DRAFT: 'DRAFT',
-  SUBMIT: 'SUBMIT',
-  'RE-SUBMIT': 'RE-SUBMIT',
-  APPROVED: 'APPROVED',
-  REJECT: 'REJECT',
-  ESCALATED: 'ESCALATED'
+  DRF: 'Draft',
+  SUB: 'submit',
+  RSB: 'submit',
+  APR: 'approved',
+  REJ: 'reject',
+  ESL: 'escalated'
 });
 
 const TaskType = Object.freeze({
   TE_REQUESTER: 'TE_REQUESTER',
-  TE_RESO: 'TE_RESO',
+  TE_RESO_TEAM: 'TE_RESO_TEAM',
   TE_RESO_LEAD: 'TE_RESO_LEAD'
 });
 
@@ -19,14 +19,14 @@ const RequestType = Object.freeze({
 });
 
 const Status = Object.freeze({
-  DRAFT: 'DRAFT',
-  SUBMIT: 'SUBMIT',
-  'RE-SUBMIT': 'RE-SUBMIT',
-  PR: 'PR',
-  PRL: 'PRL',
-  RESOLVED: 'RESOLVED',
-  CLOSED: 'CLOSED',
-  ERROR: 'ERROR'
+  DRF: 'Draft',
+  SUB: 'Submit',
+  RSB: 'Resubmit',
+  PRT: 'Pending Resolution Team',
+  PRL: 'Pending Resolution Lead',
+  RSL: 'Resolved',
+  CLD: 'Closed',
+  ERR: 'Error'
 });
 
 const UserType = Object.freeze({});
