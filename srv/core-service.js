@@ -454,6 +454,7 @@ module.exports = (srv) => {
     )
   })
 
+  if (typeof srv.on === 'function') {
     srv.on('userInfo', async (req) => {
       try {
         return await fetchIasUser(req)
@@ -461,21 +462,6 @@ module.exports = (srv) => {
         req.error(502, `Failed to fetch IAS user: ${error.message}`)
       }
     })
-
-    srv.after('READ', 'TE_REPORT_VIEW', async (data, req) => {
-      let profile
-      try {
-        profile = await fetchIasUser(req)
-      } catch (error) {
-        req.warn(`Failed to fetch IAS user: ${error.message}`)
-        return data
-      }
-      const allowed = (profile.groups || []).map((g) => g.display || g.value)
-      if (!allowed.length) return data
-      if (Array.isArray(data)) {
-        return data.filter((row) => allowed.includes(row.ASSIGNED_GROUP))
-      }
-      return allowed.includes(data.ASSIGNED_GROUP) ? data : null
-    })
+  }
 
 }
