@@ -24,6 +24,7 @@ const Status = Object.freeze({
   RSB: 'Resubmit',
   PRT: 'Pending Resolution Team',
   PRL: 'Pending Resolution Lead',
+  CLR: 'Clarification Required',
   RSL: 'Resolved',
   CLD: 'Closed',
   ERR: 'Error'

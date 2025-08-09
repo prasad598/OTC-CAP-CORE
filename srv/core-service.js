@@ -434,7 +434,7 @@ module.exports = (srv) => {
           item.CORE_ATTACHMENTS = []
         }
         try {
-          if ([Status.PRT, Status.PRL, Status.CLD].includes(item.STATUS_CD)) {
+          if ([Status.PRT, Status.PRL, Status.CLR].includes(item.STATUS_CD)) {
             item.MON_WF_TASK = await db.run(
               SELECT.one.from(MON_WF_TASK)
                 .where({ REQ_TXN_ID: key })
