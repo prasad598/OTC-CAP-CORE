@@ -4,7 +4,7 @@ namespace BTP;
 
 entity CORE_USERS {
   key USER_EMAIL : commonTypes.emailId;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   USER_ID        : commonTypes.id;
   USER_HP        : commonTypes.mobile;
   USER_FNAME     : commonTypes.fName;
@@ -18,7 +18,7 @@ entity CORE_USERS {
 
 entity CORE_ATTACHMENTS {
   key UUID           : commonTypes.uuid    @Core.Computed : true;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   REQ_TXN_ID         : commonTypes.uuidv4  not null;
   REQUEST_NO         : String(14);
   FILE_NAME          : commonTypes.fileName not null;
@@ -38,7 +38,7 @@ entity CORE_ATTACHMENTS {
 
 entity CORE_COMMENTS {
   key UUID           : commonTypes.uuid @Core.Computed : true;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   REQ_TXN_ID         : commonTypes.uuidv4 not null;
   REQUEST_ID         : commonTypes.requestId;
   COMMENTS           : commonTypes.shortText not null;
@@ -52,7 +52,7 @@ entity CORE_COMMENTS {
 
 entity MON_WF_PROCESS {
   key WF_INSTANCE_ID    : commonTypes.uuidv4;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
 
   WF_DESC               : String(255);
   WF_SUBJ               : String(255);
@@ -77,7 +77,7 @@ entity MON_WF_PROCESS {
 
 entity MON_WF_TASK {
   key TASK_INSTANCE_ID  : commonTypes.uuidv4;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
 
   WF_INSTANCE_ID        : commonTypes.uuidv4;
   SWF_INSTANCE_ID       : commonTypes.uuidv4;
@@ -107,7 +107,7 @@ entity MON_WF_TASK {
 
 entity TE_SR {
   key REQ_TXN_ID       : commonTypes.uuidv4 @Core.Computed : true;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   DRAFT_ID             : String(30);
   REQUEST_ID           : String(30);
   DECISION             : commonTypes.decision @cds.persistence.skip;
@@ -153,7 +153,7 @@ entity CORE_REQ_SEQ {
 entity AUTH_MATRIX {
   key ASSIGNED_GROUP    : commonTypes.iasGroup;
   key USER_EMAIL        : commonTypes.emailId;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   FIELD1                : commonTypes.field50;
   FIELD2                : commonTypes.field50;
   FIELD3                : commonTypes.field100;
@@ -167,7 +167,7 @@ entity CONFIG_LDATA {
   key REQUEST_TYPE  : commonTypes.requestType;
   key OBJECT       : String(10) not null;
   key CODE          : commonTypes.lookupCode;
-  key language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
+  language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   DESC              : commonTypes.shortText;
   FIELD1            : commonTypes.field50;
   FIELD2            : commonTypes.field50;
