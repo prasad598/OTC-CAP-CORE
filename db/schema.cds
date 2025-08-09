@@ -175,7 +175,7 @@ entity CONFIG_LDATA {
   FIELD4            : commonTypes.field50;
   FIELD5            : commonTypes.field50;
   FIELD6            : commonTypes.field100;
-  ACTIVE_FLAG       : String(1);
+  IS_ACTIVE         : commonTypes.flag;
   CREATED_BY           : commonTypes.emailId; //logged in user email id
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
   UPDATED_BY           : commonTypes.emailId; //logged in user email id
