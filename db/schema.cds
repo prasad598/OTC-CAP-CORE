@@ -40,7 +40,7 @@ aspect RequestReference {
   REQUEST_TYPE : commonTypes.requestType;
 }
 
-entity CORE_USERS {
+entity CORE_USERS : Auditable {
   key USER_EMAIL : commonTypes.emailId;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   USER_ID        : commonTypes.id;
@@ -48,10 +48,6 @@ entity CORE_USERS {
   USER_FNAME     : commonTypes.fName;
   USER_LNAME     : commonTypes.fName;
   IS_ACTIVE      : commonTypes.booleanYN;
-  CREATED_BY           : commonTypes.emailId;
-  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.emailId;
-  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
 entity CORE_ATTACHMENTS {
@@ -88,16 +84,13 @@ entity CORE_COMMENTS {
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
 }
 
-entity MON_WF_PROCESS {
+entity MON_WF_PROCESS : Auditable, RequestReference {
   key WF_INSTANCE_ID    : commonTypes.uuidv4;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
 
   WF_DESC               : String(255);
   WF_SUBJ               : String(255);
   WF_STATUS             : commonTypes.statusSBPA;
-  REQUEST_TYPE          : commonTypes.requestType;
-  REQUEST_ID            : commonTypes.requestId;
-  REQ_TXN_ID            : commonTypes.uuidv4;
 
   EST_COMPLETION        : commonTypes.dateTime;
   ACTUAL_COMPLETION     : commonTypes.dateTime;
@@ -106,14 +99,9 @@ entity MON_WF_PROCESS {
   IS_ACTIVE             : commonTypes.flag;
   IS_ARCHIVED           : commonTypes.flag;
   IS_DELETED            : commonTypes.flag;
-
-  CREATED_BY            : commonTypes.emailId;
-  CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
-  UPDATED_BY            : commonTypes.emailId;
-  UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
-entity MON_WF_TASK {
+entity MON_WF_TASK : Auditable {
   key TASK_INSTANCE_ID  : commonTypes.uuidv4;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
 
@@ -136,11 +124,6 @@ entity MON_WF_TASK {
 
   IS_ARCHIVED           : commonTypes.flag;
   IS_DELETED            : commonTypes.flag;
-
-  CREATED_BY            : commonTypes.emailId;
-  CREATED_DATETIME      : commonTypes.dateTime default current_timestamp;
-  UPDATED_BY            : commonTypes.emailId;
-  UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
 entity TE_SR : Auditable {
@@ -172,31 +155,23 @@ entity TE_SR : Auditable {
   RESOLVED_DATETIME    : commonTypes.dateTime;
 }
 
-entity CORE_REQ_SEQ {
+entity CORE_REQ_SEQ : Auditable {
   key SEQ_YEAR       : Integer;
   key REQUEST_TYPE   : commonTypes.requestType;
   key ID_TYPE        : String(10); // DRAFT or REQUEST
   LAST_SEQ_NO        : Integer;
-  CREATED_BY           : commonTypes.emailId; //logged in user email id
-  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.emailId; //logged in user email id
-  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
-entity AUTH_MATRIX {
+entity AUTH_MATRIX : Auditable {
   key ASSIGNED_GROUP    : commonTypes.iasGroup;
   key USER_EMAIL        : commonTypes.emailId;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   FIELD1                : commonTypes.field50;
   FIELD2                : commonTypes.field50;
   FIELD3                : commonTypes.field100;
-  CREATED_BY           : commonTypes.emailId; //logged in user email id
-  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.emailId; //logged in user email id
-  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
-entity CONFIG_LDATA {
+entity CONFIG_LDATA : Auditable {
   key REQUEST_TYPE  : commonTypes.requestType;
   key OBJECT       : String(10) not null;
   key CODE          : commonTypes.lookupCode;
@@ -209,8 +184,4 @@ entity CONFIG_LDATA {
   FIELD5            : commonTypes.field50;
   FIELD6            : commonTypes.field100;
   IS_ACTIVE         : commonTypes.flag;
-  CREATED_BY           : commonTypes.emailId; //logged in user email id
-  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.emailId; //logged in user email id
-  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
