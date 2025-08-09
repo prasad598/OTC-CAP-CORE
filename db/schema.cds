@@ -2,6 +2,44 @@ using { commonTypes } from './commonTypes';
 
 namespace BTP;
 
+aspect Auditable {
+  /**
+   * Email ID of the user who created the record
+   */
+  CREATED_BY       : commonTypes.emailId;
+
+  /**
+   * Creation timestamp:
+   * - If caller sends value, it will be stored
+   * - If omitted, defaults to $now at insert
+   */
+  CREATED_DATETIME : commonTypes.dateTime
+                      default $now
+                      @cds.on.insert : $now;
+
+  /**
+   * Email ID of the user who last updated the record
+   */
+  UPDATED_BY       : commonTypes.emailId;
+
+  /**
+   * Update timestamp:
+   * - If caller sends value, it will be stored
+   * - If omitted at insert, defaults to $now
+   * - On update, defaults to $now unless caller provides value
+   */
+  UPDATED_DATETIME : commonTypes.dateTime
+                      default $now
+                      @cds.on.insert : $now
+                      @cds.on.update : $now;
+}
+
+aspect RequestReference {
+  REQ_TXN_ID   : commonTypes.uuidv4;
+  REQUEST_ID   : commonTypes.requestId;
+  REQUEST_TYPE : commonTypes.requestType;
+}
+
 entity CORE_USERS {
   key USER_EMAIL : commonTypes.emailId;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
@@ -105,7 +143,7 @@ entity MON_WF_TASK {
   UPDATED_DATETIME      : commonTypes.dateTime default current_timestamp;
 }
 
-entity TE_SR {
+entity TE_SR : Auditable {
   key REQ_TXN_ID       : commonTypes.uuidv4 @Core.Computed : true;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   DRAFT_ID             : String(30);
@@ -132,11 +170,6 @@ entity TE_SR {
   ESCALATED_DATETIME   : commonTypes.dateTime;
   IS_RESOLVED          : commonTypes.booleanYN;
   RESOLVED_DATETIME    : commonTypes.dateTime;
-
-  CREATED_BY           : commonTypes.emailId;
-  CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
-  UPDATED_BY           : commonTypes.emailId;
-  UPDATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now @cds.on.update : $now;
 }
 
 entity CORE_REQ_SEQ {
