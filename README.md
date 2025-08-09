@@ -66,6 +66,14 @@ Returns a list of user records.
 
 ---
 
+### /rest/btp/core/user-info
+
+**GET** `/rest/btp/core/userInfo()`
+
+Returns the IAS profile for the logged-in user, including group memberships.
+
+---
+
 ### /rest/btp/core/attachments
 
 **GET** `/rest/btp/core/attachments`
