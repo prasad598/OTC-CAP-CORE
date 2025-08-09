@@ -1,5 +1,23 @@
 using BTP as core from '../db/schema';
 
+type ScimGroup {
+  value  : String;
+  display: String;
+};
+
+type ScimEmail {
+  value   : String;
+  primary : Boolean;
+};
+
+type LoggedUserInfo {
+  id          : String;
+  userName    : String;
+  displayName : String;
+  emails      : array of ScimEmail;
+  groups      : array of ScimGroup;
+};
+
 service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   entity CORE_ATTACHMENTS @(path: 'attachments') as projection on core.CORE_ATTACHMENTS;
 
@@ -43,6 +61,8 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
       OBJECT: String;
       CODE: String;
     });
+
+    function userInfo() returns LoggedUserInfo;
 }
 
 service ReportService {
