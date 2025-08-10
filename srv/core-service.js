@@ -459,7 +459,11 @@ module.exports = (srv) => {
       try {
         return await fetchIasUser(req)
       } catch (error) {
-        req.error(502, `Failed to fetch IAS user: ${error.message}`)
+        if (error && (error.statusCode === 401 || /Missing JWT/i.test(error.message))) {
+          req.error(401, 'Missing JWT')
+        } else {
+          req.error(502, `Failed to fetch IAS user: ${error.message}`)
+        }
       }
     })
   }
