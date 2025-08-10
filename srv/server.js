@@ -41,6 +41,7 @@ cds.on('bootstrap', (app) => {
         fullName: [data.name?.givenName, data.name?.familyName]
           .filter(Boolean)
           .join(' '),
+        honorificPrefix: data.name?.honorificPrefix,
         email: primaryEmail,
         entity: enterprise.organization,
         employeeId: enterprise.employeeNumber,

@@ -12,6 +12,7 @@ Fetches an IAS user by SCIM ID and returns a simplified payload.
 {
   "id": "e935be24-1ead-4b8a-ab82-d0acac6be4e4",
   "fullName": "Prasad RESO TEAM",
+  "honorificPrefix": "Mr.",
   "email": "nagavaraprasad.bandaru@stengg.com",
   "entity": "9889",
   "employeeId": "70006263",
