@@ -404,7 +404,9 @@ module.exports = (srv) => {
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
+    console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
     const scimId = req.data['user-scim-id'] || req.data.user_scim_id
+    console.log('TE_REPORT_VIEW scimId:', scimId)
     if (!scimId) return
     let groups = []
     try {
@@ -417,11 +419,16 @@ module.exports = (srv) => {
       groups = rawGroups
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
         .filter((g) => g && g.startsWith('STE_TE_'))
+      console.log('TE_REPORT_VIEW groups:', groups)
     } catch (error) {
       return req.error(502, `Failed to fetch user groups: ${error.message}`)
     }
     if (!groups.length) {
       req.query.SELECT.where = ['1', '=', '0']
+      console.log(
+        'TE_REPORT_VIEW query before execution:',
+        JSON.stringify(req.query, null, 2)
+      )
       return
     }
     const cond = [
@@ -434,7 +441,10 @@ module.exports = (srv) => {
     } else {
       req.query.SELECT.where = cond
     }
-    console.log('TE_REPORT_VIEW query with where clause:', JSON.stringify(req.query, null, 2))
+    console.log(
+      'TE_REPORT_VIEW query before execution:',
+      JSON.stringify(req.query, null, 2)
+    )
   })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
