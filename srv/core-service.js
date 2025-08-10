@@ -6,6 +6,7 @@ const { Decision, RequestType, TaskType, Status } = require('./utils/enums')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
+const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 
 async function triggerWorkflow(te_sr, user) {
   const workflowPayload = {
@@ -399,6 +400,39 @@ module.exports = (srv) => {
       }
     } catch (error) {
       req.error(502, `Failed to fetch task instance: ${error.message}`)
+    }
+  })
+
+  srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
+    const scimId = req.data['user-scim-id'] || req.data.user_scim_id
+    if (!scimId) return
+    let groups = []
+    try {
+      const jwt = retrieveJwt(req)
+      const response = await executeHttpRequest(
+        { destinationName: 'CIS_SCIM_API', jwt },
+        { method: 'GET', url: `/scim/Users/${scimId}` }
+      )
+      const rawGroups = (response.data && response.data.groups) || []
+      groups = rawGroups
+        .map((g) => (typeof g === 'string' ? g : g.display || g.value))
+        .filter((g) => g && g.startsWith('STE_TE_'))
+    } catch (error) {
+      return req.error(502, `Failed to fetch user groups: ${error.message}`)
+    }
+    if (!groups.length) {
+      req.query.SELECT.where = ['1', '=', '0']
+      return
+    }
+    const cond = [
+      { ref: ['ASSIGNED_GROUP'] },
+      'in',
+      { list: groups.map((g) => ({ val: g })) }
+    ]
+    if (req.query.SELECT.where) {
+      req.query.SELECT.where.push('and', cond)
+    } else {
+      req.query.SELECT.where = cond
     }
   })
 
