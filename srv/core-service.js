@@ -392,11 +392,8 @@ module.exports = (srv) => {
         req.data.SWF_INSTANCE_ID = task.workflowInstanceId
         req.data.TASK_STATUS = task.status
         req.data.TASK_SUBJ = task.subject
-        req.data.ASSIGNED_GROUP =
-          Array.isArray(task.recipientGroups) && task.recipientGroups.length > 0
-            ? task.recipientGroups[0]
-            : null
         req.data.CREATED_DATETIME = task.createdAt
+        // ASSIGNED_GROUP and TASK_TYPE are taken from the request payload
       } else {
         req.error(404, `No task instance found for workflowInstanceId ${SWF_INSTANCE_ID}`)
       }

@@ -165,15 +165,18 @@ Lists workflow tasks.
 **POST** `/rest/btp/core/workflow-task`
 
 Provide the `SWF_INSTANCE_ID` to retrieve task details from the workflow
-service. Fields such as `TASK_INSTANCE_ID`, `TASK_STATUS`, `TASK_SUBJ`, and
-`ASSIGNED_GROUP` are populated automatically. Any `TASK_INSTANCE_ID` supplied
-in the request body is ignored.
+service. Fields such as `TASK_INSTANCE_ID`, `TASK_STATUS`, and `TASK_SUBJ` are
+populated automatically. `ASSIGNED_GROUP` and `TASK_TYPE` must be supplied in
+the request body to be stored. Any `TASK_INSTANCE_ID` supplied in the request
+body is ignored.
 
 ```json
 {
   "WF_INSTANCE_ID": 1,
   "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
-  "REQ_TXN_ID": 1001
+  "REQ_TXN_ID": 1001,
+  "TASK_TYPE": "Approval",
+  "ASSIGNED_GROUP": "Approvers"
 }
 ```
 
@@ -227,14 +230,17 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
 
 Creates a workflow task using the same logic as the REST endpoint. Provide the
 `SWF_INSTANCE_ID` to retrieve task details from the workflow service. Fields
-such as `TASK_INSTANCE_ID`, `TASK_STATUS`, `TASK_SUBJ`, and `ASSIGNED_GROUP` are
-populated automatically.
+such as `TASK_INSTANCE_ID`, `TASK_STATUS`, and `TASK_SUBJ` are populated
+automatically. `ASSIGNED_GROUP` and `TASK_TYPE` must be supplied in the request
+body to be stored.
 
 ```json
 {
   "WF_INSTANCE_ID": 1,
   "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
-  "REQ_TXN_ID": 1001
+  "REQ_TXN_ID": 1001,
+  "TASK_TYPE": "Approval",
+  "ASSIGNED_GROUP": "Approvers"
 }
 ```
 
