@@ -84,6 +84,7 @@ service ReportService {
   {
     key sr.REQ_TXN_ID   as REQ_TXN_ID,
     sr.REQUEST_ID       as CASE_ID,
+    sr.DRAFT_ID         as DRAFT_ID,
     sr.SRV_CAT_CD       as SERVICE_CATEGORY_CODE,
     cat.DESC            as SERVICE_CATEGORY,
     sr.CASE_REQ_ID      as REQUEST_ID,
