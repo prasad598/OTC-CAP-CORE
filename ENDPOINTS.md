@@ -2,6 +2,26 @@
 
 Below are the REST paths and example payloads for the services exposed by this project.
 
+## /rest/btp/scim/Users/{id}
+
+**GET** `/rest/btp/scim/Users/{id}`
+
+Fetches an IAS user by SCIM ID and returns a simplified payload.
+
+```json
+{
+  "id": "e935be24-1ead-4b8a-ab82-d0acac6be4e4",
+  "fullName": "Prasad RESO TEAM",
+  "email": "nagavaraprasad.bandaru@stengg.com",
+  "entity": "9889",
+  "employeeId": "70006263",
+  "mobile": "97373465",
+  "groups": ["Build Apps Group"]
+}
+```
+
+---
+
 ## /rest/btp/core/users
 
 **GET** `/rest/btp/core/users`

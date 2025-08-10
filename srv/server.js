@@ -1,4 +1,6 @@
 const cds = require('@sap/cds')
+const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
+const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -16,6 +18,39 @@ cds.on('bootstrap', (app) => {
       res.redirect(307, target + req.originalUrl.slice(alias.length))
     })
   }
+
+  app.get('/rest/btp/scim/Users/:id', async (req, res, next) => {
+    try {
+      const jwt = retrieveJwt(req)
+      if (!jwt) {
+        res.status(401).json({ error: { message: 'Missing JWT' } })
+        return
+      }
+      const { data } = await executeHttpRequest(
+        { destinationName: 'CIS_SCIM_API', jwt },
+        { method: 'GET', url: `/scim/Users/${req.params.id}` }
+      )
+      const primaryEmail = data.emails?.find((e) => e.primary)?.value
+      const workPhone = data.phoneNumbers?.find(
+        (p) => p.primary && p.type === 'work'
+      )?.value
+      const enterprise =
+        data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
+      res.json({
+        id: data.id,
+        fullName: [data.name?.givenName, data.name?.familyName]
+          .filter(Boolean)
+          .join(' '),
+        email: primaryEmail,
+        entity: enterprise.organization,
+        employeeId: enterprise.employeeNumber,
+        mobile: workPhone,
+        groups: (data.groups || []).map((g) => g.display),
+      })
+    } catch (err) {
+      next(err)
+    }
+  })
 
   app.use((err, req, res, _next) => {
     const status = err.statusCode || err.status || 500
