@@ -405,7 +405,10 @@ module.exports = (srv) => {
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
     console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
-    const scimId = req.data['user-scim-id'] || req.data.user_scim_id
+    const scimId =
+      req.data['user-scim-id'] ||
+      req.data.user_scim_id ||
+      (req.req && req.req.query && req.req.query['user-scim-id'])
     console.log('TE_REPORT_VIEW scimId:', scimId)
     if (!scimId) return
     let groups = []
