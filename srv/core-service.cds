@@ -83,11 +83,11 @@ service ReportService {
     left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.OBJECT = 'ENTITY'
   {
     key sr.REQ_TXN_ID   as REQ_TXN_ID,
-    sr.REQUEST_ID       as CASE_ID,
+    sr.REQUEST_ID       as REQUEST_ID,
     sr.DRAFT_ID         as DRAFT_ID,
     sr.SRV_CAT_CD       as SERVICE_CATEGORY_CODE,
     cat.DESC            as SERVICE_CATEGORY,
-    sr.CASE_REQ_ID      as REQUEST_ID,
+    sr.CASE_REQ_ID      as REQ_REP_NO,
     sr.CREATED_DATETIME as CREATION_DATE,
 
     sr.STATUS_CD        as STATUS_CODE,
