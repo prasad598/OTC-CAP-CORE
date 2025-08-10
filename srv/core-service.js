@@ -434,6 +434,7 @@ module.exports = (srv) => {
     } else {
       req.query.SELECT.where = cond
     }
+    console.log('TE_REPORT_VIEW query with where clause:', JSON.stringify(req.query, null, 2))
   })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
