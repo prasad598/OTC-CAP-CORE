@@ -22,7 +22,7 @@ describe('TE_SR REQ_TXN_ID generation', () => {
   })
 
   it('assigns REQ_TXN_ID when missing', async () => {
-    const req = { data: { DECISION: 'Draft' }, user: { id: 'tester' } }
+    const req = { data: { DECISION: 'draft' }, user: { id: 'tester' } }
     const tx = cds.transaction(req)
     await srv._beforeCreate(req)
     await tx.commit()

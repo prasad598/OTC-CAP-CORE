@@ -1,5 +1,5 @@
 const Decision = Object.freeze({
-  DRF: 'Draft',
+  DRF: 'draft',
   SUB: 'submit',
   RSB: 'submit',
   APR: 'approved',

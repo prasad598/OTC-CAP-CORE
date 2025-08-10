@@ -25,7 +25,7 @@ describe('TE_SR id generation based on decision', () => {
 
   it('hard codes REQUEST_TYPE as TE and generates draft id', async () => {
     const req = {
-      data: { DECISION: 'Draft', TASK_TYPE: 'TE_REQUESTER' },
+      data: { DECISION: 'draft', TASK_TYPE: 'TE_REQUESTER' },
       user: { id: 'tester' },
     }
     const tx = cds.transaction(req)
