@@ -7,6 +7,9 @@ async function fetchIasUser(req) {
     throw new Error('Missing user UUID')
   }
   const jwt = retrieveJwt(req)
+  if (!jwt) {
+    throw req.error ? req.error(401, 'Missing JWT') : new Error('Missing JWT')
+  }
   const response = await executeHttpRequest(
     { destinationName: 'CIS_SCIM_API', jwt },
     {
