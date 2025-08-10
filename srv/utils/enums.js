@@ -2,9 +2,9 @@ const Decision = Object.freeze({
   DRF: 'draft',
   SUB: 'submit',
   RSB: 'submit',
-  APR: 'approved',
+  APR: 'approve',
   REJ: 'reject',
-  ESL: 'escalated'
+  ESL: 'Escalate'
 });
 
 const TaskType = Object.freeze({
