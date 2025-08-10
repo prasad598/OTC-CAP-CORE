@@ -414,11 +414,11 @@ module.exports = (srv) => {
     let groups = []
     try {
       const jwt = retrieveJwt(req)
-      const response = await executeHttpRequest(
-        { destinationName: 'srv', jwt },
-        { method: 'GET', url: `/rest/btp/scim/Users/${scimId}` }
+      const { data } = await executeHttpRequest(
+        { destinationName: 'CIS_SCIM_API', jwt },
+        { method: 'GET', url: `/scim/Users/${scimId}` }
       )
-      const rawGroups = (response.data && response.data.groups) || []
+      const rawGroups = (data && data.groups) || []
       groups = rawGroups
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
         .filter((g) => g && g.startsWith('STE_TE_'))
