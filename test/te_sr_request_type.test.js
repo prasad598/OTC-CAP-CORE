@@ -34,6 +34,7 @@ describe('TE_SR id generation based on decision', () => {
     assert.strictEqual(req.data.REQUEST_TYPE, 'TE')
     assert.ok(req.data.DRAFT_ID)
     assert.ok(req.data.DRAFT_ID.includes('TE-DRFT'))
+    assert.strictEqual(req.data.STATUS_CD, 'DRF')
   })
 
   it('generates request id when decision is SUB', async () => {
@@ -48,5 +49,6 @@ describe('TE_SR id generation based on decision', () => {
     assert.ok(req.data.REQUEST_ID)
     assert.ok(!req.data.REQUEST_ID.includes('DRFT'))
     assert.ok(!req.data.DRAFT_ID)
+    assert.strictEqual(req.data.STATUS_CD, 'PRT')
   })
 })

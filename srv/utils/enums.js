@@ -19,15 +19,15 @@ const RequestType = Object.freeze({
 });
 
 const Status = Object.freeze({
-  DRF: 'Draft',
-  SUB: 'Submit',
-  RSB: 'Resubmit',
-  PRT: 'Pending Resolution Team',
-  PRL: 'Pending Resolution Lead',
-  CLR: 'Clarification Required',
-  RSL: 'Resolved',
-  CLD: 'Closed',
-  ERR: 'Error'
+  DRF: 'DRF',
+  SUB: 'SUB',
+  RSB: 'RSB',
+  PRT: 'PRT',
+  PRL: 'PRL',
+  CLR: 'CLR',
+  RSL: 'RSL',
+  CLD: 'CLD',
+  ERR: 'ERR'
 });
 
 const UserType = Object.freeze({});
