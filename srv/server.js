@@ -8,6 +8,7 @@ cds.on('bootstrap', (app) => {
     '/rest/btp/core/workflow-task': '/rest/btp/core/MON_WF_TASK',
     '/rest/btp/core/te-servicerequest': '/rest/btp/core/TE_SR',
     '/rest/btp/core/users': '/rest/btp/core/CORE_USERS',
+    '/rest/btp/core/user-info': '/rest/btp/core/userInfo()',
     '/rest/btp/core/auth-matrix': '/rest/btp/core/AUTH_MATRIX',
   }
   for (const [alias, target] of Object.entries(mappings)) {
