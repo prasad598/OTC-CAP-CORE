@@ -410,8 +410,8 @@ module.exports = (srv) => {
     try {
       const jwt = retrieveJwt(req)
       const response = await executeHttpRequest(
-        { destinationName: 'CIS_SCIM_API', jwt },
-        { method: 'GET', url: `/scim/Users/${scimId}` }
+        { destinationName: 'srv', jwt },
+        { method: 'GET', url: `/rest/btp/scim/Users/${scimId}` }
       )
       const rawGroups = (response.data && response.data.groups) || []
       groups = rawGroups
