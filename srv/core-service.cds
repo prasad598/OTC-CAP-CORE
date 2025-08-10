@@ -100,7 +100,8 @@ service ReportService {
     concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
 
     task.ASSIGNED_GROUP,
-    task.TASK_TYPE
+    task.TASK_TYPE,
+    virtual user_scim_id : String @cds.odata.name:'user-scim-id'
   };
 
   entity CONFIG_LDATA as projection on core.CONFIG_LDATA;
