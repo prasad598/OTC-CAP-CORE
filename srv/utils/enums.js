@@ -43,6 +43,14 @@ const CommentEvent = Object.freeze({
 
 const EventStatus = Object.freeze({});
 
+const Variant = Object.freeze({
+  MY_CASES: 'MY_CASES',
+  CLOSED_CASES: 'CLOSED_CASES',
+  OPEN_CASES: 'OPEN_CASES',
+  TOTAL_CASES: 'TOTAL_CASES',
+  SLA_BREACH_CASES: 'SLA_BREACH_CASES'
+});
+
 module.exports = {
   Decision,
   TaskType,
@@ -51,5 +59,6 @@ module.exports = {
   UserType,
   CommentType,
   CommentEvent,
-  EventStatus
+  EventStatus,
+  Variant
 };

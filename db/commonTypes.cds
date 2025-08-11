@@ -30,3 +30,11 @@ type decision   : String(10);
 type iasGroup   : String(50);
 type commentType : String enum { document; milestone; };
 type commentEvent: String enum { ServiceRequestCreated = 'Service Request Created'; };
+
+type reportVariant : String enum {
+  MY_CASES;
+  CLOSED_CASES;
+  OPEN_CASES;
+  TOTAL_CASES;
+  SLA_BREACH_CASES;
+};

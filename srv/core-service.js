@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 const { SELECT, UPDATE, INSERT, DELETE } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
-const { Decision, RequestType, TaskType, Status } = require('./utils/enums')
+const { Decision, RequestType, TaskType, Status, Variant } = require('./utils/enums')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -159,6 +159,7 @@ module.exports = (srv) => {
                 SRC_PROB_CD,
                 UPDATED_BY: user,
                 UPDATED_DATETIME: now,
+                PROCESSOR: user,
               })
               .where({ REQ_TXN_ID })
           )
@@ -218,14 +219,9 @@ module.exports = (srv) => {
     })
 
     srv.on('massDeleteUsers', async (req) => {
-      const { emails } = req.data || {}
-      if (!emails || emails.length === 0) return { deleted: 0 }
       const tx = srv.transaction(req)
       const result = await tx.run(
-        DELETE.from(CORE_USERS).where({
-          USER_EMAIL: { in: emails },
-          language: 'EN',
-        })
+        DELETE.from(CORE_USERS).where({ language: 'EN' })
       )
       return { deleted: result }
     })
@@ -241,19 +237,11 @@ module.exports = (srv) => {
     })
 
     srv.on('massDeleteAuthMatrix', async (req) => {
-      const { keys } = req.data || {}
       const tx = srv.transaction(req)
-      let count = 0
-      for (const k of keys || []) {
-        count += await tx.run(
-          DELETE.from(AUTH_MATRIX).where({
-            ASSIGNED_GROUP: k.ASSIGNED_GROUP,
-            USER_EMAIL: k.USER_EMAIL,
-            language: 'EN',
-          })
-        )
-      }
-      return { deleted: count }
+      const result = await tx.run(
+        DELETE.from(AUTH_MATRIX).where({ language: 'EN' })
+      )
+      return { deleted: result }
     })
 
     srv.on('massCreateConfigLdata', async (req) => {
@@ -267,20 +255,11 @@ module.exports = (srv) => {
     })
 
     srv.on('massDeleteConfigLdata', async (req) => {
-      const { keys } = req.data || {}
       const tx = srv.transaction(req)
-      let count = 0
-      for (const k of keys || []) {
-        count += await tx.run(
-          DELETE.from(CONFIG_LDATA).where({
-            REQUEST_TYPE: k.REQUEST_TYPE,
-            OBJECT: k.OBJECT,
-            CODE: k.CODE,
-            language: 'EN',
-          })
-        )
-      }
-      return { deleted: count }
+      const result = await tx.run(
+        DELETE.from(CONFIG_LDATA).where({ language: 'EN' })
+      )
+      return { deleted: result }
     })
   }
 
@@ -409,9 +388,14 @@ module.exports = (srv) => {
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
       (req.req && req.req.query && req.req.query['user-scim-id'])
-    console.log('TE_REPORT_VIEW scimId:', scimId)
+    const variant =
+      req.data.VARIENT ||
+      (req.req && req.req.query && req.req.query.VARIENT)
+    console.log('TE_REPORT_VIEW scimId:', scimId, 'variant:', variant)
     if (!scimId) return
+
     let groups = []
+    let email
     try {
       const jwt = retrieveJwt(req)
       const { data } = await executeHttpRequest(
@@ -422,28 +406,112 @@ module.exports = (srv) => {
       groups = rawGroups
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
         .filter((g) => g && g.startsWith('STE_TE_'))
+      email = (data.emails || []).find((e) => e.primary)?.value
       console.log('TE_REPORT_VIEW groups:', groups)
+      console.log('TE_REPORT_VIEW email:', email)
     } catch (error) {
-      return req.error(502, `Failed to fetch user groups: ${error.message}`)
+      return req.error(502, `Failed to fetch user info: ${error.message}`)
     }
-    if (!groups.length) {
-      req.query.SELECT.where = ['1', '=', '0']
-      console.log(
-        'TE_REPORT_VIEW query before execution:',
-        JSON.stringify(req.query, null, 2)
-      )
-      return
+
+    const append = (cond) => {
+      if (req.query.SELECT.where) req.query.SELECT.where.push('and', ...cond)
+      else req.query.SELECT.where = cond
     }
-    const cond = [
-      { ref: ['ASSIGNED_GROUP'] },
-      'in',
-      { list: groups.map((g) => ({ val: g })) }
-    ]
-    if (req.query.SELECT.where) {
-      req.query.SELECT.where.push('and', cond)
-    } else {
-      req.query.SELECT.where = cond
+
+    switch (variant) {
+      case Variant.MY_CASES: {
+        if (!email) {
+          req.query.SELECT.where = ['1', '=', '0']
+          break
+        }
+        append([{ ref: ['CREATED_BY_EMAIL'] }, '=', { val: email }])
+        break
+      }
+      case Variant.CLOSED_CASES: {
+        if (!email) {
+          req.query.SELECT.where = ['1', '=', '0']
+          break
+        }
+        append([
+          { ref: ['SR_PROCESSOR'] }, '=', { val: email },
+          'and',
+          { ref: ['STATUS_CODE'] }, '=', { val: Status.RSL }
+        ])
+        break
+      }
+      case Variant.OPEN_CASES: {
+        const teamGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM'))
+        if (!teamGroups.length && !email) {
+          req.query.SELECT.where = ['1', '=', '0']
+          break
+        }
+        const orCond = []
+        if (teamGroups.length)
+          orCond.push(
+            { ref: ['ASSIGNED_GROUP'] },
+            'in',
+            { list: teamGroups.map((g) => ({ val: g })) }
+          )
+        if (email) {
+          if (orCond.length) orCond.push('or')
+          orCond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
+        }
+        const cond = ['('].concat(orCond).concat([
+          ')',
+          'and',
+          { ref: ['TASK_STATUS'] },
+          'in',
+          { list: [{ val: 'READY' }, { val: 'RESERVED' }] }
+        ])
+        append(cond)
+        break
+      }
+      case Variant.TOTAL_CASES: {
+        if (!groups.includes('STE_TE_ADMIN')) {
+          req.query.SELECT.where = ['1', '=', '0']
+        }
+        break
+      }
+      case Variant.SLA_BREACH_CASES: {
+        const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_LEAD'))
+        if (!leadGroups.length && !email) {
+          req.query.SELECT.where = ['1', '=', '0']
+          break
+        }
+        const orCond = []
+        if (leadGroups.length)
+          orCond.push(
+            { ref: ['ASSIGNED_GROUP'] },
+            'in',
+            { list: leadGroups.map((g) => ({ val: g })) }
+          )
+        if (email) {
+          if (orCond.length) orCond.push('or')
+          orCond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
+        }
+        const cond = ['('].concat(orCond).concat([
+          ')',
+          'and',
+          { ref: ['TASK_STATUS'] },
+          'in',
+          { list: [{ val: 'READY' }, { val: 'RESERVED' }] }
+        ])
+        append(cond)
+        break
+      }
+      default: {
+        if (!groups.length) {
+          req.query.SELECT.where = ['1', '=', '0']
+          break
+        }
+        append([
+          { ref: ['ASSIGNED_GROUP'] },
+          'in',
+          { list: groups.map((g) => ({ val: g })) }
+        ])
+      }
     }
+
     console.log(
       'TE_REPORT_VIEW query before execution:',
       JSON.stringify(req.query, null, 2)
