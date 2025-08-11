@@ -133,6 +133,8 @@ entity TE_SR : Auditable {
   REQUEST_ID           : String(30);
   DECISION             : commonTypes.decision @cds.persistence.skip;
 
+  PROCESSOR            : commonTypes.emailId;
+
   REQUESTER_ID         : commonTypes.emailId;
   SRV_CAT_CD           : commonTypes.lookupCode;
   SR_DETAILS           : commonTypes.shortText;

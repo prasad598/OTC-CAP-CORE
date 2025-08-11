@@ -1,4 +1,5 @@
 using BTP as core from '../db/schema';
+using { commonTypes } from '../db/commonTypes';
 
 type ScimGroup {
   value  : String;
@@ -47,20 +48,13 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   };
 
     action massCreateUsers (entries: array of CORE_USERS);
-    action massDeleteUsers (emails: array of String);
+    action massDeleteUsers ();
 
     action massCreateAuthMatrix (entries: array of AUTH_MATRIX);
-    action massDeleteAuthMatrix (keys: array of {
-      ASSIGNED_GROUP: String;
-      USER_EMAIL: String;
-    });
+    action massDeleteAuthMatrix ();
 
     action massCreateConfigLdata (entries: array of CONFIG_LDATA);
-    action massDeleteConfigLdata (keys: array of {
-      REQUEST_TYPE: String;
-      OBJECT: String;
-      CODE: String;
-    });
+    action massDeleteConfigLdata ();
 
     function userInfo() returns LoggedUserInfo;
 }
@@ -70,7 +64,7 @@ service ReportService {
   @readonly
   entity TE_REPORT_VIEW as select from core.TE_SR as sr
     left outer join (
-    select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, UPDATED_DATETIME }
+    select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, TASK_STATUS, PROCESSOR, UPDATED_DATETIME }
     where t.UPDATED_DATETIME = (
         select max(x.UPDATED_DATETIME)
         from core.MON_WF_TASK as x
@@ -100,8 +94,12 @@ service ReportService {
     user.USER_ID        as CREATED_BY,
     concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
 
+    sr.PROCESSOR        as SR_PROCESSOR,
+    task.PROCESSOR      as TASK_PROCESSOR,
     task.ASSIGNED_GROUP,
     task.TASK_TYPE,
+    task.TASK_STATUS,
+    virtual VARIENT     : commonTypes.reportVariant,
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
   };
 
