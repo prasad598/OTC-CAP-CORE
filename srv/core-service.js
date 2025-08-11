@@ -261,6 +261,40 @@ module.exports = (srv) => {
       )
       return { deleted: result }
     })
+
+    srv.on('CREATE', 'CORE_ATTACHMENTS', async (req, next) => {
+      const list = Array.isArray(req.data) ? req.data : [req.data]
+      list.forEach((e) => {
+        if (!e.language) e.language = 'EN'
+      })
+      try {
+        await next()
+      } catch (error) {
+        req.error(error)
+        return
+      }
+      const tx = srv.transaction(req)
+      const key = list[0] && list[0].REQ_TXN_ID
+      if (!key) return []
+      return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
+    })
+
+    srv.on('CREATE', 'CORE_COMMENTS', async (req, next) => {
+      const list = Array.isArray(req.data) ? req.data : [req.data]
+      list.forEach((e) => {
+        if (!e.language) e.language = 'EN'
+      })
+      try {
+        await next()
+      } catch (error) {
+        req.error(error)
+        return
+      }
+      const tx = srv.transaction(req)
+      const key = list[0] && list[0].REQ_TXN_ID
+      if (!key) return []
+      return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
+    })
   }
 
   srv.before('CREATE', 'TE_SR', async (req) => {
