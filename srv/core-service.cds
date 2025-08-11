@@ -101,7 +101,7 @@ service ReportService {
     task.TASK_STATUS,
     virtual VARIENT     : commonTypes.reportVariant,
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
-  };
+  } order by sr.REQUEST_ID desc;
 
   entity CONFIG_LDATA as projection on core.CONFIG_LDATA;
 }
