@@ -109,7 +109,7 @@ module.exports = (srv) => {
           path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
           data: {
             status: 'COMPLETED',
-            decision: decision && decision.toLowerCase(),
+            decision,
             context: {},
           },
           headers: { 'Content-Type': 'application/json' },
