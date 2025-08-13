@@ -466,74 +466,85 @@ module.exports = (srv) => {
         break
       }
       case Variant.CLOSED_CASES: {
-        if (!email) {
+        if (!email || !groups.length) {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
         append([
           { ref: ['SR_PROCESSOR'] }, '=', { val: email },
           'and',
+          { ref: ['ASSIGNED_GROUP'] },
+          'in',
+          { list: groups.map((g) => ({ val: g })) },
+          'and',
           { ref: ['STATUS_CODE'] }, '=', { val: Status.RSL }
         ])
         break
       }
       case Variant.OPEN_CASES: {
-        const teamGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM'))
+        const teamGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM_'))
         if (!teamGroups.length && !email) {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
-        const orCond = []
-        if (teamGroups.length)
-          orCond.push(
+        const cond = []
+        if (teamGroups.length) {
+          cond.push(
+            '(',
             { ref: ['ASSIGNED_GROUP'] },
             'in',
-            { list: teamGroups.map((g) => ({ val: g })) }
+            { list: teamGroups.map((g) => ({ val: g })) },
+            'and',
+            { ref: ['STATUS_CODE'] },
+            '=',
+            { val: Status.PRT },
+            ')'
           )
-        if (email) {
-          if (orCond.length) orCond.push('or')
-          orCond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
         }
-        const cond = ['('].concat(orCond).concat([
-          ')',
-          'and',
-          { ref: ['TASK_STATUS'] },
-          'in',
-          { list: [{ val: 'READY' }, { val: 'RESERVED' }] }
-        ])
+        if (email) {
+          if (cond.length) cond.push('or')
+          cond.push({ ref: ['SR_PROCESSOR'] }, '=', { val: email })
+        }
         append(cond)
         break
       }
       case Variant.TOTAL_CASES: {
-        if (!groups.includes('STE_TE_ADMIN')) {
+        const adminGroups = groups.filter((g) => g.startsWith('STE_TE_SUPR_ADMN'))
+        if (!adminGroups.length) {
           req.query.SELECT.where = ['1', '=', '0']
+          break
         }
+        append([
+          { ref: ['ASSIGNED_GROUP'] },
+          'in',
+          { list: adminGroups.map((g) => ({ val: g })) }
+        ])
         break
       }
       case Variant.SLA_BREACH_CASES: {
-        const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_LEAD'))
+        const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM_LEAD_'))
         if (!leadGroups.length && !email) {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
-        const orCond = []
-        if (leadGroups.length)
-          orCond.push(
+        const cond = []
+        if (leadGroups.length) {
+          cond.push(
+            '(',
             { ref: ['ASSIGNED_GROUP'] },
             'in',
-            { list: leadGroups.map((g) => ({ val: g })) }
+            { list: leadGroups.map((g) => ({ val: g })) },
+            'and',
+            { ref: ['STATUS_CODE'] },
+            '=',
+            { val: Status.PRL },
+            ')'
           )
-        if (email) {
-          if (orCond.length) orCond.push('or')
-          orCond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
         }
-        const cond = ['('].concat(orCond).concat([
-          ')',
-          'and',
-          { ref: ['TASK_STATUS'] },
-          'in',
-          { list: [{ val: 'READY' }, { val: 'RESERVED' }] }
-        ])
+        if (email) {
+          if (cond.length) cond.push('or')
+          cond.push({ ref: ['SR_PROCESSOR'] }, '=', { val: email })
+        }
         append(cond)
         break
       }
