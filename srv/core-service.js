@@ -7,6 +7,7 @@ const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
+const { normalizeVariant } = require('./utils/variant')
 
 async function triggerWorkflow(te_sr, user) {
   const workflowPayload = {
@@ -426,9 +427,10 @@ module.exports = (srv) => {
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
       (req.req && req.req.query && req.req.query['user-scim-id'])
-    const variant =
+    let variant =
       req.data.VARIENT ||
       (req.req && req.req.query && req.req.query.VARIENT)
+    variant = normalizeVariant(variant)
     console.log('TE_REPORT_VIEW scimId:', scimId, 'variant:', variant)
     if (!scimId) return
 
