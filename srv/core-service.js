@@ -332,9 +332,10 @@ module.exports = (srv) => {
     const tx = cds.transaction(req)
     try {
       const { REQUEST_ID } = await tx.run(
-        SELECT.one.from('BTP.TE_SR').columns('REQUEST_ID').where({
-          REQ_TXN_ID: req.data.REQ_TXN_ID,
-        })
+        SELECT.one
+          .from('BTP.TE_SR')
+          .columns('REQUEST_ID')
+          .where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
       )
       req._oldRequestId = REQUEST_ID
       if (!REQUEST_ID && req.data.DECISION === Decision.SUB) {
@@ -342,6 +343,16 @@ module.exports = (srv) => {
           prefix: 'CASE',
           requestType: RequestType.TE,
         })
+      }
+      if (req.data.DECISION) {
+        const taskType = req.data.TASK_TYPE || TaskType.TE_REQUESTER
+        req.data.STATUS_CD = generateReqNextStatus(
+          RequestType.TE,
+          taskType,
+          req.data.DECISION
+        )
+      } else {
+        delete req.data.STATUS_CD
       }
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
