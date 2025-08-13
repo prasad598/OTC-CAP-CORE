@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
+const { json } = require('express')
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -14,8 +15,17 @@ cds.on('bootstrap', (app) => {
     '/rest/btp/core/auth-matrix': '/rest/btp/core/AUTH_MATRIX',
   }
   for (const [alias, target] of Object.entries(mappings)) {
-    app.use(alias, (req, res) => {
-      res.redirect(307, target + req.originalUrl.slice(alias.length))
+    app.use(alias, json(), (req, res) => {
+      let suffix = req.originalUrl.slice(alias.length)
+      if (
+        alias === '/rest/btp/core/te-servicerequest' &&
+        req.method === 'PATCH' &&
+        (!suffix || suffix === '/') &&
+        req.body?.REQ_TXN_ID
+      ) {
+        suffix = `(REQ_TXN_ID=${encodeURIComponent(req.body.REQ_TXN_ID)})`
+      }
+      res.redirect(307, target + suffix)
     })
   }
 
