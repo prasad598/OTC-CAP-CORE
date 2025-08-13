@@ -119,7 +119,7 @@ module.exports = (srv) => {
       }
 
       // Step 2: Transactional DB update
-      const tx = srv.transaction(req)
+      const tx = cds.transaction(req)
       const now = new Date()
       let wfInstanceId
       try {
@@ -176,11 +176,7 @@ module.exports = (srv) => {
             )
           }
         }
-
-        await tx.commit()
       } catch (error) {
-        await tx.rollback(error)
-
         const body = [
           `Exception: ${error.message}`,
           `REQ_TXN_ID: ${REQ_TXN_ID}`,
@@ -198,10 +194,7 @@ module.exports = (srv) => {
           body
         )
 
-        return req.error(
-          500,
-          'Technical error occurred, contact system admin'
-        )
+        req.error(500, 'Technical error occurred, contact system admin')
       }
 
       return { status: 'success' }
