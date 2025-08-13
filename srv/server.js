@@ -96,7 +96,7 @@ cds.on('bootstrap', (app) => {
           conditions.push({ CREATION_DATE: { '<=': filter.CREATION_DATE2 } })
         }
         const query = SELECT.from(TE_REPORT_VIEW)
-        if (conditions.length) query.where(conditions)
+        if (conditions.length) query.where(...conditions)
         const rows = await reportSrv.run(query)
         const buffer = buildExcel(rows, TE_SR_COLUMNS)
         const user = await fetchIasUser(req)
