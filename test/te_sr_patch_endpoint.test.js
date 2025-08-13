@@ -67,5 +67,39 @@ describe('TE_SR PATCH alias', () => {
     const patched = await res.json();
     assert.ok(patched.REQUEST_ID);
   });
+
+  it('derives STATUS_CD from DECISION when provided', async () => {
+    let res = await fetch('http://localhost:4006/rest/btp/core/te-servicerequest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        DECISION: 'draft',
+        SRV_CAT_CD: 'REQEXM',
+        SR_DETAILS: 'Initial request',
+        CASE_REQ_ID: 'REQ0002',
+        REQ_FOR_NAME: 'Prasad Bandaru',
+        REQ_FOR_EMAIL: 'nagavaraprasad.bandaru@stengg.com',
+        CASE_PRIO: 'H',
+        CREATED_BY: 'nagavaraprasad.bandaru@stengg.com',
+        REQUESTER_ID: 'nagavaraprasad.bandaru@stengg.com',
+        ENTITY_CD: '803',
+      }),
+    });
+    assert.strictEqual(res.status, 201);
+    const created = await res.json();
+
+    res = await fetch('http://localhost:4006/rest/btp/core/te-servicerequest', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        REQ_TXN_ID: created.REQ_TXN_ID,
+        DECISION: 'submit',
+        STATUS_CD: 'DRF',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    const patched = await res.json();
+    assert.strictEqual(patched.STATUS_CD, 'PRT');
+  });
 });
 
