@@ -220,33 +220,6 @@ body is ignored.
 
 ---
 
-## /rest/btp/core/processTaskUpdate
-
-**POST** `/rest/btp/core/processTaskUpdate`
-
-Completes a workflow task and updates the related service request.
-
-```json
-{
-  "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
-  "TASK_INSTANCE_ID": "8f1d49fd-e6f2-4f8e-9fb9-1d23c52f1ed8",
-  "TASK_TYPE": "TE_REQUESTER",
-  "DECISION": "APPROVE",
-  "CASE_BCG": "Background info",
-  "SRC_PROB_CD": "SRC1"
-}
-```
-
-**Response**
-
-```json
-{
-  "status": "success"
-}
-```
-
----
-
 ## /rest/btp/core/te-servicerequest
 
 **GET** `/rest/btp/core/te-servicerequest`
