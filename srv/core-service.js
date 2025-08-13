@@ -513,7 +513,7 @@ module.exports = (srv) => {
         }
         if (email) {
           if (cond.length) cond.push('or')
-          cond.push({ ref: ['SR_PROCESSOR'] }, '=', { val: email })
+          cond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
         }
         append(cond)
         break
@@ -553,7 +553,7 @@ module.exports = (srv) => {
         }
         if (email) {
           if (cond.length) cond.push('or')
-          cond.push({ ref: ['SR_PROCESSOR'] }, '=', { val: email })
+          cond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
         }
         append(cond)
         break
