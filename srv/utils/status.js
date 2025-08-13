@@ -18,7 +18,7 @@ function generateReqNextStatus(requestType, taskType, decision) {
           case Decision.APR:
             return Status.RSL;
           case Decision.REJ:
-            return Status.CLD;
+            return Status.CLR;
           case Decision.ESL:
             return Status.PRL;
           default:
@@ -29,7 +29,7 @@ function generateReqNextStatus(requestType, taskType, decision) {
           case Decision.APR:
             return Status.RSL;
           case Decision.REJ:
-            return Status.CLD;
+            return Status.CLR;
           default:
             return Status.ERR;
         }
