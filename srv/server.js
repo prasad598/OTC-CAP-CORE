@@ -2,6 +2,11 @@ const cds = require('@sap/cds')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
+const { sendEmail } = require('./utils/mail')
+const { buildExcel } = require('./utils/excel')
+const { TE_SR_COLUMNS } = require('./utils/teSrColumns')
+const { fetchIasUser } = require('./utils/ias')
+const { SELECT } = cds.ql
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -29,7 +34,7 @@ cds.on('bootstrap', (app) => {
     })
   }
 
-  app.get('/rest/btp/scim/Users/:id', async (req, res, next) => {
+    app.get('/rest/btp/scim/Users/:id', async (req, res, next) => {
     try {
       const jwt = retrieveJwt(req)
       if (!jwt) {
@@ -62,6 +67,66 @@ cds.on('bootstrap', (app) => {
       next(err)
     }
   })
+
+    app.post('/rest/btp/te/emailCaseList', json(), async (req, res, next) => {
+      try {
+        const { filter = {} } = req.body || {}
+        const reportSrv = await cds.connect.to('ReportService')
+        const { TE_REPORT_VIEW } = reportSrv.entities
+        const conditions = []
+        if (filter.SRV_CAT_CD)
+          conditions.push({ SERVICE_CATEGORY_CODE: filter.SRV_CAT_CD })
+        if (filter.STATUS_CD)
+          conditions.push({ STATUS_CODE: filter.STATUS_CD })
+        if (filter.ENTITY_CD)
+          conditions.push({ ENTITY_CODE: filter.ENTITY_CD })
+        if (filter.ASSIGNED_GROUP)
+          conditions.push({ ASSIGNED_GROUP: filter.ASSIGNED_GROUP })
+        if (filter.CREATED_BY)
+          conditions.push({ CREATED_BY: filter.CREATED_BY })
+        if (filter.CREATION_DATE1 && filter.CREATION_DATE2) {
+          conditions.push({
+            CREATION_DATE: {
+              between: [filter.CREATION_DATE1, filter.CREATION_DATE2],
+            },
+          })
+        } else if (filter.CREATION_DATE1) {
+          conditions.push({ CREATION_DATE: { '>=': filter.CREATION_DATE1 } })
+        } else if (filter.CREATION_DATE2) {
+          conditions.push({ CREATION_DATE: { '<=': filter.CREATION_DATE2 } })
+        }
+        const query = SELECT.from(TE_REPORT_VIEW)
+        if (conditions.length) query.where(conditions)
+        const rows = await reportSrv.run(query)
+        const buffer = buildExcel(rows, TE_SR_COLUMNS)
+        const user = await fetchIasUser(req)
+        const to =
+          user.emails?.find((e) => e.primary)?.value || user.emails?.[0]?.value
+        await sendEmail(
+          'TE Case List',
+          to,
+          null,
+          'Please find attached TE case list.',
+          [
+            {
+              filename: 'case-list.xls',
+              content: buffer.toString('base64'),
+              'content-type': 'application/vnd.ms-excel',
+            },
+          ]
+        )
+        res.json({ status: 'sent', rows: rows.length })
+      } catch (err) {
+        next(err)
+      }
+    })
+
+    app.get(
+      '/rest/btp/core/TE_SR/9af63951-2772-4174-80fa-b7661faafbf7',
+      (req, res) => {
+        res.json(TE_SR_COLUMNS)
+      }
+    )
 
   app.use((err, req, res, _next) => {
     const status = err.statusCode || err.status || 500
