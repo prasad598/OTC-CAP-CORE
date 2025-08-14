@@ -464,7 +464,7 @@ module.exports = (srv) => {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
-        append([{ ref: ['CREATED_BY_EMAIL'] }, '=', { val: email }])
+        append([{ ref: ['CREATED_BY'] }, '=', { val: email }])
         break
       }
         case Variant.CLOSED_CASES: {
@@ -480,7 +480,7 @@ module.exports = (srv) => {
               'in',
               { list: groups.map((g) => ({ val: g })) },
               'and',
-              { ref: ['STATUS_CODE'] }, '=', { val: Status.RSL },
+              { ref: ['STATUS_CD'] }, '=', { val: Status.RSL },
               ')'
             )
           }
@@ -505,7 +505,7 @@ module.exports = (srv) => {
             'in',
             { list: teamGroups.map((g) => ({ val: g })) },
             'and',
-            { ref: ['STATUS_CODE'] },
+            { ref: ['STATUS_CD'] },
             '=',
             { val: Status.PRT },
             ')'
@@ -545,7 +545,7 @@ module.exports = (srv) => {
             'in',
             { list: leadGroups.map((g) => ({ val: g })) },
             'and',
-            { ref: ['STATUS_CODE'] },
+            { ref: ['STATUS_CD'] },
             '=',
             { val: Status.PRL },
             ')'

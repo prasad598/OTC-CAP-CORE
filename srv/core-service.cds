@@ -79,19 +79,19 @@ service ReportService {
     key sr.REQ_TXN_ID   as REQ_TXN_ID,
     sr.REQUEST_ID       as REQUEST_ID,
     sr.DRAFT_ID         as DRAFT_ID,
-    sr.SRV_CAT_CD       as SERVICE_CATEGORY_CODE,
-    cat.DESC            as SERVICE_CATEGORY,
+    sr.SRV_CAT_CD       as SRV_CAT_CD,
+    cat.DESC            as SRV_CAT,
     sr.CASE_REQ_ID      as REQ_REP_NO,
-    sr.CREATED_DATETIME as CREATION_DATE,
+    sr.CREATED_DATETIME as CREATED_DATETIME,
 
-    sr.STATUS_CD        as STATUS_CODE,
+    sr.STATUS_CD        as STATUS_CD,
     status.DESC         as STATUS,
 
     sr.ENTITY_CD        as ENTITY_CODE,
     entity.DESC         as ENTITY,
 
-    sr.CREATED_BY       as CREATED_BY_EMAIL,
-    user.USER_ID        as CREATED_BY,
+    sr.CREATED_BY       as CREATED_BY,
+    user.USER_ID        as CREATED_BY_EMPID,
     concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
 
     sr.PROCESSOR        as SR_PROCESSOR,
