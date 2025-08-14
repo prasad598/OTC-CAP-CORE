@@ -253,6 +253,8 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
   "ESCALATED_DATETIME": "2024-01-03T00:00:00Z",
   "IS_RESOLVED": false,
   "RESOLVED_DATETIME": "2024-01-04T00:00:00Z",
+  "IS_CLOSED": false,
+  "CLOSED_DATETIME": "2024-01-05T00:00:00Z",
   "CREATED_BY": "admin",
   "CREATED_DATETIME": "2024-01-01T00:00:00Z",
   "UPDATED_BY": "admin",
