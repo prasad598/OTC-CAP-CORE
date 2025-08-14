@@ -155,6 +155,8 @@ entity TE_SR : Auditable {
   ESCALATED_DATETIME   : commonTypes.dateTime;
   IS_RESOLVED          : commonTypes.booleanYN;
   RESOLVED_DATETIME    : commonTypes.dateTime;
+  IS_CLOSED            : commonTypes.booleanYN;
+  CLOSED_DATETIME      : commonTypes.dateTime;
 }
 
 entity CORE_REQ_SEQ : Auditable {

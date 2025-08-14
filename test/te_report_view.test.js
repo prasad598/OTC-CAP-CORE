@@ -51,7 +51,9 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       IS_ESCALATED: 'Y',
       ESCALATED_DATETIME: '2024-01-03T00:00:00Z',
       IS_RESOLVED: 'N',
-      RESOLVED_DATETIME: '2024-01-04T00:00:00Z'
+      RESOLVED_DATETIME: '2024-01-04T00:00:00Z',
+      IS_CLOSED: 'N',
+      CLOSED_DATETIME: '2024-01-05T00:00:00Z'
     })
 
     const result = await SELECT.one.from(TE_REPORT_VIEW).where({ REQ_TXN_ID: id })
@@ -62,6 +64,8 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(new Date(result.ESCALATED_DATETIME).toISOString(), '2024-01-03T00:00:00.000Z')
     assert.strictEqual(result.IS_RESOLVED, 'N')
     assert.strictEqual(new Date(result.RESOLVED_DATETIME).toISOString(), '2024-01-04T00:00:00.000Z')
+    assert.strictEqual(result.IS_CLOSED, 'N')
+    assert.strictEqual(new Date(result.CLOSED_DATETIME).toISOString(), '2024-01-05T00:00:00.000Z')
     assert.strictEqual(result.DRAFT_ID, 'TE-DRFT-00001')
     assert.strictEqual(result.REQUEST_ID, 'REQ-0001')
     assert.strictEqual(result.REQ_REP_NO, 'REP-0001')
