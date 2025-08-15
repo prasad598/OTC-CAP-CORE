@@ -84,8 +84,6 @@ async function postComment(
     payload.COMMENT_TYPE = CommentType.DOCUMENT;
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION;
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD;
-  } else {
-    return payload;
   }
 
   Object.assign(payload, extra)

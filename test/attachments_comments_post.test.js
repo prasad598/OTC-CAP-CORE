@@ -77,4 +77,26 @@ describe('CORE_ATTACHMENTS and CORE_COMMENTS create handlers', () => {
     assert.ok(res.some((r) => r.COMMENTS === 'first'))
     assert.ok(res.some((r) => r.COMMENTS === 'second'))
   })
+
+  it('saves comments without task details', async () => {
+    const { CORE_COMMENTS } = srv.entities
+    const id = '55555555-5555-5555-5555-555555555555'
+    await INSERT.into(CORE_COMMENTS).entries({
+      REQ_TXN_ID: id,
+      language: 'EN',
+      COMMENTS: 'first',
+      CREATED_BY: 'tester'
+    })
+    const req = {
+      data: {
+        REQ_TXN_ID: id,
+        language: 'EN',
+        COMMENTS: 'second',
+        CREATED_BY: 'tester'
+      }
+    }
+    const res = await srv._createComment(req)
+    assert.strictEqual(res.length, 2)
+    assert.ok(res.some((r) => r.COMMENTS === 'second'))
+  })
 })
