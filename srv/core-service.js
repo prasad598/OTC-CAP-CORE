@@ -3,6 +3,7 @@ const { SELECT, UPDATE, INSERT, DELETE } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
 const { Decision, RequestType, TaskType, Status, Variant } = require('./utils/enums')
+const { postComment } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -204,6 +205,14 @@ module.exports = (srv) => {
         req.error(500, 'Technical error occurred, contact system admin')
       }
 
+      return { status: 'success' }
+    })
+
+    srv.on('postComment', async (req) => {
+      const { comment, transactionId, createdBy, taskType, decision } = req.data
+      const user = createdBy || (req.user && req.user.id)
+      const tx = srv.transaction(req)
+      await postComment(comment, transactionId, user, taskType, decision, tx)
       return { status: 'success' }
     })
 

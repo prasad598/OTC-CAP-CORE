@@ -4,13 +4,15 @@ const Decision = Object.freeze({
   RSB: 'submit',
   APR: 'approve',
   REJ: 'reject',
-  ESL: 'Escalate'
+  ESL: 'Escalate',
+  ESLA: 'Escalate'
 });
 
 const TaskType = Object.freeze({
   TE_REQUESTER: 'TE_REQUESTER',
   TE_RESO_TEAM: 'TE_RESO_TEAM',
-  TE_RESO_LEAD: 'TE_RESO_LEAD'
+  TE_RESO_LEAD: 'TE_RESO_LEAD',
+  TE_AUTO_ESLA: 'TE_AUTO_ESLA'
 });
 
 const RequestType = Object.freeze({
@@ -30,7 +32,11 @@ const Status = Object.freeze({
   ERR: 'ERR'
 });
 
-const UserType = Object.freeze({});
+const UserType = Object.freeze({
+  TE_REQUESTER: 'TE_REQUESTER',
+  RESOLUTION_TEAM: 'Resolution Team',
+  RESOLUTION_LEAD: 'Resolution Lead'
+});
 
 const CommentType = Object.freeze({
   DOCUMENT: 'document',
@@ -38,10 +44,19 @@ const CommentType = Object.freeze({
 });
 
 const CommentEvent = Object.freeze({
-  SERVICE_REQUEST_CREATED: 'Service Request Created'
+  SERVICE_REQUEST_CREATED: 'Service Request Created',
+  SERVICE_REQUEST_RESOLVED: 'Service Request Resolved',
+  SERVICE_REQUEST_NEED_CLARIFICATION: 'Service Request need clarification',
+  SERVICE_REQUEST_AUTO_CLOSED: 'Service Request Auto Closed',
+  SERVICE_REQUEST_ESCALATED: 'Service Request Escalated',
+  SERVICE_REQUEST_AUTO_ESCALATED: 'Service Request Auto Escalated'
 });
 
-const EventStatus = Object.freeze({});
+const EventStatus = Object.freeze({
+  IN_PROGRESS: 'In Progress',
+  COMPLETED: 'Completed',
+  ON_HOLD: 'On Hold'
+});
 
 const Variant = Object.freeze({
   MY_CASES: 'MY_CASES',
