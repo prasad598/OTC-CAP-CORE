@@ -50,16 +50,6 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     status : String;
   };
 
-  action postComment(
-    comment       : String,
-    transactionId : UUID,
-    createdBy     : String,
-    taskType      : String,
-    decision      : String
-  ) returns {
-    status : String;
-  };
-
     action massCreateUsers (entries: array of CORE_USERS);
     action massDeleteUsers ();
 
