@@ -1,5 +1,5 @@
-const cds = require('@sap/cds');
-const { SELECT, INSERT } = cds.ql;
+const cds = require('@sap/cds')
+const { SELECT } = cds.ql
 const {
   CommentType,
   CommentEvent,
@@ -21,7 +21,7 @@ function resolveEntity(tx, name) {
   return hasServiceDef ? name : `BTP.${name}`
 }
 
-async function postComment(
+async function buildCommentPayload(
   comment,
   transactionId,
   createdBy,
@@ -31,7 +31,6 @@ async function postComment(
   extra = {}
 ) {
   const teSrEntity = resolveEntity(tx, 'TE_SR')
-  const coreCommentsEntity = resolveEntity(tx, 'CORE_COMMENTS')
 
   let { REQUEST_ID } = extra
   if (!REQUEST_ID) {
@@ -98,8 +97,6 @@ async function postComment(
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
   }
 
-  await tx.run(INSERT.into(coreCommentsEntity).entries(payload))
   return payload
 }
-
-module.exports = { postComment };
+module.exports = { buildCommentPayload }
