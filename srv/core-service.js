@@ -152,17 +152,23 @@ module.exports = (srv) => {
             decision
           )
 
+          const teSrUpdate = {
+            STATUS_CD: statusCd,
+            CASE_BCG,
+            SRC_PROB_CD,
+            UPDATED_BY: user,
+            UPDATED_DATETIME: now,
+            PROCESSOR: user,
+          }
+          if (decision === Decision.APR) {
+            teSrUpdate.RESOLVED_DATETIME = now
+          } else if (decision === Decision.REJ) {
+            teSrUpdate.IS_CLAR_REQ_DATETIME = now
+          } else if (decision === Decision.ESL) {
+            teSrUpdate.ESCALATED_DATETIME = now
+          }
           await tx.run(
-            UPDATE('BTP.TE_SR')
-              .set({
-                STATUS_CD: statusCd,
-                CASE_BCG,
-                SRC_PROB_CD,
-                UPDATED_BY: user,
-                UPDATED_DATETIME: now,
-                PROCESSOR: user,
-              })
-              .where({ REQ_TXN_ID })
+            UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
           )
 
           if (statusCd === Status.RSL && wfInstanceId) {
@@ -293,6 +299,47 @@ module.exports = (srv) => {
 
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
+    const user = req.user && req.user.id
+    const scimId = req.data['user-scim-id'] || req.data.user_scim_id
+    if (scimId) {
+      try {
+        const jwt = retrieveJwt(req)
+        const { data } = await executeHttpRequest(
+          { destinationName: 'CIS_SCIM_API', jwt },
+          { method: 'GET', url: `/scim/Users/${scimId}` }
+        )
+        const email = (data.emails || []).find((e) => e.primary)?.value
+        if (email) {
+          const existing = await tx.run(
+            SELECT.one.from('BTP.CORE_USERS').where({
+              USER_EMAIL: email,
+              language: 'EN'
+            })
+          )
+          if (!existing) {
+            const enterprise =
+              data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
+            await tx.run(
+              INSERT.into('BTP.CORE_USERS').entries({
+                USER_EMAIL: email,
+                language: 'EN',
+                USER_ID: enterprise.employeeNumber,
+                USER_HP: data.phoneNumbers?.find(
+                  (p) => p.primary && p.type === 'work'
+                )?.value,
+                USER_FNAME: data.name?.givenName,
+                USER_LNAME: data.name?.familyName,
+                IS_ACTIVE: 'Y',
+                CREATED_BY: user,
+                UPDATED_BY: user,
+              })
+            )
+          }
+        }
+      } catch (error) {
+        req.warn(`Failed to sync CORE_USERS: ${error.message}`)
+      }
+    }
     try {
       req.data.REQ_TXN_ID = req.data.REQ_TXN_ID || cds.utils.uuid()
       if (!req.data.language) req.data.language = 'EN'
