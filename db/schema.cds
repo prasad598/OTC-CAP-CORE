@@ -82,6 +82,7 @@ entity CORE_COMMENTS {
   USER_TYPE          : commonTypes.userType; // role - Expense Controller
   EVENT_STATUS_CD    : commonTypes.lookupCode;
   CREATED_BY           : commonTypes.emailId; // author
+  CREATED_BY_MASKED    : commonTypes.emailId; // unmasked copy of author
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
 }
 

@@ -72,6 +72,7 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.REQ_TXN_ID, payload.REQ_TXN_ID)
     assert.strictEqual(item.COMMENTS, payload.COMMENTS)
     assert.strictEqual(item.CREATED_BY, payload.CREATED_BY)
+    assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
     assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
   });
 
@@ -102,6 +103,7 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.ok(!('TASK_TYPE' in item))
     assert.ok(!('DECISION' in item))
     assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
+    assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
   });
 });
 
