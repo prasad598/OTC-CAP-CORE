@@ -293,6 +293,14 @@ module.exports = (srv) => {
       const tx = srv.transaction(req)
       try {
         for (const entry of list) {
+          // Support alternate payload field names
+          if (entry.comment && entry.COMMENTS === undefined)
+            entry.COMMENTS = entry.comment
+          if (entry.transactionId && entry.REQ_TXN_ID === undefined)
+            entry.REQ_TXN_ID = entry.transactionId
+          if (entry.createdBy && entry.CREATED_BY === undefined)
+            entry.CREATED_BY = entry.createdBy
+
           await postComment(
             entry.COMMENTS,
             entry.REQ_TXN_ID,
@@ -315,7 +323,8 @@ module.exports = (srv) => {
         req.error(error)
         return
       }
-      const key = list[0] && list[0].REQ_TXN_ID
+      const key =
+        list[0] && (list[0].REQ_TXN_ID || list[0].transactionId)
       if (!key) return []
       return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
     })
