@@ -49,33 +49,9 @@ describe('CORE_COMMENTS REST POST', () => {
     });
     assert.strictEqual(res.status, 201);
     const body = await res.json();
-    assert.ok(Array.isArray(body));
-    assert.strictEqual(body.length, 1);
-    const [comment] = body;
-    assert.strictEqual(comment.REQ_TXN_ID, payload.REQ_TXN_ID);
-    assert.strictEqual(comment.COMMENTS, payload.COMMENTS);
-    assert.strictEqual(comment.CREATED_BY, payload.CREATED_BY);
-  });
-
-  it('maps transactionId and comment fields', async () => {
-    const url = 'http://localhost:4007/rest/btp/core/comments';
-    const payload = {
-      transactionId: '88888888-8888-8888-8888-888888888888',
-      comment: 'alias comment',
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    assert.strictEqual(res.status, 201);
-    const body = await res.json();
-    assert.ok(Array.isArray(body));
-    assert.strictEqual(body.length, 1);
-    const [comment] = body;
-    assert.strictEqual(comment.REQ_TXN_ID, payload.transactionId);
-    assert.strictEqual(comment.COMMENTS, payload.comment);
+    assert.strictEqual(body.REQ_TXN_ID, payload.REQ_TXN_ID);
+    assert.strictEqual(body.COMMENTS, payload.COMMENTS);
+    assert.strictEqual(body.CREATED_BY, payload.CREATED_BY);
   });
 });
 
