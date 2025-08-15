@@ -47,4 +47,22 @@ describe('postComment utility', () => {
     assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.COMPLETED);
     assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
   });
+
+  it('resolves entity names for service transaction instances', async () => {
+    const srv = await cds.connect.to('RestService');
+    const tx = srv.transaction();
+    const payload = await postComment(
+      'via tx',
+      '11111111-1111-1111-1111-111111111111',
+      'tester',
+      TaskType.TE_RESO_TEAM,
+      Decision.APR,
+      tx
+    );
+    await tx.commit();
+    assert.strictEqual(payload.COMMENT_EVENT, CommentEvent.SERVICE_REQUEST_RESOLVED);
+    assert.strictEqual(payload.USER_TYPE, UserType.RESOLUTION_TEAM);
+    assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.COMPLETED);
+    assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
+  });
 });

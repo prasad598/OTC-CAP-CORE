@@ -9,6 +9,18 @@ const {
   Decision
 } = require('./enums');
 
+function resolveEntity(tx, name) {
+  const defs = tx.model?.definitions || {}
+  // If there is any definition ending with the entity name that is not
+  // prefixed by the database namespace, the caller is a service transaction
+  // and expects unqualified entity names. Otherwise, fall back to the fully
+  // qualified name used by cds.db.
+  const hasServiceDef = Object.keys(defs).some(
+    (d) => d.endsWith(`.${name}`) && !d.startsWith('BTP.')
+  )
+  return hasServiceDef ? name : `BTP.${name}`
+}
+
 async function postComment(
   comment,
   transactionId,
@@ -17,13 +29,8 @@ async function postComment(
   decision,
   tx = cds.db
 ) {
-  // Determine entity names based on the transaction model. When using a
-  // service transaction, entities are exposed without the namespace prefix,
-  // whereas the global cds.db requires fully qualified names.
-  const teSrEntity = tx.model?.definitions.TE_SR ? 'TE_SR' : 'BTP.TE_SR';
-  const coreCommentsEntity = tx.model?.definitions.CORE_COMMENTS
-    ? 'CORE_COMMENTS'
-    : 'BTP.CORE_COMMENTS';
+  const teSrEntity = resolveEntity(tx, 'TE_SR')
+  const coreCommentsEntity = resolveEntity(tx, 'CORE_COMMENTS')
 
   const { REQUEST_ID } =
     (await tx.run(
