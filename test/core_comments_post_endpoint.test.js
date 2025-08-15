@@ -53,5 +53,30 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(body.COMMENTS, payload.COMMENTS);
     assert.strictEqual(body.CREATED_BY, payload.CREATED_BY);
   });
+
+  it('handles TASK_TYPE and DECISION transient fields', async () => {
+    const url = 'http://localhost:4007/rest/btp/core/comments';
+    const payload = {
+      REQ_TXN_ID: '77777777-7777-7777-7777-777777777778',
+      COMMENTS: 'comment with task and decision',
+      CREATED_BY: 'tester',
+      TASK_TYPE: 'TE_RESO_TEAM',
+      DECISION: 'approve',
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    assert.strictEqual(res.status, 201);
+    const body = await res.json();
+    assert.strictEqual(body.USER_TYPE, 'Resolution Team');
+    assert.strictEqual(body.COMMENT_TYPE, 'milestone');
+    assert.strictEqual(body.COMMENT_EVENT, 'Service Request Resolved');
+    assert.strictEqual(body.EVENT_STATUS_CD, 'Completed');
+    assert.ok(!('TASK_TYPE' in body));
+    assert.ok(!('DECISION' in body));
+  });
 });
 
