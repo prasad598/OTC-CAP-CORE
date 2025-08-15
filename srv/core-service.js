@@ -7,11 +7,7 @@ const {
   RequestType,
   TaskType,
   Status,
-  Variant,
-  UserType,
-  CommentType,
-  CommentEvent,
-  EventStatus,
+  Variant
 } = require('./utils/enums')
 const { postComment } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
@@ -74,7 +70,6 @@ async function triggerWorkflow(te_sr, user) {
 module.exports = (srv) => {
   const {
     CORE_COMMENTS,
-    CORE_COMMENTS_UPPER,
     CORE_ATTACHMENTS,
     MON_WF_TASK,
     CORE_USERS,
@@ -299,38 +294,6 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
-    const commentEntities = ['CORE_COMMENTS']
-    if (CORE_COMMENTS_UPPER) commentEntities.push('CORE_COMMENTS_UPPER')
-    srv.on('CREATE', commentEntities, async (req) => {
-      const list = Array.isArray(req.data) ? req.data : [req.data]
-      const entries = list.map((entry) => {
-        const obj = {}
-        obj.COMMENTS = entry.COMMENTS ?? entry.comment
-        obj.REQ_TXN_ID = entry.REQ_TXN_ID ?? entry.transactionId
-        obj.CREATED_BY =
-          entry.CREATED_BY ?? entry.createdBy ?? (req.user && req.user.id)
-        if (entry.UUID) obj.UUID = entry.UUID
-        if (entry.language) obj.language = entry.language
-        if (entry.REQUEST_ID) obj.REQUEST_ID = entry.REQUEST_ID
-        if (entry.USER_TYPE) obj.USER_TYPE = entry.USER_TYPE
-        if (entry.COMMENT_TYPE) obj.COMMENT_TYPE = entry.COMMENT_TYPE
-        if (entry.COMMENT_EVENT) obj.COMMENT_EVENT = entry.COMMENT_EVENT
-        if (entry.EVENT_STATUS_CD) obj.EVENT_STATUS_CD = entry.EVENT_STATUS_CD
-        if (!obj.language) obj.language = 'EN'
-        if (!obj.USER_TYPE) obj.USER_TYPE = UserType.TE_REQUESTER
-        if (!obj.COMMENT_TYPE) obj.COMMENT_TYPE = CommentType.DOCUMENT
-        if (!obj.COMMENT_EVENT)
-          obj.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
-        if (!obj.EVENT_STATUS_CD)
-          obj.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
-        return obj
-      })
-      const tx = srv.transaction(req)
-      await tx.run(INSERT.into(CORE_COMMENTS).entries(entries))
-      const key = entries[0] && entries[0].REQ_TXN_ID
-      if (!key) return []
-      return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
-    })
   }
 
   srv.before('CREATE', 'TE_SR', async (req) => {
