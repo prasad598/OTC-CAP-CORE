@@ -288,18 +288,25 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
-    srv.on('CREATE', 'CORE_COMMENTS', async (req, next) => {
+    srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
-      list.forEach((e) => {
-        if (!e.language) e.language = 'EN'
-      })
+      const tx = srv.transaction(req)
       try {
-        await next()
+        for (const entry of list) {
+          await postComment(
+            entry.COMMENTS,
+            entry.REQ_TXN_ID,
+            entry.CREATED_BY || (req.user && req.user.id),
+            entry.TASK_TYPE,
+            entry.DECISION,
+            tx,
+            { UUID: entry.UUID, language: entry.language }
+          )
+        }
       } catch (error) {
         req.error(error)
         return
       }
-      const tx = srv.transaction(req)
       const key = list[0] && list[0].REQ_TXN_ID
       if (!key) return []
       return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
