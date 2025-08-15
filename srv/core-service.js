@@ -292,17 +292,26 @@ module.exports = (srv) => {
       const results = []
       for (const data of list) {
         const { TASK_TYPE, DECISION, COMMENTS, REQ_TXN_ID, CREATED_BY, ...extra } = data
-        results.push(
-          await postComment(
-            COMMENTS,
-            REQ_TXN_ID,
-            CREATED_BY,
-            TASK_TYPE,
-            DECISION,
-            tx,
-            extra
+        try {
+          results.push(
+            await postComment(
+              COMMENTS,
+              REQ_TXN_ID,
+              CREATED_BY,
+              TASK_TYPE,
+              DECISION,
+              tx,
+              extra
+            )
           )
-        )
+        } catch (error) {
+          if (error.code === 'SQLITE_CONSTRAINT' || /unique/i.test(error.message)) {
+            req.error(409, error.message)
+          } else {
+            req.error(500, `Failed to create CORE_COMMENTS: ${error.message}`)
+          }
+          return
+        }
       }
       return Array.isArray(req.data) ? results : results[0]
     })
