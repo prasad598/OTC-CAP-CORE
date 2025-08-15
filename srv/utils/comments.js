@@ -45,9 +45,10 @@ async function buildCommentPayload(
 
   const payload = {
     REQ_TXN_ID: transactionId,
-    REQUEST_ID,
+    REQUEST_ID: REQUEST_ID || null,
     COMMENTS: comment,
     CREATED_BY: createdBy,
+    CREATED_BY_MASKED: createdBy,
     language: 'EN',
     USER_TYPE: null,
     COMMENT_TYPE: null,
@@ -59,6 +60,7 @@ async function buildCommentPayload(
   if (extra.UUID !== undefined) payload.UUID = extra.UUID
   if (extra.language !== undefined) payload.language = extra.language
   if (extra.REQUEST_ID !== undefined) payload.REQUEST_ID = extra.REQUEST_ID
+  if (extra.CREATED_BY_MASKED !== undefined) payload.CREATED_BY_MASKED = extra.CREATED_BY_MASKED
 
   if (taskType === TaskType.TE_REQUESTER) {
     payload.USER_TYPE = UserType.TE_REQUESTER
