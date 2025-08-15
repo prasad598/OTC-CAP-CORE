@@ -318,7 +318,30 @@ module.exports = (srv) => {
       }
       const key = entries[0] && entries[0].REQ_TXN_ID
       if (!key) return []
-      return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
+      const comments = await tx.run(
+        SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key })
+      )
+      const emails = [...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean))]
+      if (emails.length) {
+        const users = await tx.run(
+          SELECT.from(CORE_USERS)
+            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+            .where({ USER_EMAIL: { in: emails } })
+        )
+        const map = {}
+        for (const u of users) {
+          const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+          map[u.USER_EMAIL] = parts.join(' ')
+        }
+        comments.forEach((c) => {
+          c.CREATED_BY_NAME = map[c.CREATED_BY] || null
+        })
+      } else {
+        comments.forEach((c) => {
+          c.CREATED_BY_NAME = null
+        })
+      }
+      return comments
     })
 
   }

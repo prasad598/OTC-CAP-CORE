@@ -25,7 +25,8 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   entity CORE_COMMENTS @(path: 'comments') as projection on core.CORE_COMMENTS {
     *,
     virtual TASK_TYPE : String,
-    virtual DECISION  : String
+    virtual DECISION  : String,
+    virtual CREATED_BY_NAME : String
   };
   entity CORE_USERS @(path: 'users') as projection on core.CORE_USERS;
 

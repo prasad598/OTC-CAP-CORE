@@ -45,6 +45,7 @@ entity CORE_USERS : Auditable {
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   USER_ID        : commonTypes.id;
   USER_HP        : commonTypes.mobile;
+  TITLE          : commonTypes.title;
   USER_FNAME     : commonTypes.fName;
   USER_LNAME     : commonTypes.fName;
   IS_ACTIVE      : commonTypes.booleanYN;

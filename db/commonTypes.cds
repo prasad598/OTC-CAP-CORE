@@ -9,6 +9,7 @@ type dateTime   : Timestamp;
 type id         : String(120);
 type mobile     : String(30);
 type fName      : String(40);
+type title      : String(4);
 type cc         : String(10);
 type department : String(100);
 type entity     : String(100);
