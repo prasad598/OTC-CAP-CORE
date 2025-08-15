@@ -309,6 +309,27 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
+    srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
+      const list = Array.isArray(req.data) ? req.data : [req.data]
+      const tx = srv.transaction(req)
+      const results = []
+      for (const data of list) {
+        const { TASK_TYPE, DECISION, COMMENTS, REQ_TXN_ID, CREATED_BY, ...extra } = data
+        results.push(
+          await postComment(
+            COMMENTS,
+            REQ_TXN_ID,
+            CREATED_BY,
+            TASK_TYPE,
+            DECISION,
+            tx,
+            extra
+          )
+        )
+      }
+      return Array.isArray(req.data) ? results : results[0]
+    })
+
   }
 
   srv.before('CREATE', 'TE_SR', async (req) => {
