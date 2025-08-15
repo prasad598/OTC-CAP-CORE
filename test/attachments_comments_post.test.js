@@ -2,6 +2,12 @@ const cds = require('@sap/cds')
 const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { INSERT } = cds.ql
+const {
+  UserType,
+  CommentType,
+  CommentEvent,
+  EventStatus,
+} = require('../srv/utils/enums')
 
 describe('CORE_ATTACHMENTS and CORE_COMMENTS create handlers', () => {
   let srv
@@ -98,5 +104,32 @@ describe('CORE_ATTACHMENTS and CORE_COMMENTS create handlers', () => {
     const res = await srv._createComment(req)
     assert.strictEqual(res.length, 2)
     assert.ok(res.some((r) => r.COMMENTS === 'second'))
+  })
+
+  it('saves comments with explicit metadata', async () => {
+    const { CORE_COMMENTS } = srv.entities
+    const id = '66666666-6666-6666-6666-666666666666'
+    const req = {
+      data: {
+        REQ_TXN_ID: id,
+        language: 'EN',
+        COMMENTS: 'meta',
+        CREATED_BY: 'tester',
+        USER_TYPE: UserType.TE_REQUESTER,
+        COMMENT_TYPE: CommentType.MILESTONE,
+        COMMENT_EVENT: CommentEvent.SERVICE_REQUEST_AUTO_CLOSED,
+        EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
+      },
+    }
+    const res = await srv._createComment(req)
+    assert.strictEqual(res.length, 1)
+    const [comment] = res
+    assert.strictEqual(comment.USER_TYPE, UserType.TE_REQUESTER)
+    assert.strictEqual(comment.COMMENT_TYPE, CommentType.MILESTONE)
+    assert.strictEqual(
+      comment.COMMENT_EVENT,
+      CommentEvent.SERVICE_REQUEST_AUTO_CLOSED
+    )
+    assert.strictEqual(comment.EVENT_STATUS_CD, EventStatus.IN_PROGRESS)
   })
 })
