@@ -214,29 +214,6 @@ module.exports = (srv) => {
       return { status: 'success' }
     })
 
-    srv.on('postComment', async (req) => {
-      const {
-        comment,
-        transactionId,
-        createdBy,
-        taskType,
-        decision,
-        ...extra
-      } = req.data
-      const user = createdBy || (req.user && req.user.id)
-      const tx = srv.transaction(req)
-      await postComment(
-        comment,
-        transactionId,
-        user,
-        taskType,
-        decision,
-        tx,
-        extra
-      )
-      return { status: 'success' }
-    })
-
     srv.on('massCreateUsers', async (req) => {
       const { entries } = req.data || {}
       const list = Array.isArray(entries) ? entries : []
