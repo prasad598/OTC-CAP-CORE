@@ -615,16 +615,12 @@ module.exports = (srv) => {
         break
       }
       case Variant.TOTAL_CASES: {
-        const adminGroups = groups.filter((g) => g.startsWith('STE_TE_SUPR_ADMN'))
-        if (!adminGroups.length) {
+        const isSuperAdmin = groups.some((g) => g.startsWith('STE_TE_SUPR_ADMN'))
+        if (!isSuperAdmin) {
           req.query.SELECT.where = ['1', '=', '0']
-          break
+        } else {
+          delete req.query.SELECT.where
         }
-        append([
-          { ref: ['ASSIGNED_GROUP'] },
-          'in',
-          { list: adminGroups.map((g) => ({ val: g })) }
-        ])
         break
       }
       case Variant.SLA_BREACH_CASES: {
