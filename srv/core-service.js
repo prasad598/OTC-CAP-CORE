@@ -290,41 +290,30 @@ module.exports = (srv) => {
 
     srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
+      const entries = list.map((entry) => {
+        const obj = {}
+        obj.COMMENTS = entry.COMMENTS ?? entry.comment
+        obj.REQ_TXN_ID = entry.REQ_TXN_ID ?? entry.transactionId
+        obj.CREATED_BY =
+          entry.CREATED_BY ?? entry.createdBy ?? (req.user && req.user.id)
+        if (entry.UUID) obj.UUID = entry.UUID
+        if (entry.language) obj.language = entry.language
+        if (entry.REQUEST_ID) obj.REQUEST_ID = entry.REQUEST_ID
+        if (entry.USER_TYPE) obj.USER_TYPE = entry.USER_TYPE
+        if (entry.COMMENT_TYPE) obj.COMMENT_TYPE = entry.COMMENT_TYPE
+        if (entry.COMMENT_EVENT) obj.COMMENT_EVENT = entry.COMMENT_EVENT
+        if (entry.EVENT_STATUS_CD) obj.EVENT_STATUS_CD = entry.EVENT_STATUS_CD
+        if (!obj.language) obj.language = 'EN'
+        return obj
+      })
       const tx = srv.transaction(req)
       try {
-        for (const entry of list) {
-          // Support alternate payload field names
-          if (entry.comment && entry.COMMENTS === undefined)
-            entry.COMMENTS = entry.comment
-          if (entry.transactionId && entry.REQ_TXN_ID === undefined)
-            entry.REQ_TXN_ID = entry.transactionId
-          if (entry.createdBy && entry.CREATED_BY === undefined)
-            entry.CREATED_BY = entry.createdBy
-
-          await postComment(
-            entry.COMMENTS,
-            entry.REQ_TXN_ID,
-            entry.CREATED_BY || (req.user && req.user.id),
-            entry.TASK_TYPE,
-            entry.DECISION,
-            tx,
-            {
-              UUID: entry.UUID,
-              language: entry.language,
-              USER_TYPE: entry.USER_TYPE,
-              COMMENT_TYPE: entry.COMMENT_TYPE,
-              COMMENT_EVENT: entry.COMMENT_EVENT,
-              EVENT_STATUS_CD: entry.EVENT_STATUS_CD,
-              REQUEST_ID: entry.REQUEST_ID,
-            }
-          )
-        }
+        await tx.run(INSERT.into(CORE_COMMENTS).entries(entries))
       } catch (error) {
         req.error(error)
         return
       }
-      const key =
-        list[0] && (list[0].REQ_TXN_ID || list[0].transactionId)
+      const key = entries[0] && entries[0].REQ_TXN_ID
       if (!key) return []
       return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
     })
