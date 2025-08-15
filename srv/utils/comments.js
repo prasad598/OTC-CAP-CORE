@@ -20,10 +20,10 @@ async function postComment(
   // Determine entity names based on the transaction model. When using a
   // service transaction, entities are exposed without the namespace prefix,
   // whereas the global cds.db requires fully qualified names.
-  const teSrEntity = tx.model?.definitions['BTP.TE_SR'] ? 'BTP.TE_SR' : 'TE_SR';
-  const coreCommentsEntity = tx.model?.definitions['BTP.CORE_COMMENTS']
-    ? 'BTP.CORE_COMMENTS'
-    : 'CORE_COMMENTS';
+  const teSrEntity = tx.model?.definitions.TE_SR ? 'TE_SR' : 'BTP.TE_SR';
+  const coreCommentsEntity = tx.model?.definitions.CORE_COMMENTS
+    ? 'CORE_COMMENTS'
+    : 'BTP.CORE_COMMENTS';
 
   const { REQUEST_ID } =
     (await tx.run(
