@@ -92,7 +92,7 @@ Retrieves uploaded attachments.
     "MIME_TYPE": "application/pdf",
     "DOCUMENT_TYPE": "invoice",
     "PROJECT_TYPE": "PROJECT_A",
-    "USER_TYPE": "Requester",
+    "USER_TYPE": "TE Requester",
     "RESTRICTED_USR_TY": "Manager",
     "INC_AS_ATTACHMENT": "Y",
     "IS_ARCHIVED": "N",
@@ -143,7 +143,7 @@ Retrieves comments associated with requests.
     "COMMENTS": "Sample comment",
     "COMMENT_TYPE": "document",
     "COMMENT_EVENT": "Service Request Created",
-    "USER_TYPE": "Requester",
+    "USER_TYPE": "TE Requester",
     "EVENT_STATUS_CD": "NEW",
     "CREATED_BY": "user@example.com",
     "CREATED_DATETIME": "2024-01-01T00:00:00Z"

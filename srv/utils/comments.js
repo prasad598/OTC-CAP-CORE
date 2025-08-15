@@ -27,7 +27,8 @@ async function postComment(
   createdBy,
   taskType,
   decision,
-  tx = cds.db
+  tx = cds.db,
+  extra = {}
 ) {
   const teSrEntity = resolveEntity(tx, 'TE_SR')
   const coreCommentsEntity = resolveEntity(tx, 'CORE_COMMENTS')
@@ -87,6 +88,7 @@ async function postComment(
     return payload;
   }
 
+  Object.assign(payload, extra)
   await tx.run(INSERT.into(coreCommentsEntity).entries(payload));
   return payload;
 }

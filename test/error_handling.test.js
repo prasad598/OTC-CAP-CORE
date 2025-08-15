@@ -41,7 +41,8 @@ describe('Error handling', () => {
       REQ_TXN_ID: '00000000-0000-0000-0000-000000000001',
       language: 'EN',
       COMMENTS: 'test',
-      CREATED_BY: 'tester'
+      CREATED_BY: 'tester',
+      TASK_TYPE: 'TE_REQUESTER'
     };
 
     let res = await fetch(url, {
