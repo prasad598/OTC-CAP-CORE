@@ -139,6 +139,15 @@ Retrieves comments associated with requests.
   }
 ```
 
+Alternatively, a minimal payload can be used:
+
+```json
+{
+  "transactionId": "550e8400-e29b-41d4-a716-446655440000",
+  "comment": "Sample comment"
+}
+```
+
 **Response**
 
 Returns all comments for the specified `REQ_TXN_ID`.

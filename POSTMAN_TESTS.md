@@ -146,9 +146,8 @@ Use these examples to quickly exercise the REST services with Postman.
 - **POST** `/rest/btp/core/comments`
 ```json
 {
-  "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
-  "COMMENTS": "Sample comment",
-  "CREATED_BY": "tester"
+  "transactionId": "550e8400-e29b-41d4-a716-446655440000",
+  "comment": "Sample comment"
 }
 ```
-  Response returns all comments for the given `REQ_TXN_ID`.
+  Response returns all comments for the given `transactionId`.
