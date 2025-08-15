@@ -29,7 +29,14 @@ type statusSBPA : String(20);
 type decision   : String(10);
 type iasGroup   : String(50);
 type commentType : String enum { document; milestone; };
-type commentEvent: String enum { ServiceRequestCreated = 'Service Request Created'; };
+type commentEvent: String enum {
+  ServiceRequestCreated        = 'Service Request Created';
+  ServiceRequestResolved       = 'Service Request Resolved';
+  ServiceRequestNeedClarification = 'Service Request need clarification';
+  ServiceRequestAutoClosed     = 'Service Request Auto Closed';
+  ServiceRequestEscalated      = 'Service Request Escalated';
+  ServiceRequestAutoEscalated  = 'Service Request Auto Escalated';
+};
 
 type reportVariant : String enum {
   MY_CASES;

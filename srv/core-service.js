@@ -300,7 +300,15 @@ module.exports = (srv) => {
             entry.TASK_TYPE,
             entry.DECISION,
             tx,
-            { UUID: entry.UUID, language: entry.language }
+            {
+              UUID: entry.UUID,
+              language: entry.language,
+              USER_TYPE: entry.USER_TYPE,
+              COMMENT_TYPE: entry.COMMENT_TYPE,
+              COMMENT_EVENT: entry.COMMENT_EVENT,
+              EVENT_STATUS_CD: entry.EVENT_STATUS_CD,
+              REQUEST_ID: entry.REQUEST_ID,
+            }
           )
         }
       } catch (error) {
