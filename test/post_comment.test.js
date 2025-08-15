@@ -48,42 +48,57 @@ describe('postComment utility', () => {
     assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
   });
 
-    it('resolves entity names for service transaction instances', async () => {
-      const srv = await cds.connect.to('RestService');
-      const tx = srv.transaction();
-      const payload = await postComment(
-        'via tx',
-        '11111111-1111-1111-1111-111111111111',
-        'tester',
-        TaskType.TE_RESO_TEAM,
-        Decision.APR,
-        tx
-      );
-      await tx.commit();
-      assert.strictEqual(payload.COMMENT_EVENT, CommentEvent.SERVICE_REQUEST_RESOLVED);
-      assert.strictEqual(payload.USER_TYPE, UserType.RESOLUTION_TEAM);
-      assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.COMPLETED);
-      assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
-    });
-
-    it('applies explicit metadata from extra payload', async () => {
-      const payload = await postComment(
-        'manual',
-        '11111111-1111-1111-1111-111111111111',
-        'tester',
-        undefined,
-        undefined,
-        cds.db,
-        {
-          USER_TYPE: UserType.TE_REQUESTER,
-          COMMENT_TYPE: CommentType.MILESTONE,
-          COMMENT_EVENT: CommentEvent.SERVICE_REQUEST_AUTO_CLOSED,
-          EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
-        }
-      );
-      assert.strictEqual(payload.USER_TYPE, UserType.TE_REQUESTER);
-      assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
-      assert.strictEqual(payload.COMMENT_EVENT, CommentEvent.SERVICE_REQUEST_AUTO_CLOSED);
-      assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.IN_PROGRESS);
-    });
+  it('resolves entity names for service transaction instances', async () => {
+    const srv = await cds.connect.to('RestService');
+    const tx = srv.transaction();
+    const payload = await postComment(
+      'via tx',
+      '11111111-1111-1111-1111-111111111111',
+      'tester',
+      TaskType.TE_RESO_TEAM,
+      Decision.APR,
+      tx
+    );
+    await tx.commit();
+    assert.strictEqual(payload.COMMENT_EVENT, CommentEvent.SERVICE_REQUEST_RESOLVED);
+    assert.strictEqual(payload.USER_TYPE, UserType.RESOLUTION_TEAM);
+    assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.COMPLETED);
+    assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
   });
+
+  it('applies explicit metadata from extra payload', async () => {
+    const payload = await postComment(
+      'manual',
+      '11111111-1111-1111-1111-111111111111',
+      'tester',
+      undefined,
+      undefined,
+      cds.db,
+      {
+        USER_TYPE: UserType.TE_REQUESTER,
+        COMMENT_TYPE: CommentType.MILESTONE,
+        COMMENT_EVENT: CommentEvent.SERVICE_REQUEST_AUTO_CLOSED,
+        EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
+      }
+    );
+    assert.strictEqual(payload.USER_TYPE, UserType.TE_REQUESTER);
+    assert.strictEqual(payload.COMMENT_TYPE, CommentType.MILESTONE);
+    assert.strictEqual(payload.COMMENT_EVENT, CommentEvent.SERVICE_REQUEST_AUTO_CLOSED);
+    assert.strictEqual(payload.EVENT_STATUS_CD, EventStatus.IN_PROGRESS);
+  });
+
+  it('stores only provided fields when metadata omitted', async () => {
+    const payload = await postComment(
+      'basic',
+      '11111111-1111-1111-1111-111111111111',
+      'tester',
+      undefined,
+      undefined,
+      cds.db
+    );
+    assert.strictEqual(payload.USER_TYPE, undefined);
+    assert.strictEqual(payload.COMMENT_TYPE, undefined);
+    assert.strictEqual(payload.COMMENT_EVENT, undefined);
+    assert.strictEqual(payload.EVENT_STATUS_CD, undefined);
+  });
+});
