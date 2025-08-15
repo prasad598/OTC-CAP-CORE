@@ -2,7 +2,17 @@ const cds = require('@sap/cds')
 const { SELECT, UPDATE, INSERT, DELETE } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
-const { Decision, RequestType, TaskType, Status, Variant } = require('./utils/enums')
+const {
+  Decision,
+  RequestType,
+  TaskType,
+  Status,
+  Variant,
+  UserType,
+  CommentType,
+  CommentEvent,
+  EventStatus,
+} = require('./utils/enums')
 const { postComment } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
@@ -64,6 +74,7 @@ async function triggerWorkflow(te_sr, user) {
 module.exports = (srv) => {
   const {
     CORE_COMMENTS,
+    CORE_COMMENTS_UPPER,
     CORE_ATTACHMENTS,
     MON_WF_TASK,
     CORE_USERS,
@@ -288,7 +299,9 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
-    srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
+    const commentEntities = ['CORE_COMMENTS']
+    if (CORE_COMMENTS_UPPER) commentEntities.push('CORE_COMMENTS_UPPER')
+    srv.on('CREATE', commentEntities, async (req) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
       const entries = list.map((entry) => {
         const obj = {}
@@ -304,15 +317,16 @@ module.exports = (srv) => {
         if (entry.COMMENT_EVENT) obj.COMMENT_EVENT = entry.COMMENT_EVENT
         if (entry.EVENT_STATUS_CD) obj.EVENT_STATUS_CD = entry.EVENT_STATUS_CD
         if (!obj.language) obj.language = 'EN'
+        if (!obj.USER_TYPE) obj.USER_TYPE = UserType.TE_REQUESTER
+        if (!obj.COMMENT_TYPE) obj.COMMENT_TYPE = CommentType.DOCUMENT
+        if (!obj.COMMENT_EVENT)
+          obj.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
+        if (!obj.EVENT_STATUS_CD)
+          obj.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
         return obj
       })
       const tx = srv.transaction(req)
-      try {
-        await tx.run(INSERT.into(CORE_COMMENTS).entries(entries))
-      } catch (error) {
-        req.error(error)
-        return
-      }
+      await tx.run(INSERT.into(CORE_COMMENTS).entries(entries))
       const key = entries[0] && entries[0].REQ_TXN_ID
       if (!key) return []
       return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
