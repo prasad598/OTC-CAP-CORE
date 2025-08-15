@@ -33,13 +33,16 @@ async function postComment(
   const teSrEntity = resolveEntity(tx, 'TE_SR')
   const coreCommentsEntity = resolveEntity(tx, 'CORE_COMMENTS')
 
-  const { REQUEST_ID } =
-    (await tx.run(
-      SELECT.one
-        .from(teSrEntity)
-        .columns('REQUEST_ID')
-        .where({ REQ_TXN_ID: transactionId })
-    )) || {};
+  let { REQUEST_ID } = extra
+  if (!REQUEST_ID) {
+    ;({ REQUEST_ID } =
+      (await tx.run(
+        SELECT.one
+          .from(teSrEntity)
+          .columns('REQUEST_ID')
+          .where({ REQ_TXN_ID: transactionId })
+      )) || {})
+  }
 
   const payload = {
     REQ_TXN_ID: transactionId,
@@ -86,7 +89,10 @@ async function postComment(
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD;
   }
 
-  Object.assign(payload, extra)
+  const sanitizedExtra = Object.fromEntries(
+    Object.entries(extra).filter(([, v]) => v !== undefined)
+  )
+  Object.assign(payload, sanitizedExtra)
   await tx.run(INSERT.into(coreCommentsEntity).entries(payload));
   return payload;
 }
