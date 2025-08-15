@@ -151,13 +151,9 @@ entity TE_SR : Auditable {
   CASE_BCG             : commonTypes.shortText;
   SRC_PROB_CD          : commonTypes.lookupCode;
 
-  IS_CLAR_REQ          : commonTypes.booleanYN;
   IS_CLAR_REQ_DATETIME : commonTypes.dateTime;
-  IS_ESCALATED         : commonTypes.booleanYN;
   ESCALATED_DATETIME   : commonTypes.dateTime;
-  IS_RESOLVED          : commonTypes.booleanYN;
   RESOLVED_DATETIME    : commonTypes.dateTime;
-  IS_CLOSED            : commonTypes.booleanYN;
   CLOSED_DATETIME      : commonTypes.dateTime;
 }
 
