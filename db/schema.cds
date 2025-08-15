@@ -133,6 +133,8 @@ entity TE_SR : Auditable {
   REQUEST_ID           : String(30);
   DECISION             : commonTypes.decision @cds.persistence.skip;
 
+  virtual user_scim_id : String @cds.odata.name:'user-scim-id';
+
   PROCESSOR            : commonTypes.emailId;
 
   REQUESTER_ID         : commonTypes.emailId;
