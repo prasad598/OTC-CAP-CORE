@@ -99,13 +99,9 @@ service ReportService {
     task.ASSIGNED_GROUP,
     task.TASK_TYPE,
     task.TASK_STATUS,
-    sr.IS_CLAR_REQ          as IS_CLAR_REQ,
     sr.IS_CLAR_REQ_DATETIME as IS_CLAR_REQ_DATETIME,
-    sr.IS_ESCALATED         as IS_ESCALATED,
     sr.ESCALATED_DATETIME   as ESCALATED_DATETIME,
-    sr.IS_RESOLVED          as IS_RESOLVED,
     sr.RESOLVED_DATETIME    as RESOLVED_DATETIME,
-    sr.IS_CLOSED            as IS_CLOSED,
     sr.CLOSED_DATETIME      as CLOSED_DATETIME,
     virtual VARIENT     : commonTypes.reportVariant,
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
