@@ -532,7 +532,7 @@ module.exports = (srv) => {
         break
       }
       case Variant.SLA_BREACH_CASES: {
-        const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM_LEAD_'))
+        const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_LEAD_'))
         if (!leadGroups.length && !email) {
           req.query.SELECT.where = ['1', '=', '0']
           break
