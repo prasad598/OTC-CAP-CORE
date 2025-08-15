@@ -93,6 +93,18 @@ async function postComment(
     Object.entries(extra).filter(([, v]) => v !== undefined)
   )
   Object.assign(payload, sanitizedExtra)
+
+  // Ensure mandatory metadata fields are always populated. If neither the
+  // task/decision based defaults above nor the caller provided values cover
+  // them, fall back to generic defaults so that inserts don't end up with
+  // undefined columns which can cause request processing to hang.
+  if (!payload.USER_TYPE) payload.USER_TYPE = UserType.TE_REQUESTER
+  if (!payload.COMMENT_TYPE) payload.COMMENT_TYPE = CommentType.DOCUMENT
+  if (!payload.COMMENT_EVENT)
+    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
+  if (!payload.EVENT_STATUS_CD)
+    payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
+
   await tx.run(INSERT.into(coreCommentsEntity).entries(payload));
   return payload;
 }
