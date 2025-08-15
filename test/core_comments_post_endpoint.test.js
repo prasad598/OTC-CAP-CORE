@@ -47,11 +47,14 @@ describe('CORE_COMMENTS REST POST', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    assert.strictEqual(res.status, 201);
-    const body = await res.json();
-    assert.strictEqual(body.REQ_TXN_ID, payload.REQ_TXN_ID);
-    assert.strictEqual(body.COMMENTS, payload.COMMENTS);
-    assert.strictEqual(body.CREATED_BY, payload.CREATED_BY);
+    assert.strictEqual(res.status, 201)
+    const body = await res.json()
+    assert.ok(Array.isArray(body))
+    assert.strictEqual(body.length, 1)
+    const item = body[0]
+    assert.strictEqual(item.REQ_TXN_ID, payload.REQ_TXN_ID)
+    assert.strictEqual(item.COMMENTS, payload.COMMENTS)
+    assert.strictEqual(item.CREATED_BY, payload.CREATED_BY)
   });
 
   it('handles TASK_TYPE and DECISION transient fields', async () => {
@@ -69,14 +72,17 @@ describe('CORE_COMMENTS REST POST', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    assert.strictEqual(res.status, 201);
-    const body = await res.json();
-    assert.strictEqual(body.USER_TYPE, 'Resolution Team');
-    assert.strictEqual(body.COMMENT_TYPE, 'milestone');
-    assert.strictEqual(body.COMMENT_EVENT, 'Service Request Resolved');
-    assert.strictEqual(body.EVENT_STATUS_CD, 'Completed');
-    assert.ok(!('TASK_TYPE' in body));
-    assert.ok(!('DECISION' in body));
+    assert.strictEqual(res.status, 201)
+    const body = await res.json()
+    assert.ok(Array.isArray(body))
+    assert.strictEqual(body.length, 1)
+    const item = body[0]
+    assert.strictEqual(item.USER_TYPE, 'Resolution Team')
+    assert.strictEqual(item.COMMENT_TYPE, 'milestone')
+    assert.strictEqual(item.COMMENT_EVENT, 'Service Request Resolved')
+    assert.strictEqual(item.EVENT_STATUS_CD, 'Completed')
+    assert.ok(!('TASK_TYPE' in item))
+    assert.ok(!('DECISION' in item))
   });
 });
 

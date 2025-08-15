@@ -9,7 +9,7 @@ const {
   Status,
   Variant
 } = require('./utils/enums')
-const { postComment } = require('./utils/comments')
+const { buildCommentPayload } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -286,15 +286,15 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
-    srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
+    srv.on('CREATE', 'CORE_COMMENTS', async (req, next) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
       const tx = srv.transaction(req)
-      const results = []
+      const entries = []
       for (const data of list) {
         const { TASK_TYPE, DECISION, COMMENTS, REQ_TXN_ID, CREATED_BY, ...extra } = data
         try {
-          results.push(
-            await postComment(
+          entries.push(
+            await buildCommentPayload(
               COMMENTS,
               REQ_TXN_ID,
               CREATED_BY,
@@ -305,15 +305,20 @@ module.exports = (srv) => {
             )
           )
         } catch (error) {
-          if (error.code === 'SQLITE_CONSTRAINT' || /unique/i.test(error.message)) {
-            req.error(409, error.message)
-          } else {
-            req.error(500, `Failed to create CORE_COMMENTS: ${error.message}`)
-          }
+          req.error(500, `Failed to prepare CORE_COMMENTS: ${error.message}`)
           return
         }
       }
-      return Array.isArray(req.data) ? results : results[0]
+      req.data = Array.isArray(req.data) ? entries : entries[0]
+      try {
+        await next()
+      } catch (error) {
+        req.error(error)
+        return
+      }
+      const key = entries[0] && entries[0].REQ_TXN_ID
+      if (!key) return []
+      return tx.run(SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key }))
     })
 
   }
