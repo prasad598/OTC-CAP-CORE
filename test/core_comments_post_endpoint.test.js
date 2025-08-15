@@ -25,6 +25,23 @@ describe('CORE_COMMENTS REST POST', () => {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     await waitFor(srv, /server listening/);
+    const userPayload = {
+      USER_EMAIL: 'tester@example.com',
+      TITLE: 'Mr',
+      USER_ID: '1',
+      USER_HP: '123',
+      USER_FNAME: 'Test',
+      USER_LNAME: 'User',
+      IS_ACTIVE: 'Y',
+      CREATED_BY: 'seed',
+      UPDATED_BY: 'seed',
+      language: 'EN',
+    };
+    await fetch('http://localhost:4007/rest/btp/core/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userPayload),
+    });
   });
 
   after(() => {
@@ -39,7 +56,7 @@ describe('CORE_COMMENTS REST POST', () => {
     const payload = {
       REQ_TXN_ID: '77777777-7777-7777-7777-777777777777',
       COMMENTS: 'minimal comment',
-      CREATED_BY: 'tester',
+      CREATED_BY: 'tester@example.com',
     };
 
     const res = await fetch(url, {
@@ -55,14 +72,15 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.REQ_TXN_ID, payload.REQ_TXN_ID)
     assert.strictEqual(item.COMMENTS, payload.COMMENTS)
     assert.strictEqual(item.CREATED_BY, payload.CREATED_BY)
+    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
   });
 
   it('handles TASK_TYPE and DECISION transient fields', async () => {
     const url = 'http://localhost:4007/rest/btp/core/comments';
-    const payload = {
+  const payload = {
       REQ_TXN_ID: '77777777-7777-7777-7777-777777777778',
       COMMENTS: 'comment with task and decision',
-      CREATED_BY: 'tester',
+      CREATED_BY: 'tester@example.com',
       TASK_TYPE: 'TE_RESO_TEAM',
       DECISION: 'approve',
     };
@@ -83,6 +101,7 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.EVENT_STATUS_CD, 'Completed')
     assert.ok(!('TASK_TYPE' in item))
     assert.ok(!('DECISION' in item))
+    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
   });
 });
 
