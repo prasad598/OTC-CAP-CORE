@@ -46,7 +46,8 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     TASK_TYPE        : String,
     DECISION         : String,
     CASE_BCG         : String,
-    SRC_PROB_CD      : String
+    SRC_PROB_CD      : String,
+    UPDATED_BY       : commonTypes.emailId
   ) returns {
     status : String;
   };
