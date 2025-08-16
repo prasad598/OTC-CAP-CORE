@@ -150,7 +150,7 @@ entity TE_SR : Auditable {
   ENTITY_CD            : commonTypes.lookupCode;
   STATUS_CD            : commonTypes.lookupCode;
   RESOLUTION_RES       : commonTypes.shortText;
-  CASE_BCG             : commonTypes.shortText;
+  CASE_BCG_CD          : commonTypes.lookupCode;
   SRC_PROB_CD          : commonTypes.lookupCode;
 
   IS_CLAR_REQ_DATETIME : commonTypes.dateTime;

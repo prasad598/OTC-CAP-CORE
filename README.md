@@ -236,7 +236,7 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
   "ENTITY_CD": "ENT1",
   "STATUS_CD": "NEW",
   "RESOLUTION_RES": "Resolution details",
-  "CASE_BCG": "Background info",
+  "CASE_BCG_CD": "BCG1",
   "SRC_PROB_CD": "SRC1",
   "IS_CLAR_REQ_DATETIME": "2024-01-02T00:00:00Z",
   "ESCALATED_DATETIME": "2024-01-03T00:00:00Z",
