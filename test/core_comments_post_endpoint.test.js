@@ -102,8 +102,34 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.EVENT_STATUS_CD, 'Completed')
     assert.ok(!('TASK_TYPE' in item))
     assert.ok(!('DECISION' in item))
-    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
-    assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
+      assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
+      assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
+    });
+
+  it('populates additional fields for requester comments case-insensitively', async () => {
+    const url = 'http://localhost:4007/rest/btp/core/comments';
+    const payload = {
+      REQ_TXN_ID: '77777777-7777-7777-7777-777777777779',
+      COMMENTS: 'requester comment',
+      CREATED_BY: 'tester@example.com',
+      TASK_TYPE: 'te_requester',
+      DECISION: 'sub',
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    assert.strictEqual(res.status, 201);
+    const body = await res.json();
+    assert.ok(Array.isArray(body));
+    assert.strictEqual(body.length, 1);
+    const item = body[0];
+    assert.strictEqual(item.USER_TYPE, 'TE Requester');
+    assert.strictEqual(item.COMMENT_TYPE, 'document');
+    assert.strictEqual(item.COMMENT_EVENT, 'Service Request Created');
+    assert.strictEqual(item.EVENT_STATUS_CD, 'In Progress');
   });
 });
 
