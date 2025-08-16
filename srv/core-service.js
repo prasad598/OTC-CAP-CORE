@@ -682,9 +682,32 @@ module.exports = (srv) => {
         const key = item.REQ_TXN_ID
         if (!key) return
         try {
-          item.CORE_COMMENTS = await db.run(
+          const comments = await db.run(
             SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key })
           )
+          const emails = [
+            ...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean)),
+          ]
+          if (emails.length) {
+            const users = await db.run(
+              SELECT.from(CORE_USERS)
+                .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+                .where({ USER_EMAIL: { in: emails } })
+            )
+            const map = {}
+            for (const u of users) {
+              const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+              map[u.USER_EMAIL] = parts.join(' ')
+            }
+            comments.forEach((c) => {
+              c.CREATED_BY_NAME = map[c.CREATED_BY] || null
+            })
+          } else {
+            comments.forEach((c) => {
+              c.CREATED_BY_NAME = null
+            })
+          }
+          item.CORE_COMMENTS = comments
         } catch (error) {
           req.warn(
             `Error fetching CORE_COMMENTS for REQ_TXN_ID ${key}: ${error.message}`
