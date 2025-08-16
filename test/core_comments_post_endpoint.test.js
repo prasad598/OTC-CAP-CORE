@@ -131,5 +131,31 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.COMMENT_EVENT, 'Service Request Created');
     assert.strictEqual(item.EVENT_STATUS_CD, 'In Progress');
   });
+
+  it('normalizes mixed-case taskType and decision values', async () => {
+    const url = 'http://localhost:4007/rest/btp/core/comments';
+    const payload = {
+      REQ_TXN_ID: '77777777-7777-7777-7777-777777777780',
+      COMMENTS: 'mixed case comment',
+      CREATED_BY: 'tester@example.com',
+      TASK_TYPE: 'teResoTeam',
+      DECISION: 'Approve',
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    assert.strictEqual(res.status, 201);
+    const body = await res.json();
+    assert.ok(Array.isArray(body));
+    assert.strictEqual(body.length, 1);
+    const item = body[0];
+    assert.strictEqual(item.USER_TYPE, 'Resolution Team');
+    assert.strictEqual(item.COMMENT_TYPE, 'milestone');
+    assert.strictEqual(item.COMMENT_EVENT, 'Service Request Resolved');
+    assert.strictEqual(item.EVENT_STATUS_CD, 'Completed');
+  });
 });
 
