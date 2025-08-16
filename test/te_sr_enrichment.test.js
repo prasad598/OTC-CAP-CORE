@@ -22,10 +22,16 @@ describe('TE_SR enrichment', () => {
   })
 
   it('enriches TE_SR with CORE_COMMENTS and CORE_ATTACHMENTS', async () => {
-    const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS } = srv.entities
+    const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS, CORE_USERS } = srv.entities
     const id = '11111111-1111-1111-1111-111111111111'
 
     await INSERT.into(TE_SR).entries({ REQ_TXN_ID: id, language: 'EN' })
+    await INSERT.into(CORE_USERS).entries({
+      USER_EMAIL: 'tester',
+      TITLE: 'Mr',
+      USER_FNAME: 'Test',
+      USER_LNAME: 'User',
+    })
     await INSERT.into(CORE_COMMENTS).entries({
       REQ_TXN_ID: id,
       language: 'EN',
@@ -48,6 +54,7 @@ describe('TE_SR enrichment', () => {
     assert.ok(Array.isArray(item.CORE_COMMENTS))
     assert.strictEqual(item.CORE_COMMENTS.length, 1)
     assert.strictEqual(item.CORE_COMMENTS[0].COMMENTS, 'test comment')
+    assert.strictEqual(item.CORE_COMMENTS[0].CREATED_BY_NAME, 'Mr Test User')
 
     assert.ok(Array.isArray(item.CORE_ATTACHMENTS))
     assert.strictEqual(item.CORE_ATTACHMENTS.length, 1)
