@@ -102,7 +102,7 @@ module.exports = (srv) => {
         TASK_TYPE,
         DECISION: decision,
         REQ_TXN_ID,
-        CASE_BCG,
+        CASE_BCG_CD,
         SRC_PROB_CD,
         UPDATED_BY,
       } = req.data
@@ -164,7 +164,7 @@ module.exports = (srv) => {
 
           const teSrUpdate = {
             STATUS_CD: statusCd,
-            CASE_BCG,
+            CASE_BCG_CD,
             SRC_PROB_CD,
             UPDATED_BY: user,
             UPDATED_DATETIME: now,
