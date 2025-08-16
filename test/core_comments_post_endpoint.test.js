@@ -78,12 +78,12 @@ describe('CORE_COMMENTS REST POST', () => {
 
   it('handles TASK_TYPE and DECISION transient fields', async () => {
     const url = 'http://localhost:4007/rest/btp/core/comments';
-  const payload = {
+    const payload = {
       REQ_TXN_ID: '77777777-7777-7777-7777-777777777778',
       COMMENTS: 'comment with task and decision',
       CREATED_BY: 'tester@example.com',
       TASK_TYPE: 'TE_RESO_TEAM',
-      DECISION: 'approve',
+      DECISION: 'APR',
     };
 
     const res = await fetch(url, {

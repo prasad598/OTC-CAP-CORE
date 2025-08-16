@@ -62,6 +62,10 @@ async function buildCommentPayload(
   if (extra.REQUEST_ID !== undefined) payload.REQUEST_ID = extra.REQUEST_ID
   if (extra.CREATED_BY_MASKED !== undefined) payload.CREATED_BY_MASKED = extra.CREATED_BY_MASKED
 
+  if (decision && !Object.values(Decision).includes(decision)) {
+    decision = Decision[decision] || decision
+  }
+
   if (taskType === TaskType.TE_REQUESTER) {
     payload.USER_TYPE = UserType.TE_REQUESTER
     payload.COMMENT_TYPE = CommentType.DOCUMENT
