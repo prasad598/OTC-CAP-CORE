@@ -104,9 +104,10 @@ module.exports = (srv) => {
         REQ_TXN_ID,
         CASE_BCG,
         SRC_PROB_CD,
+        UPDATED_BY,
       } = req.data
 
-      const user = req.user && req.user.id
+      const user = UPDATED_BY || (req.user && req.user.id)
 
       // Step 1: Update workflow task via destination
       try {
@@ -142,6 +143,8 @@ module.exports = (srv) => {
               DECISION: decision,
               PROCESSOR: user,
               ACTUAL_COMPLETION: now,
+              COMPLETED_DATE: now,
+              TASK_STATUS: 'COMPLETED',
               UPDATED_BY: user,
               UPDATED_DATETIME: now,
             })
