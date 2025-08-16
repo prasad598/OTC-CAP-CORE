@@ -9,6 +9,22 @@ const {
   Decision
 } = require('./enums');
 
+function normalizeEnum(enumObj, value) {
+  if (typeof value !== 'string') return value
+  const key = value
+    .trim()
+    // convert camelCase to snake_case then to upper case
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .replace(/\s+/g, '_')
+    .toUpperCase()
+  if (enumObj[key]) return enumObj[key]
+  const val = value.trim().toUpperCase()
+  const match = Object.values(enumObj).find(
+    (v) => v.toUpperCase() === val
+  )
+  return match || value.trim()
+}
+
 function resolveEntity(tx, name) {
   const defs = tx.model?.definitions || {}
   // If there is any definition ending with the entity name that is not
@@ -63,13 +79,11 @@ async function buildCommentPayload(
   if (extra.CREATED_BY_MASKED !== undefined) payload.CREATED_BY_MASKED = extra.CREATED_BY_MASKED
 
   if (taskType) {
-    const key = taskType.toUpperCase()
-    taskType = TaskType[key] || taskType
+    taskType = normalizeEnum(TaskType, taskType)
   }
 
   if (decision) {
-    const key = decision.toUpperCase()
-    decision = Decision[key] || decision
+    decision = normalizeEnum(Decision, decision).toLowerCase()
   }
 
   if (taskType === TaskType.TE_REQUESTER) {
