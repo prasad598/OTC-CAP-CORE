@@ -95,5 +95,34 @@ describe('TE_SR enrichment', () => {
       '00000000-0000-0000-0000-222222222222'
     )
   })
+
+  it('fetches MON_WF_TASK records for resolved cases', async () => {
+    const { TE_SR, MON_WF_TASK } = srv.entities
+    const id = '33333333-3333-3333-3333-333333333333'
+
+    await INSERT.into(TE_SR).entries({
+      REQ_TXN_ID: id,
+      language: 'EN',
+      STATUS_CD: 'RSL'
+    })
+
+    await INSERT.into(MON_WF_TASK).entries({
+      TASK_INSTANCE_ID: '00000000-0000-0000-0000-333333333333',
+      REQ_TXN_ID: id,
+      UPDATED_DATETIME: new Date('2024-03-01T00:00:00Z'),
+      CREATED_BY: 'tester',
+      UPDATED_BY: 'tester'
+    })
+
+    const item = { REQ_TXN_ID: id, STATUS_CD: 'RSL' }
+    await srv._afterRead(item, { warn: () => {} })
+
+    assert.ok(Array.isArray(item.MON_WF_TASK))
+    assert.strictEqual(item.MON_WF_TASK.length, 1)
+    assert.strictEqual(
+      item.MON_WF_TASK[0].TASK_INSTANCE_ID,
+      '00000000-0000-0000-0000-333333333333'
+    )
+  })
 })
 
