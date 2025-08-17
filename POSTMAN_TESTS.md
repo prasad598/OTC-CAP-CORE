@@ -140,14 +140,40 @@ Use these examples to quickly exercise the REST services with Postman.
   Response returns all attachments for the given `REQ_TXN_ID`.
 
 ## CORE_COMMENTS
+
 - **Service Path**: `/rest/btp/core/comments`
 - **Service Type**: REST
 - **GET** `/rest/btp/core/comments`
 - **POST** `/rest/btp/core/comments`
+
+Example request payload:
+
 ```json
 {
-  "transactionId": "550e8400-e29b-41d4-a716-446655440000",
-  "comment": "Sample comment"
+  "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
+  "COMMENTS": "Sample comment",
+  "CREATED_BY": "tester@example.com",
+  "TASK_TYPE": "TE_REQUESTER",
+  "DECISION": "SUB"
 }
 ```
-  Response returns all comments for the given `transactionId`.
+
+Example response:
+
+```json
+[
+  {
+    "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
+    "COMMENTS": "Sample comment",
+    "CREATED_BY": "tester@example.com",
+    "CREATED_BY_MASKED": "tester@example.com",
+    "USER_TYPE": "TE Requester",
+    "COMMENT_TYPE": "document",
+    "COMMENT_EVENT": "Service Request Created",
+    "EVENT_STATUS_CD": "In Progress",
+    "CREATED_BY_NAME": "Mr Test User"
+  }
+]
+```
+
+The response contains the comment along with the additional fields populated based on the task type and decision.
