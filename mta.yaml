@@ -82,6 +82,24 @@ resources:
         schema: BTP
   - name: STE-BTP-CAP-CORE-destination
     type: org.cloudfoundry.managed-service
+    requires:
+      - name: srv-api
     parameters:
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          subaccount:
+            destinations:
+              - Authentication: NoAuthentication
+                HTML5.DynamicDestination: true
+                HTML5.ForwardAuthToken: true
+                HTML5.Timeout: 30000
+                Name: STE-BTP-CAP-CORE-SRV
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+            existing_destinations_policy: update
+        version: 1.0.0
       service: destination
+      service-name: STE-BTP-CAP-CORE-destination
       service-plan: lite

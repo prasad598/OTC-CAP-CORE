@@ -19,7 +19,7 @@ type LoggedUserInfo {
   groups      : array of ScimGroup;
 };
 
-service RestService @(path: 'rest/btp/core', protocol: 'rest') {
+service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   entity CORE_ATTACHMENTS @(path: 'attachments') as projection on core.CORE_ATTACHMENTS;
 
   entity CORE_COMMENTS @(path: 'comments') as projection on core.CORE_COMMENTS {
@@ -63,7 +63,7 @@ service RestService @(path: 'rest/btp/core', protocol: 'rest') {
 
     function userInfo() returns LoggedUserInfo;
 
-  @path:'custom-comment'
+ 
   action customComment(
     REQ_TXN_ID: UUID,
     TASK_TYPE: String,
