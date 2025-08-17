@@ -76,7 +76,6 @@ async function buildCommentPayload(
   if (extra.UUID !== undefined) payload.UUID = extra.UUID
   if (extra.language !== undefined) payload.language = extra.language
   if (extra.REQUEST_ID !== undefined) payload.REQUEST_ID = extra.REQUEST_ID
-  if (extra.CREATED_BY_MASKED !== undefined) payload.CREATED_BY_MASKED = extra.CREATED_BY_MASKED
 
   if (taskType) {
     taskType = normalizeEnum(TaskType, taskType)
