@@ -72,10 +72,11 @@ async function buildCommentPayload(
     EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
   }
 
-  // allow selected additional fields from the request payload
-  if (extra.UUID !== undefined) payload.UUID = extra.UUID
-  if (extra.language !== undefined) payload.language = extra.language
-  if (extra.REQUEST_ID !== undefined) payload.REQUEST_ID = extra.REQUEST_ID
+  // merge any additional fields provided by the caller without
+  // overwriting existing defaults with undefined values
+  for (const [key, value] of Object.entries(extra)) {
+    if (value !== undefined) payload[key] = value
+  }
 
   if (taskType) {
     taskType = normalizeEnum(TaskType, taskType)
