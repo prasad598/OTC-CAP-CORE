@@ -18,7 +18,7 @@ const { normalizeVariant } = require('./utils/variant')
 
 cds.on('connect', (db) => {
   if (db.name === 'db') {
-    db.before('INSERT', 'CORE_COMMENTS', async (req) => {
+    db.before('INSERT', 'BTP.CORE_COMMENTS', async (req) => {
       const data = req.data ?? req
       const rows = Array.isArray(data) ? data : [data]
       for (const row of rows) {
