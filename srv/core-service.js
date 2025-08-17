@@ -15,7 +15,6 @@ const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
-const enrichCoreComment = require('./util/enrichCoreComment')
 
 cds.on('connect', (db) => {
   if (db.name === 'db') {
@@ -31,16 +30,25 @@ cds.on('connect', (db) => {
           CREATED_BY,
           ...existing
         } = row
-        const payload = await buildCommentPayload(
-          COMMENTS,
-          REQ_TXN_ID,
-          CREATED_BY,
-          TASK_TYPE,
-          DECISION,
-          db,
-          existing
-        )
-        Object.assign(row, payload)
+        const needsEnrichment =
+          TASK_TYPE !== undefined ||
+          DECISION !== undefined ||
+          existing.USER_TYPE === undefined ||
+          existing.COMMENT_TYPE === undefined ||
+          existing.COMMENT_EVENT === undefined ||
+          existing.EVENT_STATUS_CD === undefined
+        if (needsEnrichment) {
+          const payload = await buildCommentPayload(
+            COMMENTS,
+            REQ_TXN_ID,
+            CREATED_BY,
+            TASK_TYPE,
+            DECISION,
+            db,
+            existing
+          )
+          Object.assign(row, payload)
+        }
         delete row.TASK_TYPE
         delete row.DECISION
       }
@@ -107,14 +115,6 @@ module.exports = (srv) => {
     AUTH_MATRIX,
     CONFIG_LDATA,
   } = srv.entities
-
-  srv.before('CREATE', 'CORE_COMMENTS', (req) => {
-    if (Array.isArray(req.data)) {
-      req.data = req.data.map(enrichCoreComment)
-    } else {
-      req.data = enrichCoreComment(req.data)
-    }
-  })
 
   if (typeof srv.on === 'function') {
     srv.on('error', (err) => {
