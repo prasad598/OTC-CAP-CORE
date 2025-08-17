@@ -9,7 +9,7 @@ const {
   Status,
   Variant
 } = require('./utils/enums')
-const { buildCommentPayload } = require('./utils/comments')
+const { buildCommentPayload, postComment } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -329,7 +329,7 @@ module.exports = (srv) => {
       return tx.run(SELECT.from(CORE_ATTACHMENTS).where({ REQ_TXN_ID: key }))
     })
 
-    srv.on('CREATE', 'CORE_COMMENTS', async (req, next) => {
+    srv.on('CREATE', 'CORE_COMMENTS', async (req) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
       const tx = srv.transaction(req)
       const entries = []
@@ -337,7 +337,7 @@ module.exports = (srv) => {
         const { TASK_TYPE, DECISION, COMMENTS, REQ_TXN_ID, CREATED_BY, ...extra } = data
         try {
           entries.push(
-            await buildCommentPayload(
+            await postComment(
               COMMENTS,
               REQ_TXN_ID,
               CREATED_BY,
@@ -351,13 +351,6 @@ module.exports = (srv) => {
           req.error(500, `Failed to prepare CORE_COMMENTS: ${error.message}`)
           return
         }
-      }
-      req.data = Array.isArray(req.data) ? entries : entries[0]
-      try {
-        await next()
-      } catch (error) {
-        req.error(error)
-        return
       }
       const key = entries[0] && entries[0].REQ_TXN_ID
       if (!key) return []
