@@ -6,7 +6,8 @@ const {
   UserType,
   EventStatus,
   TaskType,
-  Decision
+  Decision,
+  RequestType
 } = require('./enums');
 
 function normalizeEnum(enumObj, value) {
@@ -48,7 +49,7 @@ async function buildCommentPayload(
 ) {
   const teSrEntity = resolveEntity(tx, 'TE_SR')
 
-  let { REQUEST_ID } = extra
+  let { REQUEST_ID, REQUEST_TYPE, ...rest } = extra
   if (!REQUEST_ID) {
     ;({ REQUEST_ID } =
       (await tx.run(
@@ -59,9 +60,14 @@ async function buildCommentPayload(
       )) || {})
   }
 
+  if (REQUEST_TYPE) {
+    REQUEST_TYPE = normalizeEnum(RequestType, REQUEST_TYPE)
+  }
+
   const payload = {
     REQ_TXN_ID: transactionId,
     REQUEST_ID: REQUEST_ID || null,
+    REQUEST_TYPE: REQUEST_TYPE || RequestType.TE,
     COMMENTS: comment,
     CREATED_BY: createdBy,
     CREATED_BY_MASKED: createdBy,
@@ -74,7 +80,7 @@ async function buildCommentPayload(
 
   // merge any additional fields provided by the caller without
   // overwriting existing defaults with undefined values
-  for (const [key, value] of Object.entries(extra)) {
+  for (const [key, value] of Object.entries(rest)) {
     if (value !== undefined) payload[key] = value
   }
 
