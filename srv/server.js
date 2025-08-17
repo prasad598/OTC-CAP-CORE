@@ -1,4 +1,5 @@
 const cds = require('@sap/cds')
+const { SELECT, INSERT } = cds.ql || cds
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
@@ -46,18 +47,40 @@ cds.on('bootstrap', (app) => {
       )?.value
       const enterprise =
         data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
-      res.json({
+      const givenName = data.name?.givenName
+      const familyName = data.name?.familyName
+      const payload = {
         id: data.id,
-        fullName: [data.name?.givenName, data.name?.familyName]
-          .filter(Boolean)
-          .join(' '),
+        fullName: [givenName, familyName].filter(Boolean).join(' '),
         honorificPrefix: data.name?.honorificPrefix,
         email: primaryEmail,
         entity: enterprise.organization,
         employeeId: enterprise.employeeNumber,
         mobile: workPhone,
         groups: (data.groups || []).map((g) => g.display),
-      })
+      }
+
+      const { CORE_USERS } = cds.entities('BTP')
+      if (primaryEmail && cds.db) {
+        const existing = await cds.db.run(
+          SELECT.one.from(CORE_USERS).where({ USER_EMAIL: primaryEmail })
+        )
+        if (!existing) {
+          await cds.db.run(
+            INSERT.into(CORE_USERS).entries({
+              USER_EMAIL: primaryEmail,
+              USER_ID: enterprise.employeeNumber,
+              USER_HP: workPhone,
+              TITLE: data.name?.honorificPrefix,
+              USER_FNAME: givenName,
+              USER_LNAME: familyName,
+              IS_ACTIVE: data.active ? 'Y' : 'N',
+            })
+          )
+        }
+      }
+
+      res.json(payload)
     } catch (err) {
       next(err)
     }
