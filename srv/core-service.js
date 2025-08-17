@@ -22,20 +22,13 @@ cds.on('connect', (db) => {
       const data = req.data ?? req
       const rows = Array.isArray(data) ? data : [data]
       for (const row of rows) {
-        if (
-          row.USER_TYPE &&
-          row.COMMENT_TYPE &&
-          row.COMMENT_EVENT &&
-          row.EVENT_STATUS_CD
-        )
-          continue
         const {
           TASK_TYPE,
           DECISION,
           COMMENTS,
           REQ_TXN_ID,
           CREATED_BY,
-          ...extra
+          ...existing
         } = row
         const payload = await buildCommentPayload(
           COMMENTS,
@@ -44,7 +37,7 @@ cds.on('connect', (db) => {
           TASK_TYPE,
           DECISION,
           db,
-          extra
+          existing
         )
         Object.assign(row, payload)
         delete row.TASK_TYPE
