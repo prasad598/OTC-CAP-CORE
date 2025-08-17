@@ -37,6 +37,69 @@ function resolveEntity(tx, name) {
   return hasServiceDef ? name : `BTP.${name}`
 }
 
+function deriveCommentDetails(taskType, decision, createdBy) {
+  const result = {
+    COMMENT_EVENT: '',
+    COMMENT_TYPE: '',
+    EVENT_STATUS_CD: '',
+    USER_TYPE: UserType.REQUESTER,
+    CREATED_BY_MASKED: createdBy,
+  }
+
+  if (taskType) {
+    taskType = normalizeEnum(TaskType, taskType)
+  }
+
+  if (decision) {
+    decision = normalizeEnum(Decision, decision)
+  }
+
+  if (taskType === TaskType.TE_REQUESTER) {
+    result.USER_TYPE = UserType.TE_REQUESTER
+    result.COMMENT_TYPE = CommentType.DOCUMENT
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
+    result.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
+  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
+    result.USER_TYPE = UserType.RESOLUTION_TEAM
+    result.COMMENT_TYPE = CommentType.MILESTONE
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED
+    result.EVENT_STATUS_CD = EventStatus.COMPLETED
+  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.REJ) {
+    result.USER_TYPE = UserType.RESOLUTION_TEAM
+    result.COMMENT_TYPE = CommentType.DOCUMENT
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
+    result.EVENT_STATUS_CD = EventStatus.ON_HOLD
+  } else if (
+    taskType === TaskType.TE_RESO_TEAM &&
+    (decision === Decision.ESL || decision === Decision.ESLA)
+  ) {
+    result.USER_TYPE = UserType.RESOLUTION_TEAM
+    result.COMMENT_TYPE = CommentType.DOCUMENT
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_ESCALATED
+    result.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
+  } else if (
+    taskType === TaskType.TE_AUTO_ESLA &&
+    (decision === Decision.ESLA || decision === Decision.ESL)
+  ) {
+    result.USER_TYPE = UserType.RESOLUTION_TEAM
+    result.COMMENT_TYPE = CommentType.DOCUMENT
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_AUTO_ESCALATED
+    result.EVENT_STATUS_CD = EventStatus.ON_HOLD
+  } else if (taskType === TaskType.TE_RESO_LEAD && decision === Decision.APR) {
+    result.USER_TYPE = UserType.RESOLUTION_LEAD
+    result.COMMENT_TYPE = CommentType.MILESTONE
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED
+    result.EVENT_STATUS_CD = EventStatus.COMPLETED
+  } else if (taskType === TaskType.TE_RESO_LEAD && decision === Decision.REJ) {
+    result.USER_TYPE = UserType.RESOLUTION_LEAD
+    result.COMMENT_TYPE = CommentType.DOCUMENT
+    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
+    result.EVENT_STATUS_CD = EventStatus.ON_HOLD
+  }
+
+  return result
+}
+
 async function buildCommentPayload(
   comment,
   transactionId,
@@ -64,12 +127,7 @@ async function buildCommentPayload(
     REQUEST_ID: REQUEST_ID || null,
     COMMENTS: comment,
     CREATED_BY: createdBy,
-    CREATED_BY_MASKED: createdBy,
     language: 'EN',
-    USER_TYPE: UserType.REQUESTER,
-    COMMENT_TYPE: '',
-    COMMENT_EVENT: '',
-    EVENT_STATUS_CD: '',
   }
 
   // merge any additional fields provided by the caller without
@@ -77,57 +135,10 @@ async function buildCommentPayload(
   for (const [key, value] of Object.entries(rest)) {
     if (value !== undefined) payload[key] = value
   }
-
-  if (taskType) {
-    taskType = normalizeEnum(TaskType, taskType)
-  }
-
-  if (decision) {
-    decision = normalizeEnum(Decision, decision)
-  }
-
-  if (taskType === TaskType.TE_REQUESTER) {
-    payload.USER_TYPE = UserType.TE_REQUESTER
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
-    payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
-  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
-    payload.USER_TYPE = UserType.RESOLUTION_TEAM
-    payload.COMMENT_TYPE = CommentType.MILESTONE
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED
-    payload.EVENT_STATUS_CD = EventStatus.COMPLETED
-  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.REJ) {
-    payload.USER_TYPE = UserType.RESOLUTION_TEAM
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
-    payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
-  } else if (
-    taskType === TaskType.TE_RESO_TEAM &&
-    (decision === Decision.ESL || decision === Decision.ESLA)
-  ) {
-    payload.USER_TYPE = UserType.RESOLUTION_TEAM
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_ESCALATED
-    payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
-  } else if (
-    taskType === TaskType.TE_AUTO_ESLA &&
-    (decision === Decision.ESLA || decision === Decision.ESL)
-  ) {
-    payload.USER_TYPE = UserType.RESOLUTION_TEAM
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_AUTO_ESCALATED
-    payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
-  } else if (taskType === TaskType.TE_RESO_LEAD && decision === Decision.APR) {
-    payload.USER_TYPE = UserType.RESOLUTION_LEAD
-    payload.COMMENT_TYPE = CommentType.MILESTONE
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED
-    payload.EVENT_STATUS_CD = EventStatus.COMPLETED
-  } else if (taskType === TaskType.TE_RESO_LEAD && decision === Decision.REJ) {
-    payload.USER_TYPE = UserType.RESOLUTION_LEAD
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
-    payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
-  }
+  Object.assign(
+    payload,
+    deriveCommentDetails(taskType, decision, createdBy)
+  )
 
   return payload
 }
@@ -154,4 +165,8 @@ async function postComment(
   return payload
 }
 
-module.exports = { buildCommentPayload, postComment }
+module.exports = {
+  buildCommentPayload,
+  postComment,
+  deriveCommentDetails,
+}
