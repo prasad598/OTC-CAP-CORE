@@ -1,5 +1,5 @@
 const cds = require('@sap/cds')
-const { SELECT } = cds.ql
+const { SELECT, INSERT } = cds.ql
 const {
   CommentType,
   CommentEvent,
@@ -137,4 +137,27 @@ async function buildCommentPayload(
 
   return payload
 }
-module.exports = { buildCommentPayload }
+async function postComment(
+  comment,
+  transactionId,
+  createdBy,
+  taskType,
+  decision,
+  tx = cds.db,
+  extra = {},
+) {
+  const entity = resolveEntity(tx, 'CORE_COMMENTS')
+  const payload = await buildCommentPayload(
+    comment,
+    transactionId,
+    createdBy,
+    taskType,
+    decision,
+    tx,
+    extra
+  )
+  await tx.run(INSERT.into(entity).entries(payload))
+  return payload
+}
+
+module.exports = { buildCommentPayload, postComment }
