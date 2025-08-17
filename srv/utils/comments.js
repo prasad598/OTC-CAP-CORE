@@ -82,10 +82,15 @@ async function buildCommentPayload(
   }
 
   if (decision) {
-    decision = normalizeEnum(Decision, decision).toLowerCase()
+    decision = normalizeEnum(Decision, decision)
   }
 
-  if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
+  if (taskType === TaskType.TE_REQUESTER) {
+    payload.USER_TYPE = UserType.TE_REQUESTER
+    payload.COMMENT_TYPE = CommentType.DOCUMENT
+    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
+    payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
+  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
     payload.USER_TYPE = UserType.RESOLUTION_TEAM
     payload.COMMENT_TYPE = CommentType.MILESTONE
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED
@@ -95,12 +100,18 @@ async function buildCommentPayload(
     payload.COMMENT_TYPE = CommentType.DOCUMENT
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
-  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.ESL) {
+  } else if (
+    taskType === TaskType.TE_RESO_TEAM &&
+    (decision === Decision.ESL || decision === Decision.ESLA)
+  ) {
     payload.USER_TYPE = UserType.RESOLUTION_TEAM
     payload.COMMENT_TYPE = CommentType.DOCUMENT
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_ESCALATED
     payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
-  } else if (taskType === TaskType.TE_AUTO_ESLA && decision === Decision.ESLA) {
+  } else if (
+    taskType === TaskType.TE_AUTO_ESLA &&
+    (decision === Decision.ESLA || decision === Decision.ESL)
+  ) {
     payload.USER_TYPE = UserType.RESOLUTION_TEAM
     payload.COMMENT_TYPE = CommentType.DOCUMENT
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_AUTO_ESCALATED
@@ -115,6 +126,11 @@ async function buildCommentPayload(
     payload.COMMENT_TYPE = CommentType.DOCUMENT
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
+  } else {
+    payload.USER_TYPE = 'No Task Type Provided'
+    payload.COMMENT_TYPE = CommentType.DOCUMENT
+    payload.COMMENT_EVENT = 'Error Event'
+    payload.EVENT_STATUS_CD = 'Error'
   }
 
   return payload
