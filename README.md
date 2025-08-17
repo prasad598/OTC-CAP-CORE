@@ -259,3 +259,14 @@ have the service generate the corresponding `DRAFT_ID` or `REQUEST_ID`.
 ## Learn More
 
 Learn more at https://cap.cloud.sap/docs/get-started/.
+
+## AI Ignore
+
+The following paths should be excluded from AI indexing and processing:
+
+- node_modules
+- dist
+- build
+- .cds-gen
+- coverage
+- large JSON fixtures
