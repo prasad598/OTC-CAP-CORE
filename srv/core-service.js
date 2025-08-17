@@ -9,7 +9,7 @@ const {
   Status,
   Variant
 } = require('./utils/enums')
-const { buildCommentPayload } = require('./utils/comments')
+const { buildCommentPayload, deriveCommentDetails } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -311,6 +311,71 @@ module.exports = (srv) => {
       )
       return { deleted: result }
     })
+
+    srv.on('customComment', async (req) => {
+      const { REQ_TXN_ID, TASK_TYPE, DECISION, COMMENTS, CREATED_BY } = req.data
+      if (!REQ_TXN_ID || !TASK_TYPE || !DECISION || !COMMENTS) {
+        return req.error(
+          400,
+          'REQ_TXN_ID, TASK_TYPE, DECISION and COMMENTS are required'
+        )
+      }
+      const createdBy =
+        CREATED_BY || 'nagavaraprasad.bandaru@stengg.com'
+      const tx = srv.transaction(req)
+      const details = deriveCommentDetails(TASK_TYPE, DECISION, createdBy)
+      const row = {
+        COMMENTS,
+        COMMENT_EVENT: details.COMMENT_EVENT,
+        COMMENT_TYPE: details.COMMENT_TYPE,
+        CREATED_BY: createdBy,
+        CREATED_BY_MASKED: details.CREATED_BY_MASKED,
+        CREATED_DATETIME: new Date().toISOString(),
+        EVENT_STATUS_CD: details.EVENT_STATUS_CD,
+        REQUEST_ID: null,
+        REQ_TXN_ID,
+        USER_TYPE: details.USER_TYPE,
+        UUID: cds.utils.uuid(),
+        language: 'EN',
+      }
+      try {
+        await tx.run(INSERT.into(CORE_COMMENTS).entries(row))
+      } catch (error) {
+        return req.error(500, `Failed to insert comment: ${error.message}`)
+      }
+      const comments = await tx.run(
+        SELECT.from(CORE_COMMENTS)
+          .where({ REQ_TXN_ID })
+          .orderBy('CREATED_DATETIME')
+      )
+      const emails = [...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean))]
+      if (emails.length) {
+        const users = await tx.run(
+          SELECT.from(CORE_USERS)
+            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+            .where({ USER_EMAIL: { in: emails } })
+        )
+        const map = {}
+        for (const u of users) {
+          const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+          map[u.USER_EMAIL] = parts.join(' ')
+        }
+        comments.forEach((c) => {
+          c.CREATED_BY_NAME = map[c.CREATED_BY] || ''
+        })
+      } else {
+        comments.forEach((c) => {
+          c.CREATED_BY_NAME = ''
+        })
+      }
+      return comments
+    })
+
+    /*
+    curl -X POST http://localhost:4004/rest/btp/core/custom-comment \\
+      -H 'Content-Type: application/json' \\
+      -d '{"REQ_TXN_ID":"<uuid>","TASK_TYPE":"TE_REQUESTER","DECISION":"APR","COMMENTS":"Hello"}'
+    */
 
     srv.on('CREATE', 'CORE_ATTACHMENTS', async (req, next) => {
       const list = Array.isArray(req.data) ? req.data : [req.data]
