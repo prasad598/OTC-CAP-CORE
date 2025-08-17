@@ -130,10 +130,10 @@ Retrieves comments associated with requests.
     "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
     "REQUEST_ID": "REQ-0001",
     "COMMENTS": "Sample comment",
-    "COMMENT_TYPE": "document",
-    "COMMENT_EVENT": "Service Request Created",
-    "USER_TYPE": "TE Requester",
-    "EVENT_STATUS_CD": "NEW",
+    "COMMENT_TYPE": "",
+    "COMMENT_EVENT": "",
+    "USER_TYPE": "Requester",
+    "EVENT_STATUS_CD": "",
     "CREATED_BY": "user@example.com",
     "CREATED_DATETIME": "2024-01-01T00:00:00Z"
   }
@@ -158,10 +158,10 @@ Returns all comments for the specified `REQ_TXN_ID`.
     "UUID": "00112233-4455-6677-8899-aabbccddeeff",
     "REQ_TXN_ID": "550e8400-e29b-41d4-a716-446655440000",
     "COMMENTS": "Sample comment",
-    "COMMENT_TYPE": "document",
-    "COMMENT_EVENT": "Service Request Created",
-    "USER_TYPE": "TE Requester",
-    "EVENT_STATUS_CD": "NEW",
+    "COMMENT_TYPE": "",
+    "COMMENT_EVENT": "",
+    "USER_TYPE": "Requester",
+    "EVENT_STATUS_CD": "",
     "CREATED_BY": "user@example.com",
     "CREATED_DATETIME": "2024-01-01T00:00:00Z"
   }

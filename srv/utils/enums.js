@@ -33,6 +33,7 @@ const Status = Object.freeze({
 });
 
 const UserType = Object.freeze({
+  REQUESTER: 'Requester',
   TE_REQUESTER: 'TE Requester',
   RESOLUTION_TEAM: 'Resolution Team',
   RESOLUTION_LEAD: 'Resolution Lead'

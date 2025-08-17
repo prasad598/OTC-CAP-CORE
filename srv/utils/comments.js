@@ -72,10 +72,10 @@ async function buildCommentPayload(
     CREATED_BY: createdBy,
     CREATED_BY_MASKED: createdBy,
     language: 'EN',
-    USER_TYPE: UserType.TE_REQUESTER,
-    COMMENT_TYPE: CommentType.DOCUMENT,
-    COMMENT_EVENT: CommentEvent.SERVICE_REQUEST_CREATED,
-    EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
+    USER_TYPE: UserType.REQUESTER,
+    COMMENT_TYPE: '',
+    COMMENT_EVENT: '',
+    EVENT_STATUS_CD: '',
   }
 
   // merge any additional fields provided by the caller without
