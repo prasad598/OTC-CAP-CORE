@@ -20,11 +20,15 @@
   "devDependencies": {
     "@cap-js/cds-types": "^0.13.0",
     "@cap-js/sqlite": "^2",
-    "@sap/cds-dk": ">=8"
+    "@sap/cds-dk": ">=8",
+    "jest": "^29"
   },
   "scripts": {
     "start": "cds-serve",
     "test": "node --test"
+  },
+  "jest": {
+    "testMatch": ["**/srv/util/enrichCoreComment.test.js"]
   },
   "cds": {
     "hana": {

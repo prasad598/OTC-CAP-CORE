@@ -15,6 +15,7 @@ const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
+const enrichCoreComment = require('./util/enrichCoreComment')
 
 cds.on('connect', (db) => {
   if (db.name === 'db') {
@@ -106,6 +107,14 @@ module.exports = (srv) => {
     AUTH_MATRIX,
     CONFIG_LDATA,
   } = srv.entities
+
+  srv.before('CREATE', 'CoreComments', (req) => {
+    if (Array.isArray(req.data)) {
+      req.data = req.data.map(enrichCoreComment)
+    } else {
+      req.data = enrichCoreComment(req.data)
+    }
+  })
 
   if (typeof srv.on === 'function') {
     srv.on('error', (err) => {
