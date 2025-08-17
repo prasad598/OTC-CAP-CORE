@@ -7,7 +7,6 @@ const {
   EventStatus,
   TaskType,
   Decision,
-  RequestType
 } = require('./enums');
 
 function normalizeEnum(enumObj, value) {
@@ -49,7 +48,7 @@ async function buildCommentPayload(
 ) {
   const teSrEntity = resolveEntity(tx, 'TE_SR')
 
-  let { REQUEST_ID, REQUEST_TYPE, ...rest } = extra
+  let { REQUEST_ID, REQUEST_TYPE: _REQUEST_TYPE, ...rest } = extra
   if (!REQUEST_ID) {
     ;({ REQUEST_ID } =
       (await tx.run(
@@ -59,15 +58,10 @@ async function buildCommentPayload(
           .where({ REQ_TXN_ID: transactionId })
       )) || {})
   }
-
-  if (REQUEST_TYPE) {
-    REQUEST_TYPE = normalizeEnum(RequestType, REQUEST_TYPE)
-  }
-
+  
   const payload = {
     REQ_TXN_ID: transactionId,
     REQUEST_ID: REQUEST_ID || null,
-    REQUEST_TYPE: REQUEST_TYPE || RequestType.TE,
     COMMENTS: comment,
     CREATED_BY: createdBy,
     CREATED_BY_MASKED: createdBy,

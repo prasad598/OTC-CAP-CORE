@@ -36,8 +36,7 @@ cds.on('connect', (db) => {
           existing.USER_TYPE === undefined ||
           existing.COMMENT_TYPE === undefined ||
           existing.COMMENT_EVENT === undefined ||
-          existing.EVENT_STATUS_CD === undefined ||
-          existing.REQUEST_TYPE === undefined
+          existing.EVENT_STATUS_CD === undefined
         if (needsEnrichment) {
           const payload = await buildCommentPayload(
             COMMENTS,
@@ -52,6 +51,7 @@ cds.on('connect', (db) => {
         }
         delete row.TASK_TYPE
         delete row.DECISION
+        delete row.REQUEST_TYPE
       }
     })
   }
