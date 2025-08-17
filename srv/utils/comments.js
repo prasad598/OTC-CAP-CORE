@@ -127,11 +127,6 @@ async function buildCommentPayload(
     payload.COMMENT_TYPE = CommentType.DOCUMENT
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_NEED_CLARIFICATION
     payload.EVENT_STATUS_CD = EventStatus.ON_HOLD
-  } else {
-    payload.USER_TYPE = 'No Task Type Provided'
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = 'Error Event'
-    payload.EVENT_STATUS_CD = 'Error'
   }
 
   return payload
