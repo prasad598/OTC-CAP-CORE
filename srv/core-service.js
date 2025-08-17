@@ -16,6 +16,43 @@ const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
 
+cds.on('connect', (db) => {
+  if (db.name === 'db') {
+    db.before('INSERT', 'CORE_COMMENTS', async (req) => {
+      const data = req.data ?? req
+      const rows = Array.isArray(data) ? data : [data]
+      for (const row of rows) {
+        if (
+          row.USER_TYPE &&
+          row.COMMENT_TYPE &&
+          row.COMMENT_EVENT &&
+          row.EVENT_STATUS_CD
+        )
+          continue
+        const {
+          TASK_TYPE,
+          DECISION,
+          COMMENTS,
+          REQ_TXN_ID,
+          CREATED_BY,
+          ...extra
+        } = row
+        const payload = await buildCommentPayload(
+          COMMENTS,
+          REQ_TXN_ID,
+          CREATED_BY,
+          TASK_TYPE,
+          DECISION,
+          db,
+          extra
+        )
+        Object.assign(row, payload)
+        delete row.TASK_TYPE
+        delete row.DECISION
+      }
+    })
+  }
+})
 async function triggerWorkflow(te_sr, user) {
   const workflowPayload = {
     definitionId:
