@@ -66,10 +66,10 @@ async function buildCommentPayload(
     CREATED_BY: createdBy,
     CREATED_BY_MASKED: createdBy,
     language: 'EN',
-    USER_TYPE: null,
-    COMMENT_TYPE: null,
-    COMMENT_EVENT: null,
-    EVENT_STATUS_CD: null,
+    USER_TYPE: UserType.TE_REQUESTER,
+    COMMENT_TYPE: CommentType.DOCUMENT,
+    COMMENT_EVENT: CommentEvent.SERVICE_REQUEST_CREATED,
+    EVENT_STATUS_CD: EventStatus.IN_PROGRESS,
   }
 
   // allow selected additional fields from the request payload
@@ -86,12 +86,7 @@ async function buildCommentPayload(
     decision = normalizeEnum(Decision, decision).toLowerCase()
   }
 
-  if (taskType === TaskType.TE_REQUESTER) {
-    payload.USER_TYPE = UserType.TE_REQUESTER
-    payload.COMMENT_TYPE = CommentType.DOCUMENT
-    payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
-    payload.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
-  } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
+  if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
     payload.USER_TYPE = UserType.RESOLUTION_TEAM
     payload.COMMENT_TYPE = CommentType.MILESTONE
     payload.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_RESOLVED

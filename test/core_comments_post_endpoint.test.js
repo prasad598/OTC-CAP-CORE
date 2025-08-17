@@ -74,6 +74,10 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.CREATED_BY, payload.CREATED_BY)
     assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
     assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
+    assert.strictEqual(item.USER_TYPE, 'TE Requester')
+    assert.strictEqual(item.COMMENT_TYPE, 'document')
+    assert.strictEqual(item.COMMENT_EVENT, 'Service Request Created')
+    assert.strictEqual(item.EVENT_STATUS_CD, 'In Progress')
   });
 
   it('handles TASK_TYPE and DECISION transient fields', async () => {
