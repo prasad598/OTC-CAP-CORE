@@ -108,7 +108,7 @@ module.exports = (srv) => {
     CONFIG_LDATA,
   } = srv.entities
 
-  srv.before('CREATE', 'CoreComments', (req) => {
+  srv.before('CREATE', 'CORE_COMMENTS', (req) => {
     if (Array.isArray(req.data)) {
       req.data = req.data.map(enrichCoreComment)
     } else {
