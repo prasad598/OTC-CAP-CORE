@@ -119,7 +119,7 @@ service ReportService {
     sr.CLOSED_DATETIME      as CLOSED_DATETIME,
     virtual VARIENT     : commonTypes.reportVariant,
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
-  } order by sr.REQUEST_ID desc;
+  } order by sr.UPDATED_DATETIME desc;
 
   entity CONFIG_LDATA as projection on core.CONFIG_LDATA;
 }
