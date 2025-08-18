@@ -112,6 +112,7 @@ module.exports = (srv) => {
     CORE_COMMENTS,
     CORE_ATTACHMENTS,
     MON_WF_TASK,
+    MON_WF_PROCESS,
     CORE_USERS,
     AUTH_MATRIX,
     CONFIG_LDATA,
@@ -811,6 +812,16 @@ module.exports = (srv) => {
             `Error fetching CORE_ATTACHMENTS for REQ_TXN_ID ${key}: ${error.message}`
           )
           item.CORE_ATTACHMENTS = []
+        }
+        try {
+          item.MON_WF_PROCESS = await db.run(
+            SELECT.from(MON_WF_PROCESS).where({ REQ_TXN_ID: key })
+          )
+        } catch (error) {
+          req.warn(
+            `Error fetching MON_WF_PROCESS for REQ_TXN_ID ${key}: ${error.message}`
+          )
+          item.MON_WF_PROCESS = []
         }
         try {
           if ([Status.PRT, Status.PRL, Status.CLR, Status.RSL].includes(item.STATUS_CD)) {

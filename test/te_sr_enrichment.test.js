@@ -21,8 +21,8 @@ describe('TE_SR enrichment', () => {
     require('../srv/core-service')(srv)
   })
 
-  it('enriches TE_SR with CORE_COMMENTS and CORE_ATTACHMENTS', async () => {
-    const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS, CORE_USERS } = srv.entities
+  it('enriches TE_SR with CORE_COMMENTS, CORE_ATTACHMENTS and MON_WF_PROCESS', async () => {
+    const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS, CORE_USERS, MON_WF_PROCESS } = srv.entities
     const id = '11111111-1111-1111-1111-111111111111'
 
     await INSERT.into(TE_SR).entries({ REQ_TXN_ID: id, language: 'EN' })
@@ -47,6 +47,15 @@ describe('TE_SR enrichment', () => {
       PROJECT_TYPE: 'demo',
       CREATED_BY: 'tester',
     })
+    await INSERT.into(MON_WF_PROCESS).entries({
+      WF_INSTANCE_ID: '00000000-0000-0000-0000-444444444444',
+      REQ_TXN_ID: id,
+      REQUEST_ID: 'REQ100',
+      REQUEST_TYPE: 'TE',
+      WF_STATUS: 'RUNNING',
+      CREATED_BY: 'tester',
+      UPDATED_BY: 'tester',
+    })
 
     const item = { REQ_TXN_ID: id }
     await srv._afterRead(item, {})
@@ -59,6 +68,12 @@ describe('TE_SR enrichment', () => {
     assert.ok(Array.isArray(item.CORE_ATTACHMENTS))
     assert.strictEqual(item.CORE_ATTACHMENTS.length, 1)
     assert.strictEqual(item.CORE_ATTACHMENTS[0].FILE_NAME, 'file.txt')
+    assert.ok(Array.isArray(item.MON_WF_PROCESS))
+    assert.strictEqual(item.MON_WF_PROCESS.length, 1)
+    assert.strictEqual(
+      item.MON_WF_PROCESS[0].WF_INSTANCE_ID,
+      '00000000-0000-0000-0000-444444444444'
+    )
   })
 
   it('fetches MON_WF_TASK records ordered by updated time', async () => {
