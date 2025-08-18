@@ -97,6 +97,7 @@ service ReportService {
     cat.DESC            as SRV_CAT,
     sr.CASE_REQ_ID      as REQ_REP_NO,
     sr.CREATED_DATETIME as CREATED_DATETIME,
+    sr.UPDATED_DATETIME as UPDATED_DATETIME,
 
     sr.STATUS_CD        as STATUS_CD,
     status.DESC         as STATUS,
