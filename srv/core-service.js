@@ -499,6 +499,9 @@ module.exports = (srv) => {
         req.data.TASK_TYPE,
         decision
       )
+      const now = new Date()
+      if (!req.data.CREATED_DATETIME) req.data.CREATED_DATETIME = now
+      if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = now
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
     }
@@ -506,6 +509,7 @@ module.exports = (srv) => {
 
   srv.before('PATCH', 'TE_SR', async (req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
+    if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
     const tx = cds.transaction(req)
     try {
       const { REQUEST_ID } = await tx.run(
