@@ -711,7 +711,7 @@ module.exports = (srv) => {
         if (!isSuperAdmin) {
           req.query.SELECT.where = ['1', '=', '0']
         } else {
-          delete req.query.SELECT.where
+          append([{ ref: ['STATUS_CD'] }, '!=', { val: Status.DRF }])
         }
         break
       }
