@@ -692,30 +692,24 @@ module.exports = (srv) => {
         append([{ ref: ['CREATED_BY'] }, '=', { val: email }])
         break
       }
-        case Variant.CLOSED_CASES: {
-          const cond = []
-          if (email) {
-            cond.push({ ref: ['SR_PROCESSOR'] }, '=', { val: email })
-          }
-          if (groups.length) {
-            if (cond.length) cond.push('or')
-            cond.push(
-              '(',
-              { ref: ['ASSIGNED_GROUP'] },
-              'in',
-              { list: groups.map((g) => ({ val: g })) },
-              'and',
-              { ref: ['STATUS_CD'] }, '=', { val: Status.RSL },
-              ')'
-            )
-          }
-          if (!cond.length) {
-            req.query.SELECT.where = ['1', '=', '0']
-          } else {
-            append(cond)
-          }
+      case Variant.CLOSED_CASES: {
+        if (!email) {
+          req.query.SELECT.where = ['1', '=', '0']
           break
         }
+        append([
+          '(',
+          { ref: ['SR_PROCESSOR'] },
+          '=',
+          { val: email },
+          'and',
+          { ref: ['STATUS_CD'] },
+          '=',
+          { val: Status.RSL },
+          ')'
+        ])
+        break
+      }
       case Variant.OPEN_CASES: {
         const teamGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM_'))
         if (!teamGroups.length && !email) {
