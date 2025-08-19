@@ -95,14 +95,14 @@ service ReportService {
     sr.DRAFT_ID         as DRAFT_ID,
     sr.SRV_CAT_CD       as SRV_CAT_CD,
     cat.DESC            as SRV_CAT,
-    sr.CASE_REQ_ID      as REQ_REP_NO,
+    sr.REPORT_NO        as REPORT_NO,
     sr.CREATED_DATETIME as CREATED_DATETIME,
     sr.UPDATED_DATETIME as UPDATED_DATETIME,
 
     sr.STATUS_CD        as STATUS_CD,
     status.DESC         as STATUS,
 
-    sr.ENTITY_CD        as ENTITY_CODE,
+    sr.ENTITY_CD        as ENTITY_CD,
     entity.DESC         as ENTITY,
 
     sr.CREATED_BY       as CREATED_BY,

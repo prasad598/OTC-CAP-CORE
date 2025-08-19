@@ -12,7 +12,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     ]).to('sqlite::memory:')
   })
 
-  it('returns DRAFT_ID, REQUEST_ID, and REQ_REP_NO', async () => {
+  it('returns DRAFT_ID, REQUEST_ID, and REPORT_NO', async () => {
     const { TE_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
     const { TE_REPORT_VIEW } = cds.entities('ReportService')
     const id = '11111111-1111-1111-1111-222222222222'
@@ -43,7 +43,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       language: 'EN',
       DRAFT_ID: 'TE-DRFT-00001',
       REQUEST_ID: 'REQ-0001',
-      CASE_REQ_ID: 'REP-0001',
+      REPORT_NO: 'REP-0001',
       SRV_CAT_CD: 'CAT1',
       CREATED_BY: 'u1@example.com',
       UPDATED_DATETIME: '2024-01-06T00:00:00Z',
@@ -62,7 +62,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(new Date(result.CLOSED_DATETIME).toISOString(), '2024-01-05T00:00:00.000Z')
     assert.strictEqual(result.DRAFT_ID, 'TE-DRFT-00001')
     assert.strictEqual(result.REQUEST_ID, 'REQ-0001')
-    assert.strictEqual(result.REQ_REP_NO, 'REP-0001')
+    assert.strictEqual(result.REPORT_NO, 'REP-0001')
     assert.strictEqual(result.SRV_CAT_CD, 'CAT1')
     assert.strictEqual(result.SRV_CAT, 'Category One')
     assert.strictEqual(result.CREATED_BY, 'u1@example.com')
