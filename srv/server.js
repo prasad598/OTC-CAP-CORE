@@ -25,6 +25,13 @@ cds.on('bootstrap', (app) => {
         req.body?.REQ_TXN_ID
       ) {
         suffix = `(REQ_TXN_ID=${encodeURIComponent(req.body.REQ_TXN_ID)})`
+      } else if (
+        alias === '/rest/btp/core/workflow-task' &&
+        req.method === 'PATCH' &&
+        (!suffix || suffix === '/') &&
+        req.body?.TASK_INSTANCE_ID
+      ) {
+        suffix = `(TASK_INSTANCE_ID=${encodeURIComponent(req.body.TASK_INSTANCE_ID)})`
       }
       res.redirect(307, target + suffix)
     })
