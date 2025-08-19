@@ -609,6 +609,34 @@ module.exports = (srv) => {
     }
   })
 
+  srv.before('UPDATE', 'MON_WF_TASK', async (req) => {
+    const { SWF_INSTANCE_ID } = req.data
+
+    delete req.data.TASK_INSTANCE_ID
+
+    if (!SWF_INSTANCE_ID) return
+
+    try {
+      const wfSrv = await cds.connect.to('sap_process_automation_service')
+      const wfSrvForUser = wfSrv.tx(req)
+      const tasks = await wfSrvForUser.send({
+        method: 'GET',
+        path: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
+      })
+
+      if (Array.isArray(tasks) && tasks.length > 0) {
+        const task = tasks[0]
+        req.data.TASK_INSTANCE_ID = task.id
+        req.data.TASK_STATUS = 'COMPLETED'
+        req.data.COMPLETED_DATE = new Date()
+      } else {
+        req.error(404, `No task instance found for workflowInstanceId ${SWF_INSTANCE_ID}`)
+      }
+    } catch (error) {
+      req.error(502, `Failed to fetch task instance: ${error.message}`)
+    }
+  })
+
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
     console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
     const scimId =
