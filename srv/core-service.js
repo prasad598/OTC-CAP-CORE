@@ -616,25 +616,34 @@ module.exports = (srv) => {
 
     if (!SWF_INSTANCE_ID) return
 
+    let tasks
     try {
       const wfSrv = await cds.connect.to('sap_process_automation_service')
       const wfSrvForUser = wfSrv.tx(req)
-      const tasks = await wfSrvForUser.send({
+      const response = await wfSrvForUser.send({
         method: 'GET',
-        path: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
+        path: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${encodeURIComponent(
+          SWF_INSTANCE_ID
+        )}`,
       })
-
-      if (Array.isArray(tasks) && tasks.length > 0) {
-        const task = tasks[0]
-        req.data.TASK_INSTANCE_ID = task.id
-        req.data.TASK_STATUS = 'COMPLETED'
-        req.data.COMPLETED_DATE = new Date()
-      } else {
-        req.error(404, `No task instance found for workflowInstanceId ${SWF_INSTANCE_ID}`)
-      }
+      tasks = response?.value || response?.data?.value || response?.data || response
     } catch (error) {
       req.error(502, `Failed to fetch task instance: ${error.message}`)
+      return
     }
+
+    const task = Array.isArray(tasks) ? tasks[0] : undefined
+    if (!task) {
+      req.error(
+        404,
+        `No task instance found for workflowInstanceId ${SWF_INSTANCE_ID}`
+      )
+      return
+    }
+
+    req.data.TASK_INSTANCE_ID = task.id
+    req.data.TASK_STATUS = 'COMPLETED'
+    req.data.COMPLETED_DATE = new Date()
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
