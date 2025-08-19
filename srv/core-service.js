@@ -747,7 +747,17 @@ module.exports = (srv) => {
         }
         if (email) {
           if (cond.length) cond.push('or')
-          cond.push({ ref: ['TASK_PROCESSOR'] }, '=', { val: email })
+          cond.push(
+            '(',
+            { ref: ['TASK_PROCESSOR'] },
+            '=',
+            { val: email },
+            'and',
+            { ref: ['STATUS_CD'] },
+            '=',
+            { val: Status.PRL },
+            ')'
+          )
         }
         append(cond)
         break
