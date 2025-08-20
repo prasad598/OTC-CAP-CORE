@@ -5,7 +5,8 @@ const Decision = Object.freeze({
   APR: 'approve',
   REJ: 'reject',
   ESL: 'Escalate',
-  ESLA: 'Escalate'
+  ESLA: 'Escalate',
+  NA: 'NA'
 });
 
 const TaskType = Object.freeze({
@@ -26,6 +27,7 @@ const Status = Object.freeze({
   RSB: 'RSB',
   PRT: 'PRT',
   PRL: 'PRL',
+  PRC: 'PRC',
   CLR: 'CLR',
   RSL: 'RSL',
   CLD: 'CLD',
