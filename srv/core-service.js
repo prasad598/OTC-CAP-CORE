@@ -793,17 +793,9 @@ module.exports = (srv) => {
         append(cond)
         break
       }
-      default: {
-        if (!groups.length) {
-          req.query.SELECT.where = ['1', '=', '0']
-          break
-        }
-        append([
-          { ref: ['ASSIGNED_GROUP'] },
-          'in',
-          { list: groups.map((g) => ({ val: g })) }
-        ])
-      }
+      default:
+        // If no variant matches, leave the query untouched
+        break
     }
 
     console.log(

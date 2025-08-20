@@ -37,6 +37,8 @@ function initHandler(groups, emails) {
   delete require.cache[require.resolve('../srv/core-service.js')]
   require('../srv/core-service.js')(srvMock)
   Module.prototype.require = originalRequire
+  delete require.cache[require.resolve('@sap-cloud-sdk/http-client')]
+  delete require.cache[require.resolve('@sap-cloud-sdk/connectivity')]
   return handler
 }
 
