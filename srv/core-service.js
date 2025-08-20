@@ -258,6 +258,103 @@ module.exports = (srv) => {
       return { status: 'success' }
     })
 
+    srv.on('onTaskEvent', async (req) => {
+      const {
+        SWF_INSTANCE_ID,
+        REQ_TXN_ID,
+        TASK_TYPE,
+        TASK_STATUS,
+        DECISION,
+        PROCESSOR,
+        COMPLETED_AT,
+        CALL_TYPE,
+      } = req.data || {}
+
+      if (!SWF_INSTANCE_ID || !CALL_TYPE) {
+        return req.error(400, 'SWF_INSTANCE_ID and CALL_TYPE are required')
+      }
+      if (CALL_TYPE === 'POST' && !TASK_TYPE) {
+        return req.error(400, 'TASK_TYPE is required for POST')
+      }
+
+      let task
+      try {
+        const response = await executeHttpRequest(
+          { destinationName: 'sap_process_automation_service' },
+          {
+            method: 'GET',
+            url: `/public/workflow/rest/v1/workflow-instances/${SWF_INSTANCE_ID}/task-instances`,
+          }
+        )
+        const data = response.data || {}
+        const list = Array.isArray(data.value)
+          ? data.value
+          : Array.isArray(data.taskInstances)
+          ? data.taskInstances
+          : Array.isArray(data)
+          ? data
+          : []
+        task = list[0]
+        if (!task) {
+          return req.error(400, 'Task instance not found')
+        }
+      } catch (error) {
+        return req.error(502, `Failed to fetch task details: ${error.message}`)
+      }
+
+      const tx = cds.transaction(req)
+      const now = new Date()
+
+      if (CALL_TYPE === 'POST') {
+        const row = {
+          TASK_INSTANCE_ID: task.id,
+          SWF_INSTANCE_ID,
+          REQ_TXN_ID,
+          TASK_STATUS: task.status,
+          TASK_SUBJ: task.subject,
+          ASSIGNED_GROUP:
+            (task.assignedGroups && task.assignedGroups[0]) ||
+            (task.assignedTo && task.assignedTo[0]),
+          TASK_TYPE: task.taskDefinitionId || TASK_TYPE,
+          DECISION,
+          PROCESSOR,
+          ACTUAL_COMPLETION: COMPLETED_AT,
+          COMPLETED_DATE: COMPLETED_AT,
+          CREATED_DATETIME: COMPLETED_AT,
+          UPDATED_DATETIME: now,
+          CREATED_BY: PROCESSOR,
+          UPDATED_BY: PROCESSOR,
+          language: 'EN',
+        }
+        try {
+          await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
+          return 201
+        } catch (error) {
+          return req.error(400, `Failed to create task record: ${error.message}`)
+        }
+      } else if (CALL_TYPE === 'PATCH') {
+        const id = task.id
+        const row = {
+          TASK_STATUS,
+          PROCESSOR,
+          ACTUAL_COMPLETION: COMPLETED_AT,
+          COMPLETED_DATE: COMPLETED_AT,
+          UPDATED_BY: PROCESSOR,
+          UPDATED_DATETIME: now,
+        }
+        try {
+          await tx.run(
+            UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
+          )
+          return 200
+        } catch (error) {
+          return req.error(400, `Failed to update task record: ${error.message}`)
+        }
+      } else {
+        return req.error(400, 'Invalid CALL_TYPE')
+      }
+    })
+
     srv.on('massCreateUsers', async (req) => {
       const { entries } = req.data || {}
       const list = Array.isArray(entries) ? entries : []
