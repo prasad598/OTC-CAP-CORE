@@ -266,6 +266,7 @@ module.exports = (srv) => {
         TASK_STATUS,
         DECISION,
         PROCESSOR,
+        ASSIGNED_GROUP,
         COMPLETED_AT,
         CALL_TYPE,
       } = req.data || {}
@@ -306,6 +307,7 @@ module.exports = (srv) => {
       const now = new Date()
 
       if (CALL_TYPE === 'POST') {
+        const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
         const row = {
           TASK_INSTANCE_ID: task.id,
           SWF_INSTANCE_ID,
@@ -313,9 +315,10 @@ module.exports = (srv) => {
           TASK_STATUS: task.status,
           TASK_SUBJ: task.subject,
           ASSIGNED_GROUP:
+            ASSIGNED_GROUP ||
             (task.assignedGroups && task.assignedGroups[0]) ||
             (task.assignedTo && task.assignedTo[0]),
-          TASK_TYPE: task.taskDefinitionId || TASK_TYPE,
+          TASK_TYPE: resolvedTaskType,
           DECISION,
           PROCESSOR,
           ACTUAL_COMPLETION: COMPLETED_AT,
@@ -328,12 +331,37 @@ module.exports = (srv) => {
         }
         try {
           await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
+
+          const statusCd = generateReqNextStatus(
+            RequestType.TE,
+            resolvedTaskType,
+            DECISION
+          )
+
+          await tx.run(
+            UPDATE('BTP.TE_SR')
+              .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+              .where({ REQ_TXN_ID })
+          )
+
+          const wfStatus =
+            statusCd === Status.RSL || statusCd === Status.CLD
+              ? 'COMPLETED'
+              : 'RUNNING'
+
+          await tx.run(
+            UPDATE('BTP.MON_WF_PROCESS')
+              .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+              .where({ REQ_TXN_ID })
+          )
+
           return 201
         } catch (error) {
           return req.error(400, `Failed to create task record: ${error.message}`)
         }
       } else if (CALL_TYPE === 'PATCH') {
         const id = task.id
+        const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
         const row = {
           TASK_STATUS,
           PROCESSOR,
@@ -342,10 +370,37 @@ module.exports = (srv) => {
           UPDATED_BY: PROCESSOR,
           UPDATED_DATETIME: now,
         }
+        if (ASSIGNED_GROUP) {
+          row.ASSIGNED_GROUP = ASSIGNED_GROUP
+        }
         try {
           await tx.run(
             UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
           )
+
+          const statusCd = generateReqNextStatus(
+            RequestType.TE,
+            resolvedTaskType,
+            DECISION
+          )
+
+          await tx.run(
+            UPDATE('BTP.TE_SR')
+              .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+              .where({ REQ_TXN_ID })
+          )
+
+          const wfStatus =
+            statusCd === Status.RSL || statusCd === Status.CLD
+              ? 'COMPLETED'
+              : 'RUNNING'
+
+          await tx.run(
+            UPDATE('BTP.MON_WF_PROCESS')
+              .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+              .where({ REQ_TXN_ID })
+          )
+
           return 200
         } catch (error) {
           return req.error(400, `Failed to update task record: ${error.message}`)

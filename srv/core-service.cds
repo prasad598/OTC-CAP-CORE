@@ -59,6 +59,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     TASK_STATUS     : commonTypes.statusSBPA,
     DECISION        : commonTypes.decision,
     PROCESSOR       : commonTypes.emailId,
+    ASSIGNED_GROUP  : commonTypes.iasGroup,
     COMPLETED_AT    : commonTypes.dateTime,
     CALL_TYPE       : String
   ) returns Integer;

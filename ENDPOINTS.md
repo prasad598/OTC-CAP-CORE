@@ -235,7 +235,9 @@ body is ignored.
 
 Creates or updates workflow task monitoring records based on `CALL_TYPE`. When
 `CALL_TYPE` is `POST`, a new record is created using task details from SAP
-Process Automation. For `PATCH`, the existing record is updated.
+Process Automation. For `PATCH`, the existing record is updated. In both cases,
+the service request status and workflow process status are updated based on the
+provided task information.
 
 ```json
 {
@@ -245,6 +247,7 @@ Process Automation. For `PATCH`, the existing record is updated.
   "TASK_STATUS": "COMPLETED",
   "DECISION": "APR",
   "PROCESSOR": "user@example.com",
+  "ASSIGNED_GROUP": "TE_RESO_TEAM",
   "COMPLETED_AT": "2024-01-01T00:00:00Z",
   "CALL_TYPE": "POST"
 }
