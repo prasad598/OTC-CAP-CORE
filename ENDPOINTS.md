@@ -229,6 +229,34 @@ body is ignored.
 
 ---
 
+## /rest/btp/core/onTaskEvent
+
+**POST** `/rest/btp/core/onTaskEvent`
+
+Creates or updates workflow task monitoring records based on `CALL_TYPE`. When
+`CALL_TYPE` is `POST`, a new record is created using task details from SAP
+Process Automation. For `PATCH`, the existing record is updated.
+
+```json
+{
+  "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
+  "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+  "TASK_TYPE": "TE_REQUESTER",
+  "TASK_STATUS": "COMPLETED",
+  "DECISION": "APR",
+  "PROCESSOR": "user@example.com",
+  "COMPLETED_AT": "2024-01-01T00:00:00Z",
+  "CALL_TYPE": "POST"
+}
+```
+
+**Response**
+
+Returns `201` for created records, `200` for updates and `400` for invalid
+requests.
+
+---
+
 ## /rest/btp/core/te-servicerequest
 
 **GET** `/rest/btp/core/te-servicerequest`
