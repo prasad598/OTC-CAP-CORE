@@ -283,7 +283,7 @@ module.exports = (srv) => {
           { destinationName: 'sap_process_automation_service' },
           {
             method: 'GET',
-            url: `/public/workflow/rest/v1/workflow-instances/${SWF_INSTANCE_ID}/task-instances`,
+            url: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
           }
         )
         const data = response.data || {}
