@@ -10,6 +10,8 @@ function generateReqNextStatus(requestType, taskType, decision) {
           case Decision.SUB:
           case Decision.RSB:
             return Status.PRT;
+          case Decision.NA:
+            return Status.PRC;
           default:
             return Status.ERR;
         }
@@ -21,6 +23,8 @@ function generateReqNextStatus(requestType, taskType, decision) {
             return Status.CLR;
           case Decision.ESL:
             return Status.PRL;
+          case Decision.NA:
+            return Status.PRC;
           default:
             return Status.ERR;
         }
@@ -30,6 +34,8 @@ function generateReqNextStatus(requestType, taskType, decision) {
             return Status.RSL;
           case Decision.REJ:
             return Status.CLR;
+          case Decision.NA:
+            return Status.PRC;
           default:
             return Status.ERR;
         }
