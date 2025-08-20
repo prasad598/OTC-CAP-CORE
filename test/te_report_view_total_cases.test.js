@@ -40,6 +40,8 @@ describe('TE_REPORT_VIEW TOTAL_CASES variant', () => {
     }
     require('../srv/core-service.js')(srvMock)
     Module.prototype.require = originalRequire
+    delete require.cache[require.resolve('@sap-cloud-sdk/http-client')]
+    delete require.cache[require.resolve('@sap-cloud-sdk/connectivity')]
   })
 
   it('adds STATUS_CD != DRF to query', async () => {
