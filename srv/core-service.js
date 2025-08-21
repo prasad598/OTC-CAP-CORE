@@ -665,13 +665,15 @@ module.exports = (srv) => {
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
     const tx = cds.transaction(req)
     try {
-      const { REQUEST_ID } = await tx.run(
+      const { REQUEST_ID, DRAFT_ID } = await tx.run(
         SELECT.one
           .from('BTP.TE_SR')
-          .columns('REQUEST_ID')
+          .columns('REQUEST_ID', 'DRAFT_ID')
           .where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
       )
       req._oldRequestId = REQUEST_ID
+      req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
+      req.data.DRAFT_ID = DRAFT_ID
       if (!REQUEST_ID && req.data.DECISION === Decision.SUB) {
         req.data.REQUEST_ID = await generateCustomRequestId(tx, {
           prefix: 'CASE',
