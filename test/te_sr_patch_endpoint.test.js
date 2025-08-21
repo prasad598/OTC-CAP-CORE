@@ -66,6 +66,8 @@ describe('TE_SR PATCH alias', () => {
     assert.strictEqual(res.status, 200);
     const patched = await res.json();
     assert.ok(patched.REQUEST_ID);
+    assert.strictEqual(patched.REQ_TXN_ID, created.REQ_TXN_ID);
+    assert.ok(Object.prototype.hasOwnProperty.call(patched, 'DRAFT_ID'));
   });
 
   it('derives STATUS_CD from DECISION when provided', async () => {
@@ -99,6 +101,9 @@ describe('TE_SR PATCH alias', () => {
     });
     assert.strictEqual(res.status, 200);
     const patched = await res.json();
+    assert.ok(patched.REQUEST_ID);
+    assert.strictEqual(patched.REQ_TXN_ID, created.REQ_TXN_ID);
+    assert.ok(Object.prototype.hasOwnProperty.call(patched, 'DRAFT_ID'));
     assert.strictEqual(patched.STATUS_CD, 'PRT');
   });
 });
