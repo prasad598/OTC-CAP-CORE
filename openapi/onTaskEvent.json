@@ -57,14 +57,7 @@
                 },
                 "required": [
                   "SWF_INSTANCE_ID",
-                  "REQ_TXN_ID",
-                  "TASK_TYPE",
-                  "TASK_STATUS",
-                  "DECISION",
-                  "PROCESSOR",
-                  "ASSIGNED_GROUP",
-                  "COMPLETED_AT",
-                  "CALL_TYPE"
+                  "REQ_TXN_ID"
                 ]
               }
             }
