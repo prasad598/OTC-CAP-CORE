@@ -1,3 +1,5 @@
+# OpenAPI 3.0 YAML for POST /rest/btp/core/onTaskEvent
+# Expects a JSON body with task details and returns an integer response
 openapi: 3.0.0
 info:
   title: RestService onTaskEvent API
@@ -42,6 +44,7 @@ paths:
                   description: Timestamp when task completed
                 CALL_TYPE:
                   type: string
+                  description: Type of call triggering the task
               required:
                 - SWF_INSTANCE_ID
                 - REQ_TXN_ID
