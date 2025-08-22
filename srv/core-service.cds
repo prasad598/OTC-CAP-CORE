@@ -103,7 +103,7 @@ service ReportService {
     left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.OBJECT = 'ENTITY' and entity.language = 'EN'
   {
     key sr.REQ_TXN_ID   as REQ_TXN_ID,
-    sr.REQUEST_ID       as REQUEST_ID,
+    sr.REQUEST_ID       as CASE_ID,
     sr.DRAFT_ID         as DRAFT_ID,
     sr.SRV_CAT_CD       as SRV_CAT_CD,
     cat.DESC            as SRV_CAT,

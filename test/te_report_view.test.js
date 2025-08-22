@@ -12,7 +12,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     ]).to('sqlite::memory:')
   })
 
-  it('returns DRAFT_ID, REQUEST_ID, and REPORT_NO', async () => {
+  it('returns DRAFT_ID, CASE_ID, and REPORT_NO', async () => {
     const { TE_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
     const { TE_REPORT_VIEW } = cds.entities('ReportService')
     const id = '11111111-1111-1111-1111-222222222222'
@@ -61,7 +61,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(new Date(result.RESOLVED_DATETIME).toISOString(), '2024-01-04T00:00:00.000Z')
     assert.strictEqual(new Date(result.CLOSED_DATETIME).toISOString(), '2024-01-05T00:00:00.000Z')
     assert.strictEqual(result.DRAFT_ID, 'TE-DRFT-00001')
-    assert.strictEqual(result.REQUEST_ID, 'REQ-0001')
+    assert.strictEqual(result.CASE_ID, 'REQ-0001')
     assert.strictEqual(result.REPORT_NO, 'REP-0001')
     assert.strictEqual(result.SRV_CAT_CD, 'CAT1')
     assert.strictEqual(result.SRV_CAT, 'Category One')
