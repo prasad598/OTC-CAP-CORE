@@ -233,12 +233,12 @@ body is ignored.
 
 **POST** `/rest/btp/core/onTaskEvent`
 
-Creates or updates workflow task monitoring records based on `CALL_TYPE`. When
-`CALL_TYPE` is `POST`, a new record is created using task details from SAP
+Creates or updates workflow task monitoring records based on `HTTP_CALL`. When
+`HTTP_CALL` is `POST`, a new record is created using task details from SAP
 Process Automation. For `PATCH`, the existing record is updated. In both cases,
 the service request status and workflow process status are updated based on the
-provided task information. Only `SWF_INSTANCE_ID` and `REQ_TXN_ID` are mandatory;
-all other parameters are optional.
+provided task information. `SWF_INSTANCE_ID`, `REQ_TXN_ID` and `HTTP_CALL` are
+mandatory; all other parameters are optional.
 
 ```json
 {
@@ -250,14 +250,31 @@ all other parameters are optional.
   "PROCESSOR": "user@example.com",
   "ASSIGNED_GROUP": "TE_RESO_TEAM",
   "COMPLETED_AT": "2024-01-01T00:00:00Z",
-  "CALL_TYPE": "POST"
+  "HTTP_CALL": "POST"
 }
 ```
 
-**Response**
+**Success Response**
 
-Returns `201` for created records, `200` for updates and `400` for invalid
-requests.
+```json
+{
+  "status": 201,
+  "message": "Task record created",
+  "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+  "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
+}
+```
+
+**Error Response**
+
+```json
+{
+  "status": 400,
+  "message": "Missing required field: TASK_TYPE",
+  "REQ_TXN_ID": "",
+  "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
+}
+```
 
 ---
 
