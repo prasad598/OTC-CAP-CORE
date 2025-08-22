@@ -61,8 +61,13 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     PROCESSOR       : commonTypes.emailId,
     ASSIGNED_GROUP  : commonTypes.iasGroup,
     COMPLETED_AT    : commonTypes.dateTime,
-    CALL_TYPE       : String
-  ) returns Integer;
+    HTTP_CALL       : String
+  ) returns {
+    status        : Integer;
+    message       : String;
+    REQ_TXN_ID    : commonTypes.uuidv4;
+    correlationId : commonTypes.uuidv4;
+  };
 
     action massCreateUsers (entries: array of CORE_USERS);
     action massDeleteUsers ();

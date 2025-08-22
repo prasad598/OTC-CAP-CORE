@@ -268,11 +268,11 @@ module.exports = (srv) => {
         PROCESSOR,
         ASSIGNED_GROUP,
         COMPLETED_AT,
-        CALL_TYPE,
+        HTTP_CALL,
       } = req.data || {}
 
       const correlationId = cds.utils.uuid()
-      const error = (message, status = 400) => {
+      const respond = (message, status) => {
         req.res.status(status)
         return {
           status,
@@ -281,6 +281,8 @@ module.exports = (srv) => {
           correlationId,
         }
       }
+      const error = (message, status = 400) => respond(message, status)
+      const success = (message, status) => respond(message, status)
 
       if (!SWF_INSTANCE_ID) {
         return error('Missing required field: SWF_INSTANCE_ID')
@@ -288,8 +290,11 @@ module.exports = (srv) => {
       if (!REQ_TXN_ID) {
         return error('Missing required field: REQ_TXN_ID')
       }
+      if (!HTTP_CALL) {
+        return error('Missing required field: HTTP_CALL')
+      }
 
-      const callType = CALL_TYPE || 'POST'
+      const callType = HTTP_CALL
 
       let task
       try {
@@ -368,7 +373,7 @@ module.exports = (srv) => {
               .where({ REQ_TXN_ID })
           )
 
-          return 201
+          return success('Task record created', 201)
         } catch (err) {
           return error(`Failed to create task record: ${err.message}`)
         }
@@ -414,12 +419,12 @@ module.exports = (srv) => {
               .where({ REQ_TXN_ID })
           )
 
-          return 200
+          return success('Task record updated', 200)
         } catch (err) {
           return error(`Failed to update task record: ${err.message}`)
         }
       } else {
-        return error('Invalid CALL_TYPE')
+        return error('Invalid HTTP_CALL')
       }
     })
 

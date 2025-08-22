@@ -50,14 +50,16 @@
                     "format": "date-time",
                     "description": "Timestamp when task completed"
                   },
-                  "CALL_TYPE": {
+                  "HTTP_CALL": {
                     "type": "string",
-                    "description": "Type of call triggering the task"
+                    "description": "HTTP method of the callback",
+                    "enum": ["POST", "PATCH"]
                   }
                 },
                 "required": [
                   "SWF_INSTANCE_ID",
-                  "REQ_TXN_ID"
+                  "REQ_TXN_ID",
+                  "HTTP_CALL"
                 ]
               }
             }
@@ -65,12 +67,38 @@
         },
         "responses": {
           "200": {
-            "description": "Result of the event processing",
+            "description": "Task updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "description": "Number of affected records"
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "integer" },
+                    "message": { "type": "string" },
+                    "REQ_TXN_ID": { "type": "string", "format": "uuid" },
+                    "correlationId": { "type": "string", "format": "uuid" }
+                  },
+                  "required": ["status", "message", "REQ_TXN_ID", "correlationId"]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Task created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1rest~1btp~1core~1onTaskEvent/post/responses/200/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1rest~1btp~1core~1onTaskEvent/post/responses/200/content/application~1json/schema"
                 }
               }
             }
