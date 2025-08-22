@@ -55,13 +55,13 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   action onTaskEvent(
     SWF_INSTANCE_ID : commonTypes.uuidv4,
     REQ_TXN_ID      : commonTypes.uuidv4,
-    TASK_TYPE       : commonTypes.taskType?,
-    TASK_STATUS     : commonTypes.statusSBPA?,
-    DECISION        : commonTypes.decision?,
-    PROCESSOR       : commonTypes.emailId?,
-    ASSIGNED_GROUP  : commonTypes.iasGroup?,
-    COMPLETED_AT    : commonTypes.dateTime?,
-    CALL_TYPE       : String?
+    TASK_TYPE       : commonTypes.taskType,
+    TASK_STATUS     : commonTypes.statusSBPA,
+    DECISION        : commonTypes.decision,
+    PROCESSOR       : commonTypes.emailId,
+    ASSIGNED_GROUP  : commonTypes.iasGroup,
+    COMPLETED_AT    : commonTypes.dateTime,
+    CALL_TYPE       : String
   ) returns Integer;
 
     action massCreateUsers (entries: array of CORE_USERS);
