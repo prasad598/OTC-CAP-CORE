@@ -271,12 +271,25 @@ module.exports = (srv) => {
         CALL_TYPE,
       } = req.data || {}
 
-      if (!SWF_INSTANCE_ID || !CALL_TYPE) {
-        return req.error(400, 'SWF_INSTANCE_ID and CALL_TYPE are required')
+      const correlationId = cds.utils.uuid()
+      const error = (message, status = 400) => {
+        req.res.status(status)
+        return {
+          status,
+          message,
+          REQ_TXN_ID: REQ_TXN_ID || '',
+          correlationId,
+        }
       }
-      if (CALL_TYPE === 'POST' && !TASK_TYPE) {
-        return req.error(400, 'TASK_TYPE is required for POST')
+
+      if (!SWF_INSTANCE_ID) {
+        return error('Missing required field: SWF_INSTANCE_ID')
       }
+      if (!REQ_TXN_ID) {
+        return error('Missing required field: REQ_TXN_ID')
+      }
+
+      const callType = CALL_TYPE || 'POST'
 
       let task
       try {
@@ -297,16 +310,16 @@ module.exports = (srv) => {
           : []
         task = list[0]
         if (!task) {
-          return req.error(400, 'Task instance not found')
+          return error('Task instance not found')
         }
-      } catch (error) {
-        return req.error(502, `Failed to fetch task details: ${error.message}`)
+      } catch (err) {
+        return error(`Failed to fetch task details: ${err.message}`, 502)
       }
 
       const tx = cds.transaction(req)
       const now = new Date()
 
-      if (CALL_TYPE === 'POST') {
+      if (callType === 'POST') {
         const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
         const row = {
           TASK_INSTANCE_ID: task.id,
@@ -356,10 +369,10 @@ module.exports = (srv) => {
           )
 
           return 201
-        } catch (error) {
-          return req.error(400, `Failed to create task record: ${error.message}`)
+        } catch (err) {
+          return error(`Failed to create task record: ${err.message}`)
         }
-      } else if (CALL_TYPE === 'PATCH') {
+      } else if (callType === 'PATCH') {
         const id = task.id
         const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
         const row = {
@@ -402,11 +415,11 @@ module.exports = (srv) => {
           )
 
           return 200
-        } catch (error) {
-          return req.error(400, `Failed to update task record: ${error.message}`)
+        } catch (err) {
+          return error(`Failed to update task record: ${err.message}`)
         }
       } else {
-        return req.error(400, 'Invalid CALL_TYPE')
+        return error('Invalid CALL_TYPE')
       }
     })
 

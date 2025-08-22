@@ -237,7 +237,8 @@ Creates or updates workflow task monitoring records based on `CALL_TYPE`. When
 `CALL_TYPE` is `POST`, a new record is created using task details from SAP
 Process Automation. For `PATCH`, the existing record is updated. In both cases,
 the service request status and workflow process status are updated based on the
-provided task information.
+provided task information. Only `SWF_INSTANCE_ID` and `REQ_TXN_ID` are mandatory;
+all other parameters are optional.
 
 ```json
 {
