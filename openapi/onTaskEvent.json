@@ -8,6 +8,7 @@
     "/rest/btp/core/onTaskEvent": {
       "post": {
         "summary": "Handle task event",
+        "description": "Creates or updates workflow task monitoring records based on the `HTTP_CALL` value. Use `POST` to create a new task record and `PATCH` to update an existing one.",
         "operationId": "onTaskEvent",
         "requestBody": {
           "required": true,
@@ -60,11 +61,23 @@
                   "SWF_INSTANCE_ID",
                   "REQ_TXN_ID",
                   "HTTP_CALL"
-                ]
+                ],
+                "example": {
+                  "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
+                  "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+                  "TASK_TYPE": "TE_REQUESTER",
+                  "TASK_STATUS": "COMPLETED",
+                  "DECISION": "APR",
+                  "PROCESSOR": "user@example.com",
+                  "ASSIGNED_GROUP": "TE_RESO_TEAM",
+                  "COMPLETED_AT": "2024-01-01T00:00:00Z",
+                  "HTTP_CALL": "POST"
+                }
               }
             }
           }
         },
+
         "responses": {
           "200": {
             "description": "Task updated successfully",
@@ -78,7 +91,13 @@
                     "REQ_TXN_ID": { "type": "string", "format": "uuid" },
                     "correlationId": { "type": "string", "format": "uuid" }
                   },
-                  "required": ["status", "message", "REQ_TXN_ID", "correlationId"]
+                  "required": ["status", "message", "REQ_TXN_ID", "correlationId"],
+                  "example": {
+                    "status": 200,
+                    "message": "Task record updated",
+                    "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+                    "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
+                  }
                 }
               }
             }
@@ -89,6 +108,12 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/paths/~1rest~1btp~1core~1onTaskEvent/post/responses/200/content/application~1json/schema"
+                },
+                "example": {
+                  "status": 201,
+                  "message": "Task record created",
+                  "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+                  "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
                 }
               }
             }
@@ -99,6 +124,12 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/paths/~1rest~1btp~1core~1onTaskEvent/post/responses/200/content/application~1json/schema"
+                },
+                "example": {
+                  "status": 400,
+                  "message": "Missing required field: SWF_INSTANCE_ID",
+                  "REQ_TXN_ID": "",
+                  "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
                 }
               }
             }
