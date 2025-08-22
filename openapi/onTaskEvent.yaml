@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: RestService onTaskEvent API
+  version: "1.0.0"
+paths:
+  /rest/btp/core/onTaskEvent:
+    post:
+      summary: Handle task event
+      operationId: onTaskEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                SWF_INSTANCE_ID:
+                  type: string
+                  format: uuid
+                REQ_TXN_ID:
+                  type: string
+                  format: uuid
+                TASK_TYPE:
+                  type: string
+                  description: Task type code
+                TASK_STATUS:
+                  type: string
+                  description: Status from SAP Build Process Automation
+                DECISION:
+                  type: string
+                  description: Decision code
+                PROCESSOR:
+                  type: string
+                  format: email
+                  description: User who processed the task
+                ASSIGNED_GROUP:
+                  type: string
+                  description: IAS group assigned to the task
+                COMPLETED_AT:
+                  type: string
+                  format: date-time
+                  description: Timestamp when task completed
+                CALL_TYPE:
+                  type: string
+              required:
+                - SWF_INSTANCE_ID
+                - REQ_TXN_ID
+                - TASK_TYPE
+                - TASK_STATUS
+                - DECISION
+                - PROCESSOR
+                - ASSIGNED_GROUP
+                - COMPLETED_AT
+                - CALL_TYPE
+      responses:
+        '200':
+          description: Result of the event processing
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Number of affected records
