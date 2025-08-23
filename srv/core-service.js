@@ -375,6 +375,46 @@ module.exports = (srv) => {
             await tx.run(
               UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
             )
+            if (
+              (resolvedTaskType === TaskType.TE_RESO_TEAM &&
+                DECISION === Decision.ESLA) ||
+              (resolvedTaskType === TaskType.TE_REQUESTER &&
+                DECISION === Decision.CLR)
+            ) {
+              const statusCd = generateReqNextStatus(
+                RequestType.TE,
+                resolvedTaskType,
+                DECISION
+              )
+              const teSrUpdate = {
+                STATUS_CD: statusCd,
+                UPDATED_BY: PROCESSOR,
+                UPDATED_DATETIME: now,
+                PROCESSOR,
+              }
+              if (DECISION === Decision.ESLA) {
+                teSrUpdate.ESCALATED_DATETIME = COMPLETED_AT || now
+              } else if (DECISION === Decision.CLR) {
+                teSrUpdate.CLOSED_DATETIME = COMPLETED_AT || now
+              }
+              await tx.run(
+                UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
+              )
+              if (
+                statusCd === Status.CLD ||
+                statusCd === Status.RSL
+              ) {
+                await tx.run(
+                  UPDATE('BTP.MON_WF_PROCESS')
+                    .set({
+                      WF_STATUS: 'COMPLETED',
+                      UPDATED_BY: PROCESSOR,
+                      ACTUAL_COMPLETION: COMPLETED_AT || now,
+                    })
+                    .where({ WF_INSTANCE_ID: SWF_INSTANCE_ID })
+                )
+              }
+            }
 
             return success('Task record updated', 200)
           } catch (err) {
