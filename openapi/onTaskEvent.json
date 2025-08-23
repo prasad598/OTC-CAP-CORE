@@ -138,6 +138,22 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1rest~1btp~1core~1onTaskEvent/post/responses/200/content/application~1json/schema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "Unexpected error",
+                  "REQ_TXN_ID": "",
+                  "correlationId": "2f7929f8-dd8d-4209-7c39-7c9cedbe43b5"
+                }
+              }
+            }
           }
         }
       }

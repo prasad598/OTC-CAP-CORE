@@ -241,6 +241,10 @@ provided task information. `SWF_INSTANCE_ID`, `REQ_TXN_ID` and `HTTP_CALL` are
 mandatory; all other parameters, including `REQUEST_TYPE` (defaults to `TE`), are
 optional.
 
+All responses return a JSON object with exactly four properties: `status`,
+`message`, `REQ_TXN_ID` and `correlationId`. Only the status code and message
+change according to the action outcome.
+
 ```json
 {
   "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",

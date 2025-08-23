@@ -285,147 +285,151 @@ module.exports = (srv) => {
       const error = (message, status = 400) => respond(message, status)
       const success = (message, status) => respond(message, status)
 
-      if (!SWF_INSTANCE_ID) {
-        return error('Missing required field: SWF_INSTANCE_ID')
-      }
-      if (!REQ_TXN_ID) {
-        return error('Missing required field: REQ_TXN_ID')
-      }
-      if (!HTTP_CALL) {
-        return error('Missing required field: HTTP_CALL')
-      }
-
-      const callType = HTTP_CALL
-
-      let task
       try {
-        const response = await executeHttpRequest(
-          { destinationName: 'sap_process_automation_service' },
-          {
-            method: 'GET',
-            url: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
+        if (!SWF_INSTANCE_ID) {
+          return error('Missing required field: SWF_INSTANCE_ID')
+        }
+        if (!REQ_TXN_ID) {
+          return error('Missing required field: REQ_TXN_ID')
+        }
+        if (!HTTP_CALL) {
+          return error('Missing required field: HTTP_CALL')
+        }
+
+        const callType = HTTP_CALL
+
+        let task
+        try {
+          const response = await executeHttpRequest(
+            { destinationName: 'sap_process_automation_service' },
+            {
+              method: 'GET',
+              url: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${SWF_INSTANCE_ID}`,
+            }
+          )
+          const data = response.data || {}
+          const list = Array.isArray(data.value)
+            ? data.value
+            : Array.isArray(data.taskInstances)
+            ? data.taskInstances
+            : Array.isArray(data)
+            ? data
+            : []
+          task = list[0]
+          if (!task) {
+            return error('Task instance not found')
           }
-        )
-        const data = response.data || {}
-        const list = Array.isArray(data.value)
-          ? data.value
-          : Array.isArray(data.taskInstances)
-          ? data.taskInstances
-          : Array.isArray(data)
-          ? data
-          : []
-        task = list[0]
-        if (!task) {
-          return error('Task instance not found')
+        } catch (err) {
+          return error(`Failed to fetch task details: ${err.message}`, 502)
+        }
+
+        const tx = cds.transaction(req)
+        const now = new Date()
+
+        if (callType === 'POST') {
+          const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
+          const row = {
+            TASK_INSTANCE_ID: task.id,
+            SWF_INSTANCE_ID,
+            REQ_TXN_ID,
+            TASK_STATUS: task.status,
+            TASK_SUBJ: task.subject,
+            ASSIGNED_GROUP:
+              ASSIGNED_GROUP ||
+              (task.assignedGroups && task.assignedGroups[0]) ||
+              (task.assignedTo && task.assignedTo[0]),
+            TASK_TYPE: resolvedTaskType,
+            DECISION,
+            PROCESSOR,
+            ACTUAL_COMPLETION: COMPLETED_AT,
+            COMPLETED_DATE: COMPLETED_AT,
+            CREATED_DATETIME: COMPLETED_AT,
+            UPDATED_DATETIME: now,
+            CREATED_BY: PROCESSOR,
+            UPDATED_BY: PROCESSOR,
+            language: 'EN',
+          }
+          try {
+            await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
+
+            const statusCd = generateReqNextStatus(
+              RequestType.TE,
+              resolvedTaskType,
+              DECISION
+            )
+
+            await tx.run(
+              UPDATE('BTP.TE_SR')
+                .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+                .where({ REQ_TXN_ID })
+            )
+
+            const wfStatus =
+              statusCd === Status.RSL || statusCd === Status.CLD
+                ? 'COMPLETED'
+                : 'RUNNING'
+
+            await tx.run(
+              UPDATE('BTP.MON_WF_PROCESS')
+                .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+                .where({ REQ_TXN_ID })
+            )
+
+            return success('Task record created', 201)
+          } catch (err) {
+            return error(`Failed to create task record: ${err.message}`)
+          }
+        } else if (callType === 'PATCH') {
+          const id = task.id
+          const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
+          const row = {
+            TASK_STATUS,
+            PROCESSOR,
+            ACTUAL_COMPLETION: COMPLETED_AT,
+            COMPLETED_DATE: COMPLETED_AT,
+            UPDATED_BY: PROCESSOR,
+            UPDATED_DATETIME: now,
+          }
+          if (ASSIGNED_GROUP) {
+            row.ASSIGNED_GROUP = ASSIGNED_GROUP
+          }
+          try {
+            await tx.run(
+              UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
+            )
+
+            const statusCd = generateReqNextStatus(
+              RequestType.TE,
+              resolvedTaskType,
+              DECISION
+            )
+
+            await tx.run(
+              UPDATE('BTP.TE_SR')
+                .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+                .where({ REQ_TXN_ID })
+            )
+
+            const wfStatus =
+              statusCd === Status.RSL || statusCd === Status.CLD
+                ? 'COMPLETED'
+                : 'RUNNING'
+
+            await tx.run(
+              UPDATE('BTP.MON_WF_PROCESS')
+                .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
+                .where({ REQ_TXN_ID })
+            )
+
+            return success('Task record updated', 200)
+          } catch (err) {
+            return error(`Failed to update task record: ${err.message}`)
+          }
+        } else {
+          return error('Invalid HTTP_CALL')
         }
       } catch (err) {
-        return error(`Failed to fetch task details: ${err.message}`, 502)
-      }
-
-      const tx = cds.transaction(req)
-      const now = new Date()
-
-      if (callType === 'POST') {
-        const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
-        const row = {
-          TASK_INSTANCE_ID: task.id,
-          SWF_INSTANCE_ID,
-          REQ_TXN_ID,
-          TASK_STATUS: task.status,
-          TASK_SUBJ: task.subject,
-          ASSIGNED_GROUP:
-            ASSIGNED_GROUP ||
-            (task.assignedGroups && task.assignedGroups[0]) ||
-            (task.assignedTo && task.assignedTo[0]),
-          TASK_TYPE: resolvedTaskType,
-          DECISION,
-          PROCESSOR,
-          ACTUAL_COMPLETION: COMPLETED_AT,
-          COMPLETED_DATE: COMPLETED_AT,
-          CREATED_DATETIME: COMPLETED_AT,
-          UPDATED_DATETIME: now,
-          CREATED_BY: PROCESSOR,
-          UPDATED_BY: PROCESSOR,
-          language: 'EN',
-        }
-        try {
-          await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
-
-          const statusCd = generateReqNextStatus(
-            RequestType.TE,
-            resolvedTaskType,
-            DECISION
-          )
-
-          await tx.run(
-            UPDATE('BTP.TE_SR')
-              .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-              .where({ REQ_TXN_ID })
-          )
-
-          const wfStatus =
-            statusCd === Status.RSL || statusCd === Status.CLD
-              ? 'COMPLETED'
-              : 'RUNNING'
-
-          await tx.run(
-            UPDATE('BTP.MON_WF_PROCESS')
-              .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-              .where({ REQ_TXN_ID })
-          )
-
-          return success('Task record created', 201)
-        } catch (err) {
-          return error(`Failed to create task record: ${err.message}`)
-        }
-      } else if (callType === 'PATCH') {
-        const id = task.id
-        const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
-        const row = {
-          TASK_STATUS,
-          PROCESSOR,
-          ACTUAL_COMPLETION: COMPLETED_AT,
-          COMPLETED_DATE: COMPLETED_AT,
-          UPDATED_BY: PROCESSOR,
-          UPDATED_DATETIME: now,
-        }
-        if (ASSIGNED_GROUP) {
-          row.ASSIGNED_GROUP = ASSIGNED_GROUP
-        }
-        try {
-          await tx.run(
-            UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
-          )
-
-          const statusCd = generateReqNextStatus(
-            RequestType.TE,
-            resolvedTaskType,
-            DECISION
-          )
-
-          await tx.run(
-            UPDATE('BTP.TE_SR')
-              .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-              .where({ REQ_TXN_ID })
-          )
-
-          const wfStatus =
-            statusCd === Status.RSL || statusCd === Status.CLD
-              ? 'COMPLETED'
-              : 'RUNNING'
-
-          await tx.run(
-            UPDATE('BTP.MON_WF_PROCESS')
-              .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-              .where({ REQ_TXN_ID })
-          )
-
-          return success('Task record updated', 200)
-        } catch (err) {
-          return error(`Failed to update task record: ${err.message}`)
-        }
-      } else {
-        return error('Invalid HTTP_CALL')
+        return error(err.message || 'Unexpected error', err.statusCode || 500)
       }
     })
 
