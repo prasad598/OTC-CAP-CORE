@@ -379,7 +379,7 @@ module.exports = (srv) => {
               (resolvedTaskType === TaskType.TE_RESO_TEAM &&
                 DECISION === Decision.ESLA) ||
               (resolvedTaskType === TaskType.TE_REQUESTER &&
-                DECISION === Decision.CLR)
+                DECISION === Decision.CLDA)
             ) {
               const statusCd = generateReqNextStatus(
                 RequestType.TE,
@@ -394,7 +394,7 @@ module.exports = (srv) => {
               }
               if (DECISION === Decision.ESLA) {
                 teSrUpdate.ESCALATED_DATETIME = COMPLETED_AT || now
-              } else if (DECISION === Decision.CLR) {
+              } else if (DECISION === Decision.CLDA) {
                 teSrUpdate.CLOSED_DATETIME = COMPLETED_AT || now
               }
               await tx.run(
