@@ -353,29 +353,6 @@ module.exports = (srv) => {
           try {
             await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
 
-            const statusCd = generateReqNextStatus(
-              RequestType.TE,
-              resolvedTaskType,
-              DECISION
-            )
-
-            await tx.run(
-              UPDATE('BTP.TE_SR')
-                .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-                .where({ REQ_TXN_ID })
-            )
-
-            const wfStatus =
-              statusCd === Status.RSL || statusCd === Status.CLD
-                ? 'COMPLETED'
-                : 'RUNNING'
-
-            await tx.run(
-              UPDATE('BTP.MON_WF_PROCESS')
-                .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-                .where({ REQ_TXN_ID })
-            )
-
             return success('Task record created', 201)
           } catch (err) {
             return error(`Failed to create task record: ${err.message}`)
@@ -397,29 +374,6 @@ module.exports = (srv) => {
           try {
             await tx.run(
               UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
-            )
-
-            const statusCd = generateReqNextStatus(
-              RequestType.TE,
-              resolvedTaskType,
-              DECISION
-            )
-
-            await tx.run(
-              UPDATE('BTP.TE_SR')
-                .set({ STATUS_CD: statusCd, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-                .where({ REQ_TXN_ID })
-            )
-
-            const wfStatus =
-              statusCd === Status.RSL || statusCd === Status.CLD
-                ? 'COMPLETED'
-                : 'RUNNING'
-
-            await tx.run(
-              UPDATE('BTP.MON_WF_PROCESS')
-                .set({ WF_STATUS: wfStatus, UPDATED_BY: PROCESSOR, UPDATED_DATETIME: now })
-                .where({ REQ_TXN_ID })
             )
 
             return success('Task record updated', 200)
