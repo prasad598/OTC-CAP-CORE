@@ -76,7 +76,7 @@ describe('TE_SR enrichment', () => {
     )
   })
 
-  it('fetches MON_WF_TASK records ordered by updated time', async () => {
+  it('fetches MON_WF_TASK records ordered by created time', async () => {
     const { TE_SR, MON_WF_TASK } = srv.entities
     const id = '22222222-2222-2222-2222-222222222222'
 
@@ -90,14 +90,14 @@ describe('TE_SR enrichment', () => {
       {
         TASK_INSTANCE_ID: '00000000-0000-0000-0000-111111111111',
         REQ_TXN_ID: id,
-        UPDATED_DATETIME: new Date('2024-02-01T00:00:00Z'),
+        CREATED_DATETIME: new Date('2024-02-01T00:00:00Z'),
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
       {
         TASK_INSTANCE_ID: '00000000-0000-0000-0000-222222222222',
         REQ_TXN_ID: id,
-        UPDATED_DATETIME: new Date('2024-01-01T00:00:00Z'),
+        CREATED_DATETIME: new Date('2024-01-01T00:00:00Z'),
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       }
@@ -118,25 +118,25 @@ describe('TE_SR enrichment', () => {
     )
   })
 
-  it('fetches MON_WF_TASK records for resolved cases', async () => {
+  it('fetches MON_WF_TASK records regardless of status', async () => {
     const { TE_SR, MON_WF_TASK } = srv.entities
     const id = '33333333-3333-3333-3333-333333333333'
 
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: id,
       language: 'EN',
-      STATUS_CD: 'RSL'
+      STATUS_CD: 'SUB'
     })
 
     await INSERT.into(MON_WF_TASK).entries({
       TASK_INSTANCE_ID: '00000000-0000-0000-0000-333333333333',
       REQ_TXN_ID: id,
-      UPDATED_DATETIME: new Date('2024-03-01T00:00:00Z'),
+      CREATED_DATETIME: new Date('2024-03-01T00:00:00Z'),
       CREATED_BY: 'tester',
       UPDATED_BY: 'tester'
     })
 
-    const item = { REQ_TXN_ID: id, STATUS_CD: 'RSL' }
+    const item = { REQ_TXN_ID: id, STATUS_CD: 'SUB' }
     await srv._afterRead(item, { warn: () => {} })
 
     assert.ok(Array.isArray(item.MON_WF_TASK))
