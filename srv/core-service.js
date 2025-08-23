@@ -269,6 +269,7 @@ module.exports = (srv) => {
         ASSIGNED_GROUP,
         COMPLETED_AT,
         HTTP_CALL,
+        REQUEST_TYPE: _REQUEST_TYPE,
       } = req.data || {}
 
       const correlationId = cds.utils.uuid()

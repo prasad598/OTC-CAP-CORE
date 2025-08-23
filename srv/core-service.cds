@@ -55,6 +55,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
   action onTaskEvent(
     SWF_INSTANCE_ID : commonTypes.uuidv4,
     REQ_TXN_ID      : commonTypes.uuidv4,
+    REQUEST_TYPE    : commonTypes.requestType,
     TASK_TYPE       : commonTypes.taskType,
     TASK_STATUS     : commonTypes.statusSBPA,
     DECISION        : commonTypes.decision,

@@ -25,6 +25,10 @@
                     "type": "string",
                     "format": "uuid"
                   },
+                  "REQUEST_TYPE": {
+                    "type": "string",
+                    "description": "Request type code"
+                  },
                   "TASK_TYPE": {
                     "type": "string",
                     "description": "Task type code"
@@ -65,6 +69,7 @@
                 "example": {
                   "SWF_INSTANCE_ID": "badd8bcb-72af-11f0-bbe6-eeee0a87f288",
                   "REQ_TXN_ID": "00112233-4455-6677-8899-aabbccddeeff",
+                  "REQUEST_TYPE": "TE",
                   "TASK_TYPE": "TE_REQUESTER",
                   "TASK_STATUS": "COMPLETED",
                   "DECISION": "APR",
