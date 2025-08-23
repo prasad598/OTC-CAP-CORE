@@ -362,9 +362,10 @@ module.exports = (srv) => {
           }
           try {
             await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
-
+            await tx.commit()
             return success('Task record created', 201)
           } catch (err) {
+            await tx.rollback(err)
             return error(`Failed to create task record: ${err.message}`)
           }
         } else if (callType === 'PATCH') {
@@ -426,8 +427,10 @@ module.exports = (srv) => {
               }
             }
 
+            await tx.commit()
             return success('Task record updated', 200)
           } catch (err) {
+            await tx.rollback(err)
             return error(`Failed to update task record: ${err.message}`)
           }
         } else {
