@@ -5,8 +5,8 @@ const Decision = Object.freeze({
   APR: 'approve',
   REJ: 'reject',
   ESL: 'Escalate',
-  ESLA: 'Escalate',
-  CLDA: 'Close',
+  ESLA: 'ESLA',
+  CLDA: 'CLDA',
   NA: 'NA'
 });
 
