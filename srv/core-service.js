@@ -259,6 +259,14 @@ module.exports = (srv) => {
     })
 
     srv.on('onTaskEvent', async (req) => {
+      // Trim whitespace from string fields before processing
+      const data = Object.fromEntries(
+        Object.entries(req.data || {}).map(([k, v]) => [
+          k,
+          typeof v === 'string' ? v.trim() : v,
+        ])
+      )
+      req.data = data
       const {
         SWF_INSTANCE_ID,
         REQ_TXN_ID,
@@ -270,7 +278,7 @@ module.exports = (srv) => {
         ASSIGNED_GROUP,
         COMPLETED_AT,
         HTTP_CALL,
-      } = req.data || {}
+      } = data
 
       console.log(
         'onTaskEvent request payload:',
