@@ -378,58 +378,53 @@ module.exports = (srv) => {
             COMPLETED_DATE: COMPLETED_AT || now,
             UPDATED_BY: PROCESSOR,
             UPDATED_DATETIME: now,
-          }
-          if (DECISION === Decision.CLDA) {
-            row.TASK_STATUS = 'COMPLETED'
-          } else if (TASK_STATUS) {
-            row.TASK_STATUS = TASK_STATUS
-          }
-          if (ASSIGNED_GROUP) {
-            row.ASSIGNED_GROUP = ASSIGNED_GROUP
+            TASK_STATUS: TASK_STATUS || task.status,
+            TASK_SUBJ: task.subject,
+            ASSIGNED_GROUP:
+              ASSIGNED_GROUP ||
+              (task.assignedGroups && task.assignedGroups[0]) ||
+              (task.assignedTo && task.assignedTo[0]),
           }
           try {
             await tx.run(
               UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
             )
-            if (
-              (resolvedTaskType === TaskType.TE_RESO_TEAM &&
-                DECISION === Decision.ESLA) ||
-              (resolvedTaskType === TaskType.TE_REQUESTER &&
-                DECISION === Decision.CLDA)
-            ) {
-              const statusCd = generateReqNextStatus(
-                RequestType.TE,
-                resolvedTaskType,
-                DECISION
-              )
-              const teSrUpdate = {
-                STATUS_CD: statusCd,
-                UPDATED_BY: PROCESSOR,
-                UPDATED_DATETIME: now,
-                PROCESSOR,
-              }
-              if (DECISION === Decision.ESLA) {
-                teSrUpdate.ESCALATED_DATETIME = COMPLETED_AT || now
-              } else if (DECISION === Decision.CLDA) {
-                teSrUpdate.CLOSED_DATETIME = COMPLETED_AT || now
-              }
+
+            const statusCd = generateReqNextStatus(
+              RequestType.TE,
+              resolvedTaskType,
+              DECISION
+            )
+
+            const teSrUpdate = {
+              STATUS_CD: statusCd,
+              UPDATED_BY: PROCESSOR,
+              UPDATED_DATETIME: now,
+              PROCESSOR,
+            }
+
+            if (DECISION === Decision.ESLA) {
+              teSrUpdate.ESCALATED_DATETIME = COMPLETED_AT || now
+            }
+
+            if (statusCd === Status.CLD) {
+              teSrUpdate.CLOSED_DATETIME = COMPLETED_AT || now
+            }
+
+            await tx.run(
+              UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
+            )
+
+            if (statusCd === Status.CLD || statusCd === Status.RSL) {
               await tx.run(
-                UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
+                UPDATE('BTP.MON_WF_PROCESS')
+                  .set({
+                    WF_STATUS: 'COMPLETED',
+                    UPDATED_BY: PROCESSOR,
+                    ACTUAL_COMPLETION: COMPLETED_AT || now,
+                  })
+                  .where({ WF_INSTANCE_ID: SWF_INSTANCE_ID })
               )
-              if (
-                statusCd === Status.CLD ||
-                statusCd === Status.RSL
-              ) {
-                await tx.run(
-                  UPDATE('BTP.MON_WF_PROCESS')
-                    .set({
-                      WF_STATUS: 'COMPLETED',
-                      UPDATED_BY: PROCESSOR,
-                      ACTUAL_COMPLETION: COMPLETED_AT || now,
-                    })
-                    .where({ WF_INSTANCE_ID: SWF_INSTANCE_ID })
-                )
-              }
             }
 
             await tx.commit()
