@@ -951,6 +951,15 @@ module.exports = (srv) => {
         }
         break
       }
+      case Variant.STE_TE_RESO_ADMN: {
+        const isResoAdmin = groups.some((g) => g.startsWith('STE_TE_RESO_ADMN'))
+        if (!isResoAdmin) {
+          req.query.SELECT.where = ['1', '=', '0']
+        } else {
+          append([{ ref: ['STATUS_CD'] }, '!=', { val: Status.DRF }])
+        }
+        break
+      }
       case Variant.SLA_BREACH_CASES: {
         const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_LEAD_'))
         if (!leadGroups.length && !email) {
