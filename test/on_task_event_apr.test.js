@@ -1,12 +1,13 @@
 const cds = require('@sap/cds')
 const assert = require('assert')
-const { describe, it, before } = require('node:test')
+const { describe, it, before, after } = require('node:test')
 const { SELECT, INSERT } = cds.ql
 
-let onTaskEventHandler, db
+let onTaskEventHandler, db, originalHttpClient
 
 describe('onTaskEvent APR patch handling', () => {
   before(async () => {
+    originalHttpClient = require.cache[require.resolve('@sap-cloud-sdk/http-client')]
     require.cache[require.resolve('@sap-cloud-sdk/http-client')] = {
       exports: {
         executeHttpRequest: async () => ({
@@ -72,15 +73,23 @@ describe('onTaskEvent APR patch handling', () => {
     require('../srv/core-service')(srv)
   })
 
+  after(() => {
+    if (originalHttpClient) {
+      require.cache[require.resolve('@sap-cloud-sdk/http-client')] = originalHttpClient
+    } else {
+      delete require.cache[require.resolve('@sap-cloud-sdk/http-client')]
+    }
+  })
+
   it('approves task and updates request and process', async () => {
     const req = {
       data: {
-        DECISION: 'APR',
-        HTTP_CALL: 'PATCH',
-        PROCESSOR: 'BTP_SPA_ADMIN',
-        SWF_INSTANCE_ID: 'wf2',
-        TASK_TYPE: 'TE_RESO_TEAM',
-        REQ_TXN_ID: '5678',
+        DECISION: ' approve ',
+        HTTP_CALL: ' PATCH ',
+        PROCESSOR: ' BTP_SPA_ADMIN ',
+        SWF_INSTANCE_ID: ' wf2 ',
+        TASK_TYPE: ' TE_RESO_TEAM ',
+        REQ_TXN_ID: ' 5678 ',
         COMPLETED_AT: '2024-01-01T00:00:00.000Z'
       },
       res: { status: () => {} }
@@ -92,7 +101,7 @@ describe('onTaskEvent APR patch handling', () => {
     const task = await SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID: 'task2' })
     assert.strictEqual(task.TASK_STATUS, 'COMPLETED')
     assert.strictEqual(task.PROCESSOR, 'BTP_SPA_ADMIN')
-    assert.strictEqual(task.DECISION, 'APR')
+    assert.strictEqual(task.DECISION, 'approve')
 
     const sr = await SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: '5678' })
     assert.strictEqual(sr.STATUS_CD, 'RSL')

@@ -1,12 +1,13 @@
 const cds = require('@sap/cds')
 const assert = require('assert')
-const { describe, it, before } = require('node:test')
+const { describe, it, before, after } = require('node:test')
 const { SELECT, INSERT } = cds.ql
 
-let onTaskEventHandler, db
+let onTaskEventHandler, db, originalHttpClient
 
 describe('onTaskEvent CLDA patch handling', () => {
   before(async () => {
+    originalHttpClient = require.cache[require.resolve('@sap-cloud-sdk/http-client')]
     require.cache[require.resolve('@sap-cloud-sdk/http-client')] = {
       exports: {
         executeHttpRequest: async () => ({
@@ -70,15 +71,23 @@ describe('onTaskEvent CLDA patch handling', () => {
     require('../srv/core-service')(srv)
   })
 
+  after(() => {
+    if (originalHttpClient) {
+      require.cache[require.resolve('@sap-cloud-sdk/http-client')] = originalHttpClient
+    } else {
+      delete require.cache[require.resolve('@sap-cloud-sdk/http-client')]
+    }
+  })
+
   it('closes task and service request in one transaction', async () => {
     const req = {
       data: {
-        DECISION: 'CLDA',
-        HTTP_CALL: 'PATCH',
-        PROCESSOR: 'BTP_SPA_ADMIN',
-        SWF_INSTANCE_ID: '6745367f-800b-11f0-ac06-eeee0a97c6df',
-        TASK_TYPE: 'TE_REQUESTER',
-        REQ_TXN_ID: '1234',
+        DECISION: ' CLDA ',
+        HTTP_CALL: ' PATCH ',
+        PROCESSOR: ' BTP_SPA_ADMIN ',
+        SWF_INSTANCE_ID: ' 6745367f-800b-11f0-ac06-eeee0a97c6df ',
+        TASK_TYPE: ' TE_REQUESTER ',
+        REQ_TXN_ID: ' 1234 ',
         COMPLETED_AT: '2024-01-01T00:00:00.000Z'
       },
       res: { status: () => {} }
