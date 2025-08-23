@@ -26,31 +26,34 @@ describe('CORE_ATTACHMENTS create handler', () => {
   it('returns all attachments for REQ_TXN_ID', async () => {
     const { CORE_ATTACHMENTS } = srv.entities
     const id = '33333333-3333-3333-3333-333333333333'
-    await INSERT.into(CORE_ATTACHMENTS).entries({
-      REQ_TXN_ID: id,
-      language: 'EN',
-      FILE_NAME: 'a.txt',
-      FILE_PATH: '/a.txt',
-      MIME_TYPE: 'text/plain',
-      PROJECT_TYPE: 'demo',
-      CREATED_BY: 'tester'
-    })
-    const req = {
-      data: {
+      await INSERT.into(CORE_ATTACHMENTS).entries({
         REQ_TXN_ID: id,
         language: 'EN',
-        FILE_NAME: 'b.txt',
-        FILE_PATH: '/b.txt',
+        FILE_NAME: 'a.txt',
+        FILE_PATH: '/a.txt',
         MIME_TYPE: 'text/plain',
         PROJECT_TYPE: 'demo',
+        ONPREMISE_REF: 'OP-123456789012',
         CREATED_BY: 'tester'
+      })
+    const req = {
+        data: {
+          REQ_TXN_ID: id,
+          language: 'EN',
+          FILE_NAME: 'b.txt',
+          FILE_PATH: '/b.txt',
+          MIME_TYPE: 'text/plain',
+          PROJECT_TYPE: 'demo',
+          ONPREMISE_REF: 'OP-123456789012',
+          CREATED_BY: 'tester'
+        }
       }
-    }
-    const res = await srv._createAttachment(req, () =>
-      INSERT.into(CORE_ATTACHMENTS).entries(req.data)
-    )
-    assert.strictEqual(res.length, 2)
-    assert.ok(res.some((r) => r.FILE_NAME === 'a.txt'))
-    assert.ok(res.some((r) => r.FILE_NAME === 'b.txt'))
+      const res = await srv._createAttachment(req, () =>
+        INSERT.into(CORE_ATTACHMENTS).entries(req.data)
+      )
+      assert.strictEqual(res.length, 2)
+      assert.ok(res.some((r) => r.FILE_NAME === 'a.txt'))
+      assert.ok(res.some((r) => r.FILE_NAME === 'b.txt'))
+      assert.ok(res.every((r) => r.ONPREMISE_REF === 'OP-123456789012'))
+    })
   })
-})

@@ -38,15 +38,16 @@ describe('TE_SR enrichment', () => {
       COMMENTS: 'test comment',
       CREATED_BY: 'tester',
     })
-    await INSERT.into(CORE_ATTACHMENTS).entries({
-      REQ_TXN_ID: id,
-      language: 'EN',
-      FILE_NAME: 'file.txt',
-      FILE_PATH: '/tmp/file.txt',
-      MIME_TYPE: 'text/plain',
-      PROJECT_TYPE: 'demo',
-      CREATED_BY: 'tester',
-    })
+      await INSERT.into(CORE_ATTACHMENTS).entries({
+        REQ_TXN_ID: id,
+        language: 'EN',
+        FILE_NAME: 'file.txt',
+        FILE_PATH: '/tmp/file.txt',
+        MIME_TYPE: 'text/plain',
+        PROJECT_TYPE: 'demo',
+        ONPREMISE_REF: 'OP-123456789012',
+        CREATED_BY: 'tester',
+      })
     await INSERT.into(MON_WF_PROCESS).entries({
       WF_INSTANCE_ID: '00000000-0000-0000-0000-444444444444',
       REQ_TXN_ID: id,
@@ -68,6 +69,10 @@ describe('TE_SR enrichment', () => {
     assert.ok(Array.isArray(item.CORE_ATTACHMENTS))
     assert.strictEqual(item.CORE_ATTACHMENTS.length, 1)
     assert.strictEqual(item.CORE_ATTACHMENTS[0].FILE_NAME, 'file.txt')
+    assert.strictEqual(
+      item.CORE_ATTACHMENTS[0].ONPREMISE_REF,
+      'OP-123456789012'
+    )
     assert.ok(Array.isArray(item.MON_WF_PROCESS))
     assert.strictEqual(item.MON_WF_PROCESS.length, 1)
     assert.strictEqual(
