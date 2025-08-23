@@ -262,6 +262,7 @@ module.exports = (srv) => {
       const {
         SWF_INSTANCE_ID,
         REQ_TXN_ID,
+        REQUEST_TYPE: requestType = RequestType.TE,
         TASK_TYPE,
         TASK_STATUS,
         DECISION,
@@ -269,7 +270,6 @@ module.exports = (srv) => {
         ASSIGNED_GROUP,
         COMPLETED_AT,
         HTTP_CALL,
-        REQUEST_TYPE: _REQUEST_TYPE,
       } = req.data || {}
 
       const correlationId = cds.utils.uuid()
@@ -352,7 +352,7 @@ module.exports = (srv) => {
           await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
 
           const statusCd = generateReqNextStatus(
-            RequestType.TE,
+            requestType,
             resolvedTaskType,
             DECISION
           )
@@ -398,7 +398,7 @@ module.exports = (srv) => {
           )
 
           const statusCd = generateReqNextStatus(
-            RequestType.TE,
+            requestType,
             resolvedTaskType,
             DECISION
           )

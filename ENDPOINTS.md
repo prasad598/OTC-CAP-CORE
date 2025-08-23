@@ -238,7 +238,8 @@ Creates or updates workflow task monitoring records based on `HTTP_CALL`. When
 Process Automation. For `PATCH`, the existing record is updated. In both cases,
 the service request status and workflow process status are updated based on the
 provided task information. `SWF_INSTANCE_ID`, `REQ_TXN_ID` and `HTTP_CALL` are
-mandatory; all other parameters, including `REQUEST_TYPE`, are optional.
+mandatory; all other parameters, including `REQUEST_TYPE` (defaults to `TE`), are
+optional.
 
 ```json
 {
