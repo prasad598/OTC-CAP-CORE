@@ -328,7 +328,7 @@ module.exports = (srv) => {
         const now = new Date()
 
         if (callType === 'POST') {
-          const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
+          const resolvedTaskType = TASK_TYPE || task.taskDefinitionId
           const row = {
             TASK_INSTANCE_ID: task.id,
             SWF_INSTANCE_ID,
@@ -359,7 +359,7 @@ module.exports = (srv) => {
           }
         } else if (callType === 'PATCH') {
           const id = task.id
-          const resolvedTaskType = task.taskDefinitionId || TASK_TYPE
+          const resolvedTaskType = TASK_TYPE || task.taskDefinitionId
           const row = {
             TASK_STATUS,
             PROCESSOR,
