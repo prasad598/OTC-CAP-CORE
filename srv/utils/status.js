@@ -10,7 +10,7 @@ function generateReqNextStatus(requestType, taskType, decision) {
           case Decision.SUB:
           case Decision.RSB:
             return Status.PRT;
-          case Decision.CLR:
+          case Decision.CLDA:
             return Status.CLD;
           case Decision.NA:
             return Status.PRC;
