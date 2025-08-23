@@ -372,12 +372,17 @@ module.exports = (srv) => {
           const id = task.id
           const resolvedTaskType = TASK_TYPE || task.taskDefinitionId
           const row = {
-            TASK_STATUS,
+            DECISION,
             PROCESSOR,
-            ACTUAL_COMPLETION: COMPLETED_AT,
-            COMPLETED_DATE: COMPLETED_AT,
+            ACTUAL_COMPLETION: COMPLETED_AT || now,
+            COMPLETED_DATE: COMPLETED_AT || now,
             UPDATED_BY: PROCESSOR,
             UPDATED_DATETIME: now,
+          }
+          if (DECISION === Decision.CLDA) {
+            row.TASK_STATUS = 'COMPLETED'
+          } else if (TASK_STATUS) {
+            row.TASK_STATUS = TASK_STATUS
           }
           if (ASSIGNED_GROUP) {
             row.ASSIGNED_GROUP = ASSIGNED_GROUP
