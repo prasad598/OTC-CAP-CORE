@@ -2,7 +2,7 @@ const assert = require('assert')
 const Module = require('module')
 const { describe, it, before } = require('node:test')
 
-describe('TE_REPORT_VIEW STE_TE_RESO_ADMN variant', () => {
+describe('TE_REPORT_VIEW RESO_REPORT variant', () => {
   let handler
   before(() => {
     const originalRequire = Module.prototype.require
@@ -46,8 +46,8 @@ describe('TE_REPORT_VIEW STE_TE_RESO_ADMN variant', () => {
 
   it('adds STATUS_CD != DRF to query', async () => {
     const req = {
-      data: { 'user-scim-id': '123', VARIENT: 'STE_TE_RESO_ADMN' },
-      req: { query: { 'user-scim-id': '123', VARIENT: 'STE_TE_RESO_ADMN' } },
+      data: { 'user-scim-id': '123', VARIENT: 'RESO_REPORT' },
+      req: { query: { 'user-scim-id': '123', VARIENT: 'RESO_REPORT' } },
       query: { SELECT: {} }
     }
     await handler(req)
