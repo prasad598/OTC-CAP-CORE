@@ -274,7 +274,8 @@ module.exports = (srv) => {
 
       const correlationId = cds.utils.uuid()
       const respond = (message, status) => {
-        req.res.status(status)
+        // Always return HTTP 200 to ensure workflow engine processes the payload
+        req.res.status(200)
         return {
           status,
           message,
