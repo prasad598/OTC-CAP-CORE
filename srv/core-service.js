@@ -272,6 +272,11 @@ module.exports = (srv) => {
         HTTP_CALL,
       } = req.data || {}
 
+      console.log(
+        'onTaskEvent request payload:',
+        JSON.stringify(req.data, null, 2)
+      )
+
       const correlationId = cds.utils.uuid()
       const respond = (message, status) => {
         // Always return HTTP 200 to ensure workflow engine processes the payload
@@ -282,6 +287,10 @@ module.exports = (srv) => {
           REQ_TXN_ID: REQ_TXN_ID || '',
           correlationId,
         }
+        console.log(
+          'onTaskEvent response payload:',
+          JSON.stringify(payload, null, 2)
+        )
         return payload
       }
       const error = (message, status = 400) => respond(message, status)
@@ -298,7 +307,7 @@ module.exports = (srv) => {
           return error('Missing required field: HTTP_CALL')
         }
 
-        const callType = (HTTP_CALL || '').toUpperCase()
+        const callType = HTTP_CALL
 
         let task
         try {
@@ -325,7 +334,7 @@ module.exports = (srv) => {
           return error(`Failed to fetch task details: ${err.message}`, 502)
         }
 
-        const tx = srv.transaction(req)
+        const tx = cds.transaction(req)
         const now = new Date()
 
         if (callType === 'POST') {
