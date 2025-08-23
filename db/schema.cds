@@ -67,6 +67,7 @@ entity CORE_ATTACHMENTS {
   INC_AS_ATTACHMENT  : commonTypes.flag;
   IS_ARCHIVED        : commonTypes.flag;
   ARCH_FILE_PATH     : commonTypes.filePath;
+  ONPREMISE_REF     : String(15); // Attachment's serial ID
   CREATED_BY           : commonTypes.emailId;
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
 }
