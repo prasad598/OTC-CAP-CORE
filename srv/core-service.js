@@ -272,16 +272,26 @@ module.exports = (srv) => {
         HTTP_CALL,
       } = req.data || {}
 
+      console.log(
+        'onTaskEvent request payload:',
+        JSON.stringify(req.data, null, 2)
+      )
+
       const correlationId = cds.utils.uuid()
       const respond = (message, status) => {
         // Always return HTTP 200 to ensure workflow engine processes the payload
         req.res.status(200)
-        return {
+        const payload = {
           status,
           message,
           REQ_TXN_ID: REQ_TXN_ID || '',
           correlationId,
         }
+        console.log(
+          'onTaskEvent response payload:',
+          JSON.stringify(payload, null, 2)
+        )
+        return payload
       }
       const error = (message, status = 400) => respond(message, status)
       const success = (message, status) => respond(message, status)
