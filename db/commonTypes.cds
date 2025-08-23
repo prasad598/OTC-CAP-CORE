@@ -45,5 +45,5 @@ type reportVariant : String enum {
   OPEN_CASES;
   TOTAL_CASES;
   SLA_BREACH_CASES;
-  STE_TE_RESO_ADMN;
+  RESO_REPORT;
 };

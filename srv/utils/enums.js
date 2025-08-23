@@ -70,7 +70,7 @@ const Variant = Object.freeze({
   OPEN_CASES: 'OPEN_CASES',
   TOTAL_CASES: 'TOTAL_CASES',
   SLA_BREACH_CASES: 'SLA_BREACH_CASES',
-  STE_TE_RESO_ADMN: 'STE_TE_RESO_ADMN'
+  RESO_REPORT: 'RESO_REPORT'
 });
 
 module.exports = {

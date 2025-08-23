@@ -951,7 +951,7 @@ module.exports = (srv) => {
         }
         break
       }
-      case Variant.STE_TE_RESO_ADMN: {
+      case Variant.RESO_REPORT: {
         const isResoAdmin = groups.some((g) => g.startsWith('STE_TE_RESO_ADMN'))
         if (!isResoAdmin) {
           req.query.SELECT.where = ['1', '=', '0']
