@@ -1,6 +1,9 @@
 const { Decision, TaskType, RequestType, Status } = require('./enums');
 
 function generateReqNextStatus(requestType, taskType, decision) {
+  console.log(
+    `generateReqNextStatus called with requestType=${requestType}, taskType=${taskType}, decision=${decision}`
+  );
   if (requestType === RequestType.TE) {
     switch (taskType) {
       case TaskType.TE_REQUESTER:
