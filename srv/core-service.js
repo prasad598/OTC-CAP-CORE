@@ -1052,15 +1052,11 @@ module.exports = (srv) => {
           item.MON_WF_PROCESS = []
         }
         try {
-          if ([Status.PRT, Status.PRL, Status.CLR, Status.RSL].includes(item.STATUS_CD)) {
-            item.MON_WF_TASK = await db.run(
-              SELECT.from(MON_WF_TASK)
-                .where({ REQ_TXN_ID: key })
-                .orderBy('UPDATED_DATETIME desc')
-            )
-          } else {
-            item.MON_WF_TASK = []
-          }
+          item.MON_WF_TASK = await db.run(
+            SELECT.from(MON_WF_TASK)
+              .where({ REQ_TXN_ID: key })
+              .orderBy('CREATED_DATETIME desc')
+          )
         } catch (error) {
           req.warn(
             `Error fetching MON_WF_TASK for REQ_TXN_ID ${key}: ${error.message}`

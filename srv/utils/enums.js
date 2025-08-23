@@ -32,7 +32,9 @@ const Status = Object.freeze({
   CLR: 'CLR',
   RSL: 'RSL',
   CLD: 'CLD',
-  ERR: 'ERR'
+  ERR: 'ERR',
+  ESLA: 'ESLA',
+  CLDA: 'CLDA'
 });
 
 const UserType = Object.freeze({
