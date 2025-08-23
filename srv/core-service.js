@@ -145,6 +145,7 @@ module.exports = (srv) => {
         REQ_TXN_ID,
         CASE_BCG_CD,
         SRC_PROB_CD,
+        RESO_REMARKS,
         UPDATED_BY,
       } = req.data
 
@@ -207,6 +208,7 @@ module.exports = (srv) => {
             STATUS_CD: statusCd,
             CASE_BCG_CD,
             SRC_PROB_CD,
+            ...(RESO_REMARKS !== undefined && { RESO_REMARKS }),
             UPDATED_BY: user,
             UPDATED_DATETIME: now,
             PROCESSOR: user,
