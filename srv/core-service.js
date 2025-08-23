@@ -262,7 +262,7 @@ module.exports = (srv) => {
       const {
         SWF_INSTANCE_ID,
         REQ_TXN_ID,
-        REQUEST_TYPE: requestType = RequestType.TE,
+        REQUEST_TYPE: _requestType = RequestType.TE,
         TASK_TYPE,
         TASK_STATUS,
         DECISION,
@@ -352,7 +352,7 @@ module.exports = (srv) => {
           await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
 
           const statusCd = generateReqNextStatus(
-            requestType,
+            RequestType.TE,
             resolvedTaskType,
             DECISION
           )
@@ -398,7 +398,7 @@ module.exports = (srv) => {
           )
 
           const statusCd = generateReqNextStatus(
-            requestType,
+            RequestType.TE,
             resolvedTaskType,
             DECISION
           )
