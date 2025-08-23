@@ -27,7 +27,7 @@
                   },
                   "REQUEST_TYPE": {
                     "type": "string",
-                    "description": "Request type code"
+                    "description": "Request type code; defaults to 'TE' if omitted"
                   },
                   "TASK_TYPE": {
                     "type": "string",
