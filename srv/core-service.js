@@ -118,6 +118,7 @@ module.exports = (srv) => {
     CORE_USERS,
     AUTH_MATRIX,
     CONFIG_LDATA,
+    TE_SR,
   } = srv.entities
 
   if (typeof srv.on === 'function') {
@@ -177,12 +178,12 @@ module.exports = (srv) => {
       let wfInstanceId
       try {
         const existingTask = await tx.run(
-          SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID })
+          SELECT.one.from(MON_WF_TASK).where({ TASK_INSTANCE_ID })
         )
         wfInstanceId = existingTask && existingTask.WF_INSTANCE_ID
 
         await tx.run(
-          UPDATE('BTP.MON_WF_TASK')
+          UPDATE(MON_WF_TASK)
             .set({
               DECISION: decision,
               PROCESSOR: user,
@@ -223,12 +224,12 @@ module.exports = (srv) => {
             teSrUpdate.ESCALATED_DATETIME = now
           }
           await tx.run(
-            UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
+            UPDATE(TE_SR).set(teSrUpdate).where({ REQ_TXN_ID })
           )
 
           if (statusCd === Status.RSL && wfInstanceId) {
             await tx.run(
-              UPDATE('BTP.MON_WF_PROCESS')
+              UPDATE(MON_WF_PROCESS)
                 .set({
                   WF_STATUS: 'COMPLETED',
                   UPDATED_BY: user,
@@ -373,7 +374,7 @@ module.exports = (srv) => {
             language: 'EN',
           }
           try {
-            await tx.run(INSERT.into('BTP.MON_WF_TASK').entries(row))
+            await tx.run(INSERT.into(MON_WF_TASK).entries(row))
             await tx.commit()
             return success('Task record created', 201)
           } catch (err) {
@@ -399,7 +400,7 @@ module.exports = (srv) => {
           }
           try {
             await tx.run(
-              UPDATE('BTP.MON_WF_TASK').set(row).where({ TASK_INSTANCE_ID: id })
+              UPDATE(MON_WF_TASK).set(row).where({ TASK_INSTANCE_ID: id })
             )
 
             const statusCd = generateReqNextStatus(
@@ -424,12 +425,12 @@ module.exports = (srv) => {
             }
 
             await tx.run(
-              UPDATE('BTP.TE_SR').set(teSrUpdate).where({ REQ_TXN_ID })
+              UPDATE(TE_SR).set(teSrUpdate).where({ REQ_TXN_ID })
             )
 
             if (statusCd === Status.CLD || statusCd === Status.RSL) {
               await tx.run(
-                UPDATE('BTP.MON_WF_PROCESS')
+                UPDATE(MON_WF_PROCESS)
                   .set({
                     WF_STATUS: 'COMPLETED',
                     UPDATED_BY: PROCESSOR,
@@ -645,7 +646,7 @@ module.exports = (srv) => {
         const email = (data.emails || []).find((e) => e.primary)?.value
         if (email) {
           const existing = await tx.run(
-            SELECT.one.from('BTP.CORE_USERS').where({
+            SELECT.one.from(CORE_USERS).where({
               USER_EMAIL: email,
               language: 'EN'
             })
@@ -654,7 +655,7 @@ module.exports = (srv) => {
             const enterprise =
               data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
             await tx.run(
-              INSERT.into('BTP.CORE_USERS').entries({
+              INSERT.into(CORE_USERS).entries({
                 USER_EMAIL: email,
                 language: 'EN',
                 USER_ID: enterprise.employeeNumber,
@@ -715,7 +716,7 @@ module.exports = (srv) => {
     try {
       const { REQUEST_ID, DRAFT_ID } = await tx.run(
         SELECT.one
-          .from('BTP.TE_SR')
+          .from(TE_SR)
           .columns('REQUEST_ID', 'DRAFT_ID')
           .where({ REQ_TXN_ID })
       )
@@ -765,7 +766,7 @@ module.exports = (srv) => {
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
-        SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
+        SELECT.one.from(TE_SR).where({ REQ_TXN_ID })
       )
       if (latest) {
         const payload = { ...latest, ...req.data, REQ_TXN_ID }
