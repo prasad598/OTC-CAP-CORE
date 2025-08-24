@@ -706,7 +706,10 @@ module.exports = (srv) => {
   })
 
   srv.before('PATCH', 'TE_SR', async (req) => {
-    if (!req.data || !req.data.REQ_TXN_ID) return
+    const REQ_TXN_ID =
+      req.data?.REQ_TXN_ID ?? req.params?.[0]?.REQ_TXN_ID
+    if (!REQ_TXN_ID) return
+    req.data.REQ_TXN_ID = REQ_TXN_ID
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
     const tx = cds.transaction(req)
     try {
@@ -714,7 +717,7 @@ module.exports = (srv) => {
         SELECT.one
           .from('BTP.TE_SR')
           .columns('REQUEST_ID', 'DRAFT_ID')
-          .where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
+          .where({ REQ_TXN_ID })
       )
       req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
       req.data.DRAFT_ID = DRAFT_ID
@@ -756,16 +759,16 @@ module.exports = (srv) => {
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
     console.log('TE_SR PATCH request data:', JSON.stringify(req.data))
-    if (!req.data || !req.data.REQ_TXN_ID) return
-    const { REQ_TXN_ID } = req.data
-
+    const REQ_TXN_ID =
+      req.data?.REQ_TXN_ID ?? req.params?.[0]?.REQ_TXN_ID
+    if (!REQ_TXN_ID) return
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
         SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
       )
       if (latest) {
-        const payload = { ...latest, ...req.data }
+        const payload = { ...latest, ...req.data, REQ_TXN_ID }
         await triggerWorkflow(payload, req.user && req.user.id)
         console.log(`Workflow triggered for TE_SR ${REQ_TXN_ID}`)
       }
