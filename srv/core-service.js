@@ -720,6 +720,12 @@ module.exports = (srv) => {
       req._oldRequestId = REQUEST_ID
       req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
       req.data.DRAFT_ID = DRAFT_ID
+      if (req.data.DECISION) {
+        const decisionUpper = req.data.DECISION.toUpperCase()
+        if (['SUB', 'SUBMIT'].includes(decisionUpper)) {
+          req.data.DECISION = Decision.SUB
+        }
+      }
       if (!REQUEST_ID && req.data.DECISION === Decision.SUB) {
         req.data.REQUEST_ID = await generateCustomRequestId(tx, {
           prefix: 'CASE',
@@ -756,7 +762,19 @@ module.exports = (srv) => {
     console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
 
     const isEmpty = (v) => v === null || v === undefined || v === ''
-    if (!isEmpty(req._originalRequestId) || !isEmpty(req._oldRequestId) || DECISION !== Decision.SUB) return
+    const decisionUpper = DECISION && DECISION.toUpperCase()
+    if (
+      !isEmpty(req._originalRequestId) ||
+      !isEmpty(req._oldRequestId) ||
+      !['SUB', 'SUBMIT'].includes(decisionUpper)
+    ) {
+      console.log('TE_SR PATCH workflow skipped', {
+        REQ_TXN_ID,
+        DECISION,
+        REQUEST_ID,
+      })
+      return
+    }
 
     try {
       const tx = srv.transaction(req)
@@ -770,6 +788,11 @@ module.exports = (srv) => {
       })
       if (latest) {
         await triggerWorkflow(latest, req.user && req.user.id)
+        console.log('TE_SR PATCH workflow triggered', {
+          REQ_TXN_ID,
+          DECISION,
+          REQUEST_ID: latest && latest.REQUEST_ID,
+        })
       }
     } catch (error) {
       req.warn(`Workflow trigger failed: ${error.message}`)
