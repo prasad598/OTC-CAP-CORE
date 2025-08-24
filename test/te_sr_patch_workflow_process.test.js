@@ -34,7 +34,7 @@ describe('TE_SR PATCH workflow trigger', () => {
   })
 
   it('triggers workflow when submitting without REQUEST_ID', async () => {
-    const id = '44ee6ab4-3125-4416-abc0-2b4dcfc67a7e'
+    const id = '123'
     const { TE_SR, MON_WF_PROCESS } = srv.entities
 
     await INSERT.into(TE_SR).entries({
