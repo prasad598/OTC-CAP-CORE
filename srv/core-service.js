@@ -73,6 +73,8 @@ async function triggerWorkflow(te_sr, user) {
     },
   }
 
+  console.log('workflowPayload', workflowPayload)
+
   try {
     const response = await executeHttpRequest(
       { destinationName: 'sap_process_automation_service' },
