@@ -103,7 +103,7 @@ async function triggerWorkflow(te_sr, user) {
       })
     )
   } catch (err) {
-    // console.warn('Error triggering workflow:', err.message)
+    console.error('Error triggering workflow:', err)
   }
 }
 
