@@ -162,6 +162,47 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.EVENT_STATUS_CD, 'Completed');
   });
 
+  it('returns comments ordered by CREATED_DATETIME desc', async () => {
+    const url = 'http://localhost:4007/rest/btp/core/comments';
+    const REQ_TXN_ID = '77777777-7777-7777-7777-777777777782';
+
+    const first = {
+      REQ_TXN_ID,
+      COMMENTS: 'first comment',
+      CREATED_BY: 'tester@example.com',
+    };
+
+    const res1 = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(first),
+    });
+    assert.strictEqual(res1.status, 201);
+    await res1.json();
+
+    const second = {
+      REQ_TXN_ID,
+      COMMENTS: 'second comment',
+      CREATED_BY: 'tester@example.com',
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(second),
+    });
+
+    assert.strictEqual(res.status, 201);
+    const body = await res.json();
+    assert.ok(Array.isArray(body));
+    assert.strictEqual(body.length, 2);
+    assert.strictEqual(body[0].COMMENTS, 'second comment');
+    assert.strictEqual(body[1].COMMENTS, 'first comment');
+    const firstDate = new Date(body[0].CREATED_DATETIME);
+    const secondDate = new Date(body[1].CREATED_DATETIME);
+    assert.ok(firstDate >= secondDate);
+  });
+
   it('enriches data when using uppercase CORE_COMMENTS path', async () => {
     const url = 'http://localhost:4007/rest/btp/core/CORE_COMMENTS'
     const payload = {

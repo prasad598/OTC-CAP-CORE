@@ -540,7 +540,7 @@ module.exports = (srv) => {
       const comments = await tx.run(
         SELECT.from(CORE_COMMENTS)
           .where({ REQ_TXN_ID })
-          .orderBy('CREATED_DATETIME')
+          .orderBy('CREATED_DATETIME desc')
       )
       const emails = [...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean))]
       if (emails.length) {
@@ -600,7 +600,9 @@ module.exports = (srv) => {
       const key = list[0] && list[0].REQ_TXN_ID
       if (!key) return []
       const comments = await tx.run(
-        SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key })
+        SELECT.from(CORE_COMMENTS)
+          .where({ REQ_TXN_ID: key })
+          .orderBy('CREATED_DATETIME desc')
       )
       const emails = [...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean))]
       if (emails.length) {
@@ -1032,7 +1034,9 @@ module.exports = (srv) => {
         if (!key) return
         try {
           const comments = await db.run(
-            SELECT.from(CORE_COMMENTS).where({ REQ_TXN_ID: key })
+            SELECT.from(CORE_COMMENTS)
+              .where({ REQ_TXN_ID: key })
+              .orderBy('CREATED_DATETIME desc')
           )
           const emails = [
             ...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean)),
