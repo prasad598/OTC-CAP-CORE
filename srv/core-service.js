@@ -765,8 +765,8 @@ module.exports = (srv) => {
     const decisionUpper = DECISION && DECISION.toUpperCase()
     const shouldTrigger =
       isEmpty(req._originalRequestId) &&
-      decisionUpper === 'SUB' &&
-      REQ_TXN_ID === '123'
+      (decisionUpper === 'SUB' || decisionUpper === 'SUBMIT') &&
+      !isEmpty(REQ_TXN_ID)
     if (!shouldTrigger) {
       // console.log('TE_SR PATCH workflow skipped', { REQ_TXN_ID, DECISION })
       return

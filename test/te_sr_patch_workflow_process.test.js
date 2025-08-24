@@ -33,7 +33,7 @@ describe('TE_SR PATCH workflow trigger', () => {
     require('../srv/core-service')(srv)
   })
 
-  it('triggers workflow when REQUEST_ID missing and REQ_TXN_ID is 123', async () => {
+  it('triggers workflow when REQUEST_ID missing and DECISION is SUB', async () => {
     const { TE_SR, MON_WF_PROCESS } = srv.entities
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: '123',
@@ -43,7 +43,7 @@ describe('TE_SR PATCH workflow trigger', () => {
       SRV_CAT_CD: 'REQEXM',
     })
 
-    const req = { data: { REQ_TXN_ID: '123', DECISION: 'submit' }, user: { id: 'tester' }, warn: () => {} }
+    const req = { data: { REQ_TXN_ID: '123', DECISION: 'SUB' }, user: { id: 'tester' }, warn: () => {} }
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
@@ -57,7 +57,7 @@ describe('TE_SR PATCH workflow trigger', () => {
     assert.ok(record.REQUEST_ID)
   })
 
-  it('skips workflow when REQ_TXN_ID is not 123', async () => {
+  it('skips workflow when REQUEST_ID provided', async () => {
     const { TE_SR, MON_WF_PROCESS } = srv.entities
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: '124',
@@ -67,7 +67,11 @@ describe('TE_SR PATCH workflow trigger', () => {
       SRV_CAT_CD: 'REQEXM',
     })
 
-    const req = { data: { REQ_TXN_ID: '124', DECISION: 'SUB' }, user: { id: 'tester' }, warn: () => {} }
+    const req = {
+      data: { REQ_TXN_ID: '124', DECISION: 'SUB', REQUEST_ID: 'CASE-001' },
+      user: { id: 'tester' },
+      warn: () => {},
+    }
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
