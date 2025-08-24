@@ -16,7 +16,7 @@ async function sendEmail(subject, to, cc, body) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error(`Failed to send email: ${err.message}`);
+    // console.error(`Failed to send email: ${err.message}`);
   }
 }
 
