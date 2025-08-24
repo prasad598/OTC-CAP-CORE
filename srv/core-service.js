@@ -762,9 +762,11 @@ module.exports = (srv) => {
       )
       if (latest) {
         await triggerWorkflow(latest, req.user && req.user.id)
+        console.log(`Workflow triggered for TE_SR ${REQ_TXN_ID}`)
       }
     } catch (error) {
-      req.warn(`Workflow trigger failed: ${error.message}`)
+      console.error('Workflow trigger failed:', error)
+      req.reject(500, 'Technical error occured during workflow trigger')
     }
   })
 
