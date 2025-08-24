@@ -757,6 +757,7 @@ module.exports = (srv) => {
   })
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
+    console.log('TE_SR PATCH request data:', req.data)
     if (!req.data || !req.data.REQ_TXN_ID) return
     const { REQ_TXN_ID, DECISION } = req.data
     // console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
