@@ -704,7 +704,11 @@ module.exports = (srv) => {
   srv.before('PATCH', 'TE_SR', async (req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
-    req._hasRequestIdInPayload = !!req.data.REQUEST_ID
+    req._originalRequestId = req.data.REQUEST_ID
+    req._hasRequestIdInPayload = Object.prototype.hasOwnProperty.call(
+      req.data,
+      'REQUEST_ID'
+    )
     const tx = cds.transaction(req)
     try {
       const { REQUEST_ID, DRAFT_ID } = await tx.run(
@@ -748,7 +752,12 @@ module.exports = (srv) => {
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
-    if (req._hasRequestIdInPayload || req._oldRequestId || req.data.DECISION !== Decision.SUB) return
+    if (
+      (req._hasRequestIdInPayload && req._originalRequestId) ||
+      req._oldRequestId ||
+      req.data.DECISION !== Decision.SUB
+    )
+      return
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
