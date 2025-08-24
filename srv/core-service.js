@@ -751,7 +751,7 @@ module.exports = (srv) => {
   })
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
-    console.log('TE_SR PATCH request data:', req.data)
+    console.log('TE_SR PATCH request data:', JSON.stringify(req.data))
     if (!req.data || !req.data.REQ_TXN_ID) return
     const { REQ_TXN_ID } = req.data
 
@@ -761,11 +761,15 @@ module.exports = (srv) => {
         SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
       )
       if (latest) {
-        await triggerWorkflow(latest, req.user && req.user.id)
+        const payload = { ...latest, ...req.data }
+        await triggerWorkflow(payload, req.user && req.user.id)
         console.log(`Workflow triggered for TE_SR ${REQ_TXN_ID}`)
       }
     } catch (error) {
-      console.error('Workflow trigger failed:', error)
+      console.error(
+        'Workflow trigger failed:',
+        JSON.stringify(error, Object.getOwnPropertyNames(error))
+      )
       req.reject(500, 'Technical error occured during workflow trigger')
     }
   })
