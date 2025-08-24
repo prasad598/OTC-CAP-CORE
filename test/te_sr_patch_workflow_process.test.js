@@ -7,7 +7,6 @@ describe('TE_SR PATCH workflow trigger', () => {
   let srv
   let httpCallCount
   const wfResponse = {
-    id: 'c1111111-2222-3333-4444-555555555555',
     subject: 'Test Workflow',
     status: 'RUNNING',
   }
@@ -19,7 +18,7 @@ describe('TE_SR PATCH workflow trigger', () => {
       exports: {
         executeHttpRequest: async () => {
           httpCallCount++
-          return { data: wfResponse }
+          return { data: { ...wfResponse, id: `wf-${httpCallCount}` } }
         },
       },
     }
@@ -89,6 +88,33 @@ describe('TE_SR PATCH workflow trigger', () => {
     await srv._afterPatch(null, req)
 
     assert.strictEqual(httpCallCount, prevCalls + 1)
+  })
+
+  it('triggers workflow when REQ_TXN_ID supplied via params only', async () => {
+    const { TE_SR, MON_WF_PROCESS } = srv.entities
+    await INSERT.into(TE_SR).entries({
+      REQ_TXN_ID: '125',
+      language: 'EN',
+      CREATED_BY: 'creator@example.com',
+      REQUESTER_ID: 'requester@example.com',
+      SRV_CAT_CD: 'REQEXM',
+    })
+
+    const req = {
+      data: { DECISION: 'SUB' },
+      params: [{ REQ_TXN_ID: '125' }],
+      user: { id: 'tester' },
+      warn: () => {},
+    }
+
+    const tx = cds.transaction(req)
+    await srv._beforePatch(req)
+    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '125' }))
+    await tx.commit()
+    await srv._afterPatch(null, req)
+
+    const record = await SELECT.one.from(MON_WF_PROCESS).where({ REQ_TXN_ID: '125' })
+    assert.ok(record)
   })
 })
 
