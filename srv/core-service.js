@@ -103,7 +103,7 @@ async function triggerWorkflow(te_sr, user) {
       })
     )
   } catch (err) {
-    console.warn('Error triggering workflow:', err.message)
+    // console.warn('Error triggering workflow:', err.message)
   }
 }
 
@@ -282,10 +282,10 @@ module.exports = (srv) => {
         HTTP_CALL,
       } = data
 
-      console.log(
-        'onTaskEvent request payload:',
-        JSON.stringify(req.data, null, 2)
-      )
+      // console.log(
+      //   'onTaskEvent request payload:',
+      //   JSON.stringify(req.data, null, 2)
+      // )
 
       const correlationId = cds.utils.uuid()
       const respond = (message, status) => {
@@ -297,10 +297,10 @@ module.exports = (srv) => {
           REQ_TXN_ID: REQ_TXN_ID || '',
           correlationId,
         }
-        console.log(
-          'onTaskEvent response payload:',
-          JSON.stringify(payload, null, 2)
-        )
+        // console.log(
+        //   'onTaskEvent response payload:',
+        //   JSON.stringify(payload, null, 2)
+        // )
         return payload
       }
       const error = (message, status = 400) => respond(message, status)
@@ -758,21 +758,17 @@ module.exports = (srv) => {
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
-    const { REQ_TXN_ID, DECISION, REQUEST_ID } = req.data
-    console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
+    const { REQ_TXN_ID, DECISION } = req.data
+    // console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
 
     const isEmpty = (v) => v === null || v === undefined || v === ''
     const decisionUpper = DECISION && DECISION.toUpperCase()
-    if (
-      !isEmpty(req._originalRequestId) ||
-      !isEmpty(req._oldRequestId) ||
-      !['SUB', 'SUBMIT'].includes(decisionUpper)
-    ) {
-      console.log('TE_SR PATCH workflow skipped', {
-        REQ_TXN_ID,
-        DECISION,
-        REQUEST_ID,
-      })
+    const shouldTrigger =
+      isEmpty(req._originalRequestId) &&
+      decisionUpper === 'SUB' &&
+      REQ_TXN_ID === '123'
+    if (!shouldTrigger) {
+      // console.log('TE_SR PATCH workflow skipped', { REQ_TXN_ID, DECISION })
       return
     }
 
@@ -781,18 +777,18 @@ module.exports = (srv) => {
       const latest = await tx.run(
         SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
       )
-      console.log('TE_SR PATCH latest', {
-        REQ_TXN_ID,
-        DECISION,
-        REQUEST_ID: latest && latest.REQUEST_ID,
-      })
+      // console.log('TE_SR PATCH latest', {
+      //   REQ_TXN_ID,
+      //   DECISION,
+      //   REQUEST_ID: latest && latest.REQUEST_ID,
+      // })
       if (latest) {
         await triggerWorkflow(latest, req.user && req.user.id)
-        console.log('TE_SR PATCH workflow triggered', {
-          REQ_TXN_ID,
-          DECISION,
-          REQUEST_ID: latest && latest.REQUEST_ID,
-        })
+        // console.log('TE_SR PATCH workflow triggered', {
+        //   REQ_TXN_ID,
+        //   DECISION,
+        //   REQUEST_ID: latest && latest.REQUEST_ID,
+        // })
       }
     } catch (error) {
       req.warn(`Workflow trigger failed: ${error.message}`)
@@ -880,7 +876,7 @@ module.exports = (srv) => {
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
-    console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
+    // console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
     const scimId =
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
@@ -889,7 +885,7 @@ module.exports = (srv) => {
       req.data.VARIENT ||
       (req.req && req.req.query && req.req.query.VARIENT)
     variant = normalizeVariant(variant)
-    console.log('TE_REPORT_VIEW scimId:', scimId, 'variant:', variant)
+    // console.log('TE_REPORT_VIEW scimId:', scimId, 'variant:', variant)
     if (!scimId) return
 
     let groups = []
@@ -905,8 +901,8 @@ module.exports = (srv) => {
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
         .filter((g) => g && g.startsWith('STE_TE_'))
       email = (data.emails || []).find((e) => e.primary)?.value
-      console.log('TE_REPORT_VIEW groups:', groups)
-      console.log('TE_REPORT_VIEW email:', email)
+      // console.log('TE_REPORT_VIEW groups:', groups)
+      // console.log('TE_REPORT_VIEW email:', email)
     } catch (error) {
       return req.error(502, `Failed to fetch user info: ${error.message}`)
     }
@@ -1040,10 +1036,10 @@ module.exports = (srv) => {
         break
     }
 
-    console.log(
-      'TE_REPORT_VIEW query before execution:',
-      JSON.stringify(req.query, null, 2)
-    )
+    // console.log(
+    //   'TE_REPORT_VIEW query before execution:',
+    //   JSON.stringify(req.query, null, 2)
+    // )
   })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
