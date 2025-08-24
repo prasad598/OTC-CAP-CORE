@@ -704,11 +704,6 @@ module.exports = (srv) => {
   srv.before('PATCH', 'TE_SR', async (req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
-    req._originalRequestId = req.data.REQUEST_ID
-    req._hasRequestIdInPayload = Object.prototype.hasOwnProperty.call(
-      req.data,
-      'REQUEST_ID'
-    )
     const tx = cds.transaction(req)
     try {
       const { REQUEST_ID, DRAFT_ID } = await tx.run(
@@ -717,7 +712,6 @@ module.exports = (srv) => {
           .columns('REQUEST_ID', 'DRAFT_ID')
           .where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
       )
-      req._oldRequestId = REQUEST_ID
       req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
       req.data.DRAFT_ID = DRAFT_ID
       if (req.data.DECISION) {
@@ -759,37 +753,15 @@ module.exports = (srv) => {
   srv.after('PATCH', 'TE_SR', async (_, req) => {
     console.log('TE_SR PATCH request data:', req.data)
     if (!req.data || !req.data.REQ_TXN_ID) return
-    const { REQ_TXN_ID, DECISION } = req.data
-    // console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
-
-    const isEmpty = (v) => v === null || v === undefined || v === ''
-    const decisionUpper = DECISION && DECISION.toUpperCase()
-    const shouldTrigger =
-      isEmpty(req._originalRequestId) &&
-      (decisionUpper === 'SUB' || decisionUpper === 'SUBMIT') &&
-      !isEmpty(REQ_TXN_ID)
-    if (!shouldTrigger) {
-      // console.log('TE_SR PATCH workflow skipped', { REQ_TXN_ID, DECISION })
-      return
-    }
+    const { REQ_TXN_ID } = req.data
 
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
         SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
       )
-      // console.log('TE_SR PATCH latest', {
-      //   REQ_TXN_ID,
-      //   DECISION,
-      //   REQUEST_ID: latest && latest.REQUEST_ID,
-      // })
       if (latest) {
         await triggerWorkflow(latest, req.user && req.user.id)
-        // console.log('TE_SR PATCH workflow triggered', {
-        //   REQ_TXN_ID,
-        //   DECISION,
-        //   REQUEST_ID: latest && latest.REQUEST_ID,
-        // })
       }
     } catch (error) {
       req.warn(`Workflow trigger failed: ${error.message}`)

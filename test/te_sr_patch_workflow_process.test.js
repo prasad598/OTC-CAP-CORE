@@ -5,6 +5,7 @@ const { INSERT, UPDATE, SELECT } = cds.ql
 
 describe('TE_SR PATCH workflow trigger', () => {
   let srv
+  let httpCallCount
   const wfResponse = {
     id: 'c1111111-2222-3333-4444-555555555555',
     subject: 'Test Workflow',
@@ -13,8 +14,14 @@ describe('TE_SR PATCH workflow trigger', () => {
 
   before(async () => {
     cds.SELECT = cds.ql.SELECT
+    httpCallCount = 0
     require.cache[require.resolve('@sap-cloud-sdk/http-client')] = {
-      exports: { executeHttpRequest: async () => ({ data: wfResponse }) },
+      exports: {
+        executeHttpRequest: async () => {
+          httpCallCount++
+          return { data: wfResponse }
+        },
+      },
     }
     await cds.deploy(__dirname + '/../db').to('sqlite::memory:')
     const db = cds.db
@@ -33,7 +40,7 @@ describe('TE_SR PATCH workflow trigger', () => {
     require('../srv/core-service')(srv)
   })
 
-  it('triggers workflow when REQUEST_ID missing and DECISION is SUB', async () => {
+  it('triggers workflow when REQUEST_ID missing', async () => {
     const { TE_SR, MON_WF_PROCESS } = srv.entities
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: '123',
@@ -57,7 +64,7 @@ describe('TE_SR PATCH workflow trigger', () => {
     assert.ok(record.REQUEST_ID)
   })
 
-  it('skips workflow when REQUEST_ID provided', async () => {
+  it('triggers workflow even when REQUEST_ID provided and DECISION is APR', async () => {
     const { TE_SR, MON_WF_PROCESS } = srv.entities
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: '124',
@@ -68,7 +75,7 @@ describe('TE_SR PATCH workflow trigger', () => {
     })
 
     const req = {
-      data: { REQ_TXN_ID: '124', DECISION: 'SUB', REQUEST_ID: 'CASE-001' },
+      data: { REQ_TXN_ID: '124', DECISION: 'APR', REQUEST_ID: 'CASE-001' },
       user: { id: 'tester' },
       warn: () => {},
     }
@@ -77,10 +84,11 @@ describe('TE_SR PATCH workflow trigger', () => {
     await srv._beforePatch(req)
     await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '124' }))
     await tx.commit()
+
+    const prevCalls = httpCallCount
     await srv._afterPatch(null, req)
 
-    const record = await SELECT.one.from(MON_WF_PROCESS).where({ REQ_TXN_ID: '124' })
-    assert.ok(!record)
+    assert.strictEqual(httpCallCount, prevCalls + 1)
   })
 })
 
