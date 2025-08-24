@@ -752,18 +752,23 @@ module.exports = (srv) => {
 
   srv.after('PATCH', 'TE_SR', async (_, req) => {
     if (!req.data || !req.data.REQ_TXN_ID) return
-    if (
-      (req._hasRequestIdInPayload && req._originalRequestId) ||
-      req._oldRequestId ||
-      req.data.DECISION !== Decision.SUB
-    )
-      return
+    const { REQ_TXN_ID, DECISION, REQUEST_ID } = req.data
+    console.log('TE_SR PATCH payload', { REQ_TXN_ID, DECISION, REQUEST_ID })
+
+    const isEmpty = (v) => v === null || v === undefined || v === ''
+    if (!isEmpty(req._originalRequestId) || !isEmpty(req._oldRequestId) || DECISION !== Decision.SUB) return
+
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
-        SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
+        SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID })
       )
-      if (latest && latest.REQUEST_ID) {
+      console.log('TE_SR PATCH latest', {
+        REQ_TXN_ID,
+        DECISION,
+        REQUEST_ID: latest && latest.REQUEST_ID,
+      })
+      if (latest) {
         await triggerWorkflow(latest, req.user && req.user.id)
       }
     } catch (error) {
