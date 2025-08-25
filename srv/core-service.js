@@ -643,6 +643,7 @@ module.exports = (srv) => {
           { destinationName: 'CIS_SCIM_API', jwt },
           { method: 'GET', url: `/scim/Users/${scimId}` }
         )
+        console.log('SCIM user data:', data)
         const email = (data.emails || []).find((e) => e.primary)?.value
         if (email) {
           const existing = await tx.run(
@@ -883,6 +884,7 @@ module.exports = (srv) => {
         { destinationName: 'CIS_SCIM_API', jwt },
         { method: 'GET', url: `/scim/Users/${scimId}` }
       )
+      console.log('SCIM user data:', data)
       const rawGroups = (data && data.groups) || []
       groups = rawGroups
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
