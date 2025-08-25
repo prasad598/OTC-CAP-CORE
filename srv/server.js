@@ -64,6 +64,7 @@ cds.on('bootstrap', (app) => {
         entity: enterprise.organization,
         employeeId: enterprise.employeeNumber,
         mobile: workPhone,
+        dbagba: enterprise.division,
         groups: (data.groups || []).map((g) => g.display),
       }
 
