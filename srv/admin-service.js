@@ -27,8 +27,9 @@ module.exports = async function () {
       TE_SR,
     ].filter(Boolean)
 
-    await Promise.all(entities.map((entity) => tx.run(DELETE.from(entity))))
-    await tx.commit()
+    for (const entity of entities) {
+      await tx.run(DELETE.from(entity))
+    }
 
     return { status: 'OK' }
   })
