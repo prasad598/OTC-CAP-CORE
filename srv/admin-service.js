@@ -28,6 +28,7 @@ module.exports = async function () {
     ].filter(Boolean)
 
     await Promise.all(entities.map((entity) => tx.run(DELETE.from(entity))))
+    await tx.commit()
 
     return { status: 'OK' }
   })
