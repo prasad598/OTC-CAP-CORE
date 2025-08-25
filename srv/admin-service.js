@@ -14,23 +14,29 @@ module.exports = async function () {
     'BTP.TE_SR': TE_SR,
   } = db.entities
 
-  this.on('purgeAllData', async (req) => {
+  this.on('purgeAllData', async req => {
     const tx = cds.tx(req)
-    const entities = [
-      CORE_ATTACHMENTS,
-      CORE_COMMENTS,
-      CORE_USERS,
-      AUTH_MATRIX,
-      CONFIG_LDATA,
-      MON_WF_PROCESS,
-      MON_WF_TASK,
-      TE_SR,
-    ].filter(Boolean)
+    try {
+      const entities = [
+        CORE_ATTACHMENTS,
+        CORE_COMMENTS,
+        CORE_USERS,
+        AUTH_MATRIX,
+        CONFIG_LDATA,
+        MON_WF_PROCESS,
+        MON_WF_TASK,
+        TE_SR,
+      ].filter(Boolean)
 
-    for (const entity of entities) {
-      await tx.run(DELETE.from(entity))
+      for (const entity of entities) {
+        await tx.run(DELETE.from(entity))
+      }
+
+      await tx.commit()
+      return { status: 'OK' }
+    } catch (error) {
+      await tx.rollback(error)
+      req.error(error)
     }
-
-    return { status: 'OK' }
   })
 }
