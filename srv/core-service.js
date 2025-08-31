@@ -18,7 +18,7 @@ const { normalizeVariant } = require('./utils/variant')
 const { calculateSLA } = require('./utils/sla')
 
 cds.on('connect', (db) => {
-  if (db.name === 'db') {
+  if (db) {
     db.before('INSERT', 'BTP.CORE_COMMENTS', async (req) => {
       const data = req.data ?? req
       const rows = Array.isArray(data) ? data : [data]
@@ -704,6 +704,15 @@ module.exports = (srv) => {
       const now = new Date()
       if (!req.data.CREATED_DATETIME) req.data.CREATED_DATETIME = now
       if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = now
+      if (decision === Decision.SUB) {
+        const est = await calculateSLA(
+          RequestType.TE,
+          TaskType.TE_RESO_TEAM,
+          now,
+          tx
+        )
+        req.data.EC_DATE = est
+      }
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
     }
@@ -714,7 +723,8 @@ module.exports = (srv) => {
       req.data?.REQ_TXN_ID ?? req.params?.[0]?.REQ_TXN_ID
     if (!REQ_TXN_ID) return
     req.data.REQ_TXN_ID = REQ_TXN_ID
-    if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = new Date()
+    const now = new Date()
+    if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = now
     const tx = cds.transaction(req)
     try {
       const { REQUEST_ID, DRAFT_ID } = await tx.run(
@@ -746,6 +756,15 @@ module.exports = (srv) => {
         )
       } else {
         delete req.data.STATUS_CD
+      }
+      if (req.data.DECISION === Decision.SUB) {
+        const est = await calculateSLA(
+          RequestType.TE,
+          TaskType.TE_RESO_TEAM,
+          now,
+          tx
+        )
+        req.data.EC_DATE = est
       }
     } catch (error) {
       req.error(500, `Failed to prepare TE_SR: ${error.message}`)
