@@ -8,12 +8,13 @@ const { SELECT } = cds.ql || cds
  */
 async function loadPublicHolidays(tx) {
   const db = tx || cds.db
-  const entities = cds.entities('BTP') || {}
-  const { CONFIG_PHDATA } = entities
-  if (!CONFIG_PHDATA || !db) return new Set()
+  if (!db) return new Set()
 
   try {
-    const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
+    // use string path to avoid model lookups failing for service-bound transactions
+    const rows = await db.run(
+      SELECT.from('BTP.CONFIG_PHDATA').columns('HOLIDAY_DT')
+    )
     return new Set(
       rows
         .map((r) => {
