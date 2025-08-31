@@ -49,4 +49,19 @@ describe('REST service endpoints', () => {
       assert.strictEqual(res.status, 200, `${ep} did not return 200`);
     }
   });
+
+  it('executes calculateSLA action', async () => {
+    const res = await fetch('http://localhost:4005/rest/btp/core/calculateSLA', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        taskType: 'TYPE',
+        projectType: 'PROJ',
+        createdAt: '2024-01-01T00:00:00Z',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.ok(data.estimatedCompletionDate);
+  });
 });

@@ -11,11 +11,19 @@ const { SELECT } = cds.ql || cds
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
   const db = tx || cds.db
-  const { CONFIG_PHDATA } = cds.entities('BTP')
-  const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
-  const holidays = new Set(
-    rows.map((r) => r.HOLIDAY_DT && r.HOLIDAY_DT.toISOString().slice(0, 10))
-  )
+  const entities = cds.entities('BTP') || {}
+  const { CONFIG_PHDATA } = entities
+  let holidays = new Set()
+  if (CONFIG_PHDATA && db) {
+    try {
+      const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
+      holidays = new Set(
+        rows.map((r) => r.HOLIDAY_DT && r.HOLIDAY_DT.toISOString().slice(0, 10))
+      )
+    } catch (err) {
+      // ignore if table is not available
+    }
+  }
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
