@@ -92,6 +92,7 @@ Use these examples to quickly exercise the REST services with Postman.
   "OBJECT": "OBJ",
   "CODE": "001",
   "DESC": "Sample",
+  "SEQUENCE": 1,
   "CREATED_BY": "tester",
   "UPDATED_BY": "tester"
 }
@@ -107,8 +108,8 @@ Use these examples to quickly exercise the REST services with Postman.
 ```json
 {
   "entries": [
-    { "REQUEST_TYPE": "RT", "OBJECT": "OBJ", "CODE": "001", "DESC": "one", "CREATED_BY": "tester", "UPDATED_BY": "tester" },
-    { "REQUEST_TYPE": "RT", "OBJECT": "OBJ", "CODE": "002", "DESC": "two", "CREATED_BY": "tester", "UPDATED_BY": "tester" }
+    { "REQUEST_TYPE": "RT", "OBJECT": "OBJ", "CODE": "001", "DESC": "one", "SEQUENCE": 1, "CREATED_BY": "tester", "UPDATED_BY": "tester" },
+    { "REQUEST_TYPE": "RT", "OBJECT": "OBJ", "CODE": "002", "DESC": "two", "SEQUENCE": 2, "CREATED_BY": "tester", "UPDATED_BY": "tester" }
   ]
 }
 ```
