@@ -2,6 +2,35 @@ const cds = require('@sap/cds')
 const { SELECT } = cds.ql || cds
 
 /**
+ * Load public holidays from CONFIG_PHDATA.
+ * @param {import('@sap/cds').Transaction} [tx]
+ * @returns {Promise<Set<string>>} Set of ISO date strings (yyyy-mm-dd)
+ */
+async function loadPublicHolidays(tx) {
+  const db = tx || cds.db
+  const entities = cds.entities('BTP') || {}
+  const { CONFIG_PHDATA } = entities
+  if (!CONFIG_PHDATA || !db) return new Set()
+
+  try {
+    const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
+    return new Set(
+      rows
+        .map((r) => {
+          const dt = r.HOLIDAY_DT
+          if (!dt) return null
+          const d = dt instanceof Date ? dt : new Date(dt)
+          return isNaN(d) ? null : d.toISOString().slice(0, 10)
+        })
+        .filter(Boolean)
+    )
+  } catch {
+    // ignore lookup errors
+    return new Set()
+  }
+}
+
+/**
  * Calculate estimated completion date based on 3 working-day SLA.
  * @param {string} taskType
  * @param {string} projectType
@@ -10,27 +39,7 @@ const { SELECT } = cds.ql || cds
  * @returns {Promise<Date>} estimated completion date
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
-  const db = tx || cds.db
-  const entities = cds.entities('BTP') || {}
-  const { CONFIG_PHDATA } = entities
-  let holidays = new Set()
-  if (CONFIG_PHDATA && db) {
-    try {
-      const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
-      holidays = new Set(
-        rows
-          .map((r) => {
-            const dt = r.HOLIDAY_DT
-            if (!dt) return null
-            const d = dt instanceof Date ? dt : new Date(dt)
-            return isNaN(d) ? null : d.toISOString().slice(0, 10)
-          })
-          .filter(Boolean)
-      )
-    } catch (err) {
-      // ignore if table is not available
-    }
-  }
+  const holidays = await loadPublicHolidays(tx)
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
