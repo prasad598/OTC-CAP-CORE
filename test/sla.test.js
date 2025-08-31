@@ -34,4 +34,23 @@ describe('calculateSLA', () => {
     )
     assert.strictEqual(result.toISOString(), '2025-09-10T00:00:00.000Z')
   })
+
+  it('loads holidays when a transaction is provided', async () => {
+    const db = cds.db
+    await db.run(
+      INSERT.into('BTP.CONFIG_PHDATA').entries([
+        { HOLIDAY_DT: '2025-09-02' },
+        { HOLIDAY_DT: '2025-09-04' }
+      ])
+    )
+    const tx = db.transaction()
+    const result = await calculateSLA(
+      'APPROVAL',
+      'STANDARD',
+      '2025-09-01T01:45:00Z',
+      tx
+    )
+    await tx.rollback()
+    assert.strictEqual(result.toISOString(), '2025-09-08T00:00:00.000Z')
+  })
 })
