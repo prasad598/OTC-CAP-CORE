@@ -44,25 +44,26 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
+
   const isBusinessDay = (date) => {
-    const day = date.getDay()
+    const day = date.getUTCDay()
     const key = date.toISOString().slice(0, 10)
     return day !== 0 && day !== 6 && !holidays.has(key)
   }
 
   const start = new Date(created)
-  const offset = created.getHours() >= 12 ? 2 : 1
-  start.setDate(start.getDate() + offset)
-  start.setHours(0, 0, 0, 0)
+  const offset = created.getUTCHours() >= 12 ? 2 : 1
+  start.setUTCDate(start.getUTCDate() + offset)
+  start.setUTCHours(0, 0, 0, 0)
 
   while (!isBusinessDay(start)) {
-    start.setDate(start.getDate() + 1)
+    start.setUTCDate(start.getUTCDate() + 1)
   }
 
   const slaDays = 3
   let count = 1 // start already represents the first business day
   while (count < slaDays) {
-    start.setDate(start.getDate() + 1)
+    start.setUTCDate(start.getUTCDate() + 1)
     if (isBusinessDay(start)) count++
   }
   return start
