@@ -155,6 +155,7 @@ entity TE_SR : Auditable {
   CASE_BCG_CD          : commonTypes.lookupCode;
   SRC_PROB_CD          : commonTypes.lookupCode;
 
+  EC_DATE              : commonTypes.date;
   IS_CLAR_REQ_DATETIME : commonTypes.dateTime;
   ESCALATED_DATETIME   : commonTypes.dateTime;
   RESOLVED_DATETIME    : commonTypes.dateTime;
