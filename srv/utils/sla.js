@@ -18,7 +18,14 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     try {
       const rows = await db.run(SELECT.from(CONFIG_PHDATA).columns('HOLIDAY_DT'))
       holidays = new Set(
-        rows.map((r) => r.HOLIDAY_DT && r.HOLIDAY_DT.toISOString().slice(0, 10))
+        rows
+          .map((r) => {
+            const dt = r.HOLIDAY_DT
+            if (!dt) return null
+            const d = dt instanceof Date ? dt : new Date(dt)
+            return isNaN(d) ? null : d.toISOString().slice(0, 10)
+          })
+          .filter(Boolean)
       )
     } catch (err) {
       // ignore if table is not available
