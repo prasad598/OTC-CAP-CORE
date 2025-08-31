@@ -34,6 +34,8 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
   entity CONFIG_LDATA @(path: 'config-ldata') as projection on core.CONFIG_LDATA;
 
+  entity CONFIG_PHDATA @(path: 'config-phdata') as projection on core.CONFIG_PHDATA;
+
   entity MON_WF_PROCESS @(path: 'workflow-process') as projection on core.MON_WF_PROCESS;
 
   entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;
@@ -79,6 +81,14 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
     action massCreateConfigLdata (entries: array of CONFIG_LDATA);
     action massDeleteConfigLdata ();
+
+    action calculateSLA(
+      taskType  : String,
+      projectType : String,
+      createdAt : commonTypes.dateTime
+    ) returns {
+      estimatedCompletionDate : commonTypes.dateTime;
+    };
 
     function userInfo() returns LoggedUserInfo;
 

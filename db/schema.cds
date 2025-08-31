@@ -192,3 +192,8 @@ entity CONFIG_LDATA : Auditable {
   SEQUENCE          : Integer;
   IS_ACTIVE         : commonTypes.flag;
 }
+
+entity CONFIG_PHDATA : Auditable {
+  key HOLIDAY_DT : Date;
+  DESCRIPTION    : commonTypes.shortText;
+}

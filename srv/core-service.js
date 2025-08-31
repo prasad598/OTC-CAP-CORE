@@ -15,6 +15,7 @@ const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
+const { calculateSLA } = require('./utils/sla')
 
 cds.on('connect', (db) => {
   if (db.name === 'db') {
@@ -118,6 +119,7 @@ module.exports = (srv) => {
     CORE_USERS,
     AUTH_MATRIX,
     CONFIG_LDATA,
+    CONFIG_PHDATA,
     TE_SR,
   } = srv.entities
 
@@ -1112,6 +1114,16 @@ module.exports = (srv) => {
   })
 
   if (typeof srv.on === 'function') {
+    srv.on('calculateSLA', async (req) => {
+      const { taskType, projectType, createdAt } = req.data
+      try {
+        const est = await calculateSLA(taskType, projectType, createdAt, srv.transaction(req))
+        return { estimatedCompletionDate: est }
+      } catch (error) {
+        req.error(400, error.message)
+      }
+    })
+
     srv.on('userInfo', async (req) => {
       try {
         return await fetchIasUser(req)
