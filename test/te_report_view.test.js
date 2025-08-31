@@ -34,6 +34,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       CODE: 'CAT1',
       language: 'EN',
       DESC: 'Category One',
+      SEQUENCE: 1,
       CREATED_BY: 'tester',
       UPDATED_BY: 'tester'
     })
