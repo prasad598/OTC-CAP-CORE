@@ -14,7 +14,7 @@ cds.on('bootstrap', (app) => {
     '/rest/btp/core/users': '/rest/btp/core/CORE_USERS',
     '/rest/btp/core/user-info': '/rest/btp/core/userInfo()',
     '/rest/btp/core/auth-matrix': '/rest/btp/core/AUTH_MATRIX',
-    '/rest/btp/core/calculateSLA': '/rest/btp/core/calculateSLA()',
+    '/rest/btp/core/calculateSLA': '/rest/btp/core/calculateSLA',
   }
   for (const [alias, target] of Object.entries(mappings)) {
     app.use(alias, json(), (req, res) => {
