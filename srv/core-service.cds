@@ -143,6 +143,7 @@ service ReportService {
     task.ASSIGNED_GROUP,
     task.TASK_TYPE,
     task.TASK_STATUS,
+    sr.EC_DATE            as EC_DATE,
     sr.IS_CLAR_REQ_DATETIME as IS_CLAR_REQ_DATETIME,
     sr.ESCALATED_DATETIME   as ESCALATED_DATETIME,
     sr.RESOLVED_DATETIME    as RESOLVED_DATETIME,
