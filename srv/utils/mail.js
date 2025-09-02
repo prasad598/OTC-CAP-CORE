@@ -1,9 +1,11 @@
 let xsenv
 let nodemailer
+let getDestination
 
 try {
   xsenv = require('@sap/xsenv')
   nodemailer = require('nodemailer')
+  ;({ getDestination } = require('@sap-cloud-sdk/connectivity'))
 } catch (err) {
   // modules might be missing locally; handled in sendEmail
 }
@@ -11,30 +13,34 @@ try {
 let transporter
 let from
 
-function init() {
+async function init() {
   if (transporter) return
-  if (!xsenv || !nodemailer) {
+  if (!xsenv || !nodemailer || !getDestination) {
     throw new Error('Mail dependencies not installed')
   }
 
   xsenv.loadEnv()
-  const services = xsenv.getServices({ dest: { tag: 'destination' } })
-  const destinations = services.dest?.destinations || []
-  const mailDest = destinations.find(
-    (d) => d.Name === 'sap_process_automation_mail'
-  )
-  if (!mailDest) {
+  let destination
+  try {
+    destination = await getDestination({
+      destinationName: 'sap_process_automation_mail',
+    })
+  } catch (err) {
+    throw new Error('Mail destination sap_process_automation_mail not found')
+  }
+  const props = destination?.originalProperties || {}
+  if (!Object.keys(props).length) {
     throw new Error('Mail destination sap_process_automation_mail not found')
   }
 
-  from = mailDest.user
+  from = props['mail.smtp.from'] || props['mail.user']
   transporter = nodemailer.createTransport({
-    host: mailDest.host,
-    port: mailDest.port,
-    secure: false,
+    host: props['mail.smtp.host'],
+    port: Number(props['mail.smtp.port']),
+    secure: props['mail.smtp.ssl.enable'] === 'true',
     auth: {
-      user: mailDest.user,
-      pass: mailDest.password,
+      user: props['mail.user'],
+      pass: props['mail.password'],
     },
     tls: { rejectUnauthorized: false },
   })
@@ -42,7 +48,7 @@ function init() {
 
 async function sendEmail(subject, to, cc, body, attachments = []) {
   try {
-    init()
+    await init()
   } catch (err) {
     return { error: err.message }
   }
