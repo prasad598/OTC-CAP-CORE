@@ -66,9 +66,10 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
   }
 
   const start = new Date(sgtDate)
-  moveToNextBusinessDay(start)
-  if (sgtDate.getUTCHours() >= 12) moveToNextBusinessDay(start)
+  const createdHour = sgtDate.getUTCHours()
   start.setUTCHours(0, 0, 0, 0)
+  moveToNextBusinessDay(start)
+  if (createdHour >= 12) moveToNextBusinessDay(start)
 
   const slaDays = 3
   let count = 1 // start already represents the first business day
@@ -77,8 +78,8 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     if (isBusinessDay(start)) count++
   }
 
-  // Convert back from SGT to UTC before returning
-  return new Date(start.getTime() - SGT_OFFSET_MS)
+  // Return date in YYYY-MM-DD format (SGT)
+  return start.toISOString().slice(0, 10)
 }
 
 module.exports = { calculateSLA }

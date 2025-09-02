@@ -30,7 +30,7 @@ describe('TE_SR EC_DATE handling', () => {
     await tx.commit()
     const expected = await calculateSLA('TE', 'TE_RESO_TEAM', req.data.CREATED_DATETIME)
     assert.ok(req.data.EC_DATE)
-    assert.strictEqual(req.data.EC_DATE.toISOString(), expected.toISOString())
+    assert.strictEqual(req.data.EC_DATE, expected)
   })
 
   it('sets EC_DATE on patch when submitted', async () => {
@@ -42,6 +42,6 @@ describe('TE_SR EC_DATE handling', () => {
     await tx.commit()
     const expected = await calculateSLA('TE', 'TE_RESO_TEAM', req.data.UPDATED_DATETIME)
     assert.ok(req.data.EC_DATE)
-    assert.strictEqual(req.data.EC_DATE.toISOString(), expected.toISOString())
+    assert.strictEqual(req.data.EC_DATE, expected)
   })
 })
