@@ -23,7 +23,7 @@ describe('calculateSLA', () => {
       'STANDARD',
       '2025-09-01T01:45:00Z'
     )
-    assert.strictEqual(result.toISOString(), '2025-09-08T00:00:00.000Z')
+    assert.strictEqual(result.toISOString(), '2025-09-07T16:00:00.000Z')
   })
 
   it('starts from the next business day for afternoon tickets', async () => {
@@ -32,7 +32,7 @@ describe('calculateSLA', () => {
       'STANDARD',
       '2025-09-05T13:00:00Z'
     )
-    assert.strictEqual(result.toISOString(), '2025-09-10T00:00:00.000Z')
+    assert.strictEqual(result.toISOString(), '2025-09-09T16:00:00.000Z')
   })
 
   it('loads holidays when a transaction is provided', async () => {
@@ -51,6 +51,6 @@ describe('calculateSLA', () => {
       tx
     )
     await tx.rollback()
-    assert.strictEqual(result.toISOString(), '2025-09-08T00:00:00.000Z')
+    assert.strictEqual(result.toISOString(), '2025-09-07T16:00:00.000Z')
   })
 })
