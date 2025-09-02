@@ -62,7 +62,7 @@ describe('REST service endpoints', () => {
     });
     assert.strictEqual(res.status, 200);
     const data = await res.json();
-    assert.ok(data.estimatedCompletionDate);
+    assert.ok(/\d{4}-\d{2}-\d{2}/.test(data.estimatedCompletionDate));
   });
 
   it('accounts for public holidays when calculating SLA', async () => {
@@ -91,9 +91,6 @@ describe('REST service endpoints', () => {
     assert.strictEqual(res.status, 200);
     const data = await res.json();
     // With Jan 2 marked as holiday the SLA should extend by one extra day
-    assert.strictEqual(
-      new Date(data.estimatedCompletionDate).toISOString(),
-      new Date('2024-01-04T16:00:00.000Z').toISOString()
-    );
+    assert.strictEqual(data.estimatedCompletionDate, '2024-01-05');
   });
 });
