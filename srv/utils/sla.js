@@ -11,22 +11,23 @@ async function loadPublicHolidays(tx) {
   if (!db) return new Set()
 
   try {
-    // use string path to avoid model lookups failing for service-bound transactions
-    const rows = await db.run(
-      SELECT.from('BTP.CONFIG_PHDATA').columns('HOLIDAY_DT')
-    )
+    const entity =
+      db.model?.definitions?.['BTP.CONFIG_PHDATA'] ||
+      db.model?.definitions?.CONFIG_PHDATA ||
+      'CONFIG_PHDATA'
+    const rows = await db.run(SELECT.from(entity).columns('HOLIDAY_DT'))
     return new Set(
       rows
         .map((r) => {
-          const dt = r.HOLIDAY_DT
+          const dt = r.HOLIDAY_DT || r.holidayDt
           if (!dt) return null
           const d = dt instanceof Date ? dt : new Date(dt)
           return isNaN(d) ? null : d.toISOString().slice(0, 10)
         })
         .filter(Boolean)
     )
-  } catch {
-    // ignore lookup errors
+  } catch (err) {
+    console.error('Failed to load public holidays', err)
     return new Set()
   }
 }
@@ -41,7 +42,6 @@ async function loadPublicHolidays(tx) {
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
   const holidays = await loadPublicHolidays(tx)
-  console.log('holidays', holidays)
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
