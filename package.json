@@ -46,6 +46,12 @@
         "credentials": {
           "destination": "sap_process_automation_service"
         }
+      },
+      "sap_process_automation_mail": {
+        "kind": "rest",
+        "credentials": {
+          "destination": "sap_process_automation_mail"
+        }
       }
     }
   }
