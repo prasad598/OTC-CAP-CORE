@@ -129,11 +129,15 @@ cds.on('bootstrap', (app) => {
       if (userEmail && !to.includes(userEmail)) to.push(userEmail)
       const cc = (CC_EMAILS ? CC_EMAILS.split(',') : []).map((e) => e.trim())
 
-      await sendEmail('TE Report', to, cc, 'Generated report attached.', [
-        { fileName: 'report.xlsx', content: buffer.toString('base64') },
-      ])
+      const mailResponse = await sendEmail(
+        'TE Report',
+        to,
+        cc,
+        'Generated report attached.',
+        [{ fileName: 'report.xlsx', content: buffer.toString('base64') }]
+      )
 
-      res.json({ status: 'success', count: data.length })
+      res.json({ status: 'success', count: data.length, mailResponse })
     } catch (err) {
       res.status(500).json({ error: { message: err.message } })
     }

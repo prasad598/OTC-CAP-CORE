@@ -135,7 +135,7 @@ criteria and emails the file to the logged-in user. Optional comma-separated
 }
 ```
 
-Returns `{"status":"success","count":<rows>}` when the email is sent.
+Returns `{"status":"success","count":<rows>,"mailResponse":<mail service response>}` when the email is sent.
 
 ---
 
