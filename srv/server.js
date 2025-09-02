@@ -3,6 +3,7 @@ const { SELECT, INSERT } = cds.ql || cds
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
+const { sendEmail } = require('./utils/mail')
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -36,6 +37,107 @@ cds.on('bootstrap', (app) => {
       res.redirect(307, target + suffix)
     })
   }
+
+  app.post('/rest/btp/core/sendReport', json(), async (req, res) => {
+    try {
+      let ExcelJS
+      try {
+        ExcelJS = require('exceljs')
+      } catch (err) {
+        res
+          .status(500)
+          .json({ error: { message: 'Excel generation module missing' } })
+        return
+      }
+
+      const {
+        TO_EMAILS,
+        CC_EMAILS,
+        CASE_ID,
+        SRV_CAT_CD,
+        REPORT_NO,
+        STATUS_CD,
+        ENTITY_CD,
+        CREATED_BY,
+        CREATED_BY_EMPID,
+        CREATED_BY_NAME,
+        SR_PROCESSOR,
+        TASK_PROCESSOR,
+        ASSIGNED_GROUP,
+        CREATED_DATETIME,
+        EC_DATE,
+        IS_CLAR_REQ_DATETIME,
+        ESCALATED_DATETIME,
+        RESOLVED_DATETIME,
+        CLOSED_DATETIME,
+      } = req.body || {}
+
+      const { TE_REPORT_VIEW } = cds.entities('ReportService')
+      let query = SELECT.from(TE_REPORT_VIEW)
+      let has = false
+      const add = (field, value, op = '=') => {
+        if (value === undefined || value === null || value === '') return
+        if (!has) {
+          query.where(field, op, value)
+          has = true
+        } else {
+          query.and(field, op, value)
+        }
+      }
+      const simple = {
+        CASE_ID,
+        SRV_CAT_CD,
+        REPORT_NO,
+        STATUS_CD,
+        ENTITY_CD,
+        CREATED_BY,
+        CREATED_BY_EMPID,
+        CREATED_BY_NAME,
+        SR_PROCESSOR,
+        TASK_PROCESSOR,
+        ASSIGNED_GROUP,
+      }
+      for (const [f, v] of Object.entries(simple)) add(f, v)
+      const ranges = {
+        CREATED_DATETIME,
+        EC_DATE,
+        IS_CLAR_REQ_DATETIME,
+        ESCALATED_DATETIME,
+        RESOLVED_DATETIME,
+        CLOSED_DATETIME,
+      }
+      for (const [f, r] of Object.entries(ranges)) {
+        if (r?.from) add(f, r.from, '>=')
+        if (r?.to) add(f, r.to, '<=')
+      }
+
+      const data = await cds.run(query)
+
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Report')
+      if (data.length) {
+        worksheet.columns = Object.keys(data[0]).map((k) => ({
+          header: k,
+          key: k,
+        }))
+        worksheet.addRows(data)
+      }
+      const buffer = await workbook.xlsx.writeBuffer()
+
+      const userEmail = req.user?.id
+      const to = (TO_EMAILS ? TO_EMAILS.split(',') : []).map((e) => e.trim())
+      if (userEmail && !to.includes(userEmail)) to.push(userEmail)
+      const cc = (CC_EMAILS ? CC_EMAILS.split(',') : []).map((e) => e.trim())
+
+      await sendEmail('TE Report', to, cc, 'Generated report attached.', [
+        { fileName: 'report.xlsx', content: buffer.toString('base64') },
+      ])
+
+      res.json({ status: 'success', count: data.length })
+    } catch (err) {
+      res.status(500).json({ error: { message: err.message } })
+    }
+  })
 
   app.get('/rest/btp/scim/Users/:id', async (req, res, next) => {
     try {

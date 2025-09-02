@@ -117,6 +117,28 @@ Retrieves authorization matrix records.
 
 ---
 
+## /rest/btp/core/sendReport
+
+**POST** `/rest/btp/core/sendReport`
+
+Generates an Excel report from `TE_REPORT_VIEW` based on the provided filter
+criteria and emails the file to the logged-in user. Optional comma-separated
+`TO_EMAILS` and `CC_EMAILS` lists may be supplied.
+
+```json
+{
+  "TO_EMAILS": "user1@example.com,user2@example.com",
+  "CC_EMAILS": "manager@example.com",
+  "CASE_ID": "CASE-001",
+  "STATUS_CD": "OPEN",
+  "CREATED_DATETIME": {"from": "2024-01-01T00:00:00Z", "to": "2024-01-31T23:59:59Z"}
+}
+```
+
+Returns `{"status":"success","count":<rows>}` when the email is sent.
+
+---
+
 ## /rest/btp/core/comments
 
 **GET** `/rest/btp/core/comments`
