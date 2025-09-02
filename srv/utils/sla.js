@@ -41,6 +41,7 @@ async function loadPublicHolidays(tx) {
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
   const holidays = await loadPublicHolidays(tx)
+  console.log('holidays', holidays)
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
