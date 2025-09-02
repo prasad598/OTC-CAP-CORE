@@ -13,7 +13,9 @@
     "@sap-cloud-sdk/resilience": "^3",
     "@sap-cloud-sdk/http-client": "^3",
     "@sap-cloud-sdk/connectivity": "^3",
-    "exceljs": "^4"
+    "exceljs": "^4",
+    "@sap/xsenv": "^4",
+    "nodemailer": "^6"
   },
   "engines": {
     "node": ">=20"
