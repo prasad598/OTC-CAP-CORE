@@ -26,13 +26,13 @@ describe('calculateSLA', () => {
     assert.strictEqual(result.toISOString(), '2025-09-07T16:00:00.000Z')
   })
 
-  it('starts from the next business day for afternoon tickets', async () => {
+  it('starts from the second business day for afternoon tickets', async () => {
     const result = await calculateSLA(
       'APPROVAL',
       'STANDARD',
       '2025-09-05T13:00:00Z'
     )
-    assert.strictEqual(result.toISOString(), '2025-09-09T16:00:00.000Z')
+    assert.strictEqual(result.toISOString(), '2025-09-10T16:00:00.000Z')
   })
 
   it('loads holidays when a transaction is provided', async () => {
@@ -52,5 +52,35 @@ describe('calculateSLA', () => {
     )
     await tx.rollback()
     assert.strictEqual(result.toISOString(), '2025-09-07T16:00:00.000Z')
+  })
+
+  it('handles afternoon tickets when the next day is a holiday', async () => {
+    const db = cds.db
+    await db.run(
+      INSERT.into('BTP.CONFIG_PHDATA').entries([
+        { HOLIDAY_DT: '2025-09-02' }
+      ])
+    )
+    const result = await calculateSLA(
+      'APPROVAL',
+      'STANDARD',
+      '2025-09-01T13:00:00Z'
+    )
+    assert.strictEqual(result.toISOString(), '2025-09-07T16:00:00.000Z')
+  })
+
+  it('handles afternoon tickets when the second day is a holiday', async () => {
+    const db = cds.db
+    await db.run(
+      INSERT.into('BTP.CONFIG_PHDATA').entries([
+        { HOLIDAY_DT: '2025-09-04' }
+      ])
+    )
+    const result = await calculateSLA(
+      'APPROVAL',
+      'STANDARD',
+      '2025-09-02T13:00:00Z'
+    )
+    assert.strictEqual(result.toISOString(), '2025-09-08T16:00:00.000Z')
   })
 })

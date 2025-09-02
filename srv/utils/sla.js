@@ -56,14 +56,16 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     return day !== 0 && day !== 6 && !holidays.has(key)
   }
 
-  const start = new Date(sgtDate)
-  const offsetDays = sgtDate.getUTCHours() >= 12 ? 2 : 1
-  start.setUTCDate(start.getUTCDate() + offsetDays)
-  start.setUTCHours(0, 0, 0, 0)
-
-  while (!isBusinessDay(start)) {
-    start.setUTCDate(start.getUTCDate() + 1)
+  const moveToNextBusinessDay = (date) => {
+    do {
+      date.setUTCDate(date.getUTCDate() + 1)
+    } while (!isBusinessDay(date))
   }
+
+  const start = new Date(sgtDate)
+  moveToNextBusinessDay(start)
+  if (sgtDate.getUTCHours() >= 12) moveToNextBusinessDay(start)
+  start.setUTCHours(0, 0, 0, 0)
 
   const slaDays = 3
   let count = 1 // start already represents the first business day
