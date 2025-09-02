@@ -1,6 +1,6 @@
 const cds = require('@sap/cds');
 
-async function sendEmail(subject, to, cc, body) {
+async function sendEmail(subject, to, cc, body, attachments = []) {
   const service = await cds.connect.to('sap_process_automation_mail');
   const payload = {
     to: Array.isArray(to) ? to : [to],
@@ -8,6 +8,9 @@ async function sendEmail(subject, to, cc, body) {
     subject,
     body,
   };
+  if (attachments.length) {
+    payload.attachments = attachments;
+  }
   try {
     await service.send({
       method: 'POST',
