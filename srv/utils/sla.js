@@ -41,9 +41,14 @@ async function loadPublicHolidays(tx) {
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
   const holidays = await loadPublicHolidays(tx)
+  console.log('holidays', holidays)
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
+
+  // All SLA calculations are based on Singapore time (SGT, UTC+8)
+  const SGT_OFFSET_MS = 8 * 60 * 60 * 1000
+  const sgtDate = new Date(created.getTime() + SGT_OFFSET_MS)
 
   const isBusinessDay = (date) => {
     const day = date.getUTCDay()
@@ -51,9 +56,9 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     return day !== 0 && day !== 6 && !holidays.has(key)
   }
 
-  const start = new Date(created)
-  const offset = created.getUTCHours() >= 12 ? 2 : 1
-  start.setUTCDate(start.getUTCDate() + offset)
+  const start = new Date(sgtDate)
+  const offsetDays = sgtDate.getUTCHours() >= 12 ? 2 : 1
+  start.setUTCDate(start.getUTCDate() + offsetDays)
   start.setUTCHours(0, 0, 0, 0)
 
   while (!isBusinessDay(start)) {
@@ -66,7 +71,9 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     start.setUTCDate(start.getUTCDate() + 1)
     if (isBusinessDay(start)) count++
   }
-  return start
+
+  // Convert back from SGT to UTC before returning
+  return new Date(start.getTime() - SGT_OFFSET_MS)
 }
 
 module.exports = { calculateSLA }
