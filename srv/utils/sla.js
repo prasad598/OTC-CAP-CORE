@@ -66,10 +66,11 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
   }
 
   const start = new Date(sgtDate)
-  const createdHour = sgtDate.getUTCHours()
+  const createdMinutes =
+    sgtDate.getUTCHours() * 60 + sgtDate.getUTCMinutes()
   start.setUTCHours(0, 0, 0, 0)
   moveToNextBusinessDay(start)
-  if (createdHour >= 12) moveToNextBusinessDay(start)
+  if (createdMinutes >= 12 * 60) moveToNextBusinessDay(start)
 
   const slaDays = 3
   let count = 1 // start already represents the first business day
