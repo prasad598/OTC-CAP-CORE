@@ -12,14 +12,14 @@ async function sendEmail(subject, to, cc, body, attachments = []) {
     payload.attachments = attachments;
   }
   try {
-    await service.send({
+    return await service.send({
       method: 'POST',
       path: '/mail/send',
       data: payload,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    // console.error(`Failed to send email: ${err.message}`);
+    return { error: err.message };
   }
 }
 
