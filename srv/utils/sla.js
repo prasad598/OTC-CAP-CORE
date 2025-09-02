@@ -11,22 +11,23 @@ async function loadPublicHolidays(tx) {
   if (!db) return new Set()
 
   try {
-    // use string path to avoid model lookups failing for service-bound transactions
-    const rows = await db.run(
-      SELECT.from('BTP.CONFIG_PHDATA').columns('HOLIDAY_DT')
-    )
+    const entity =
+      db.model?.definitions?.['BTP.CONFIG_PHDATA'] ||
+      db.model?.definitions?.CONFIG_PHDATA ||
+      'CONFIG_PHDATA'
+    const rows = await db.run(SELECT.from(entity).columns('HOLIDAY_DT'))
     return new Set(
       rows
         .map((r) => {
-          const dt = r.HOLIDAY_DT
+          const dt = r.HOLIDAY_DT || r.holidayDt
           if (!dt) return null
           const d = dt instanceof Date ? dt : new Date(dt)
           return isNaN(d) ? null : d.toISOString().slice(0, 10)
         })
         .filter(Boolean)
     )
-  } catch {
-    // ignore lookup errors
+  } catch (err) {
+    console.error('Failed to load public holidays', err)
     return new Set()
   }
 }
@@ -41,7 +42,6 @@ async function loadPublicHolidays(tx) {
  */
 async function calculateSLA(taskType, projectType, createdAt, tx) {
   const holidays = await loadPublicHolidays(tx)
-  console.log('holidays', holidays)
 
   const created = new Date(createdAt)
   if (isNaN(created)) throw new Error('Invalid creation date')
@@ -56,14 +56,16 @@ async function calculateSLA(taskType, projectType, createdAt, tx) {
     return day !== 0 && day !== 6 && !holidays.has(key)
   }
 
-  const start = new Date(sgtDate)
-  const offsetDays = sgtDate.getUTCHours() >= 12 ? 2 : 1
-  start.setUTCDate(start.getUTCDate() + offsetDays)
-  start.setUTCHours(0, 0, 0, 0)
-
-  while (!isBusinessDay(start)) {
-    start.setUTCDate(start.getUTCDate() + 1)
+  const moveToNextBusinessDay = (date) => {
+    do {
+      date.setUTCDate(date.getUTCDate() + 1)
+    } while (!isBusinessDay(date))
   }
+
+  const start = new Date(sgtDate)
+  moveToNextBusinessDay(start)
+  if (sgtDate.getUTCHours() >= 12) moveToNextBusinessDay(start)
+  start.setUTCHours(0, 0, 0, 0)
 
   const slaDays = 3
   let count = 1 // start already represents the first business day
