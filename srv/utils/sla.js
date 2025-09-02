@@ -12,8 +12,11 @@ async function loadPublicHolidays(tx) {
 
   try {
     const entity =
-      db.model?.definitions?.['BTP.CONFIG_PHDATA'] ||
+      // Prefer entity resolution from service or transaction context
+      db.entities?.CONFIG_PHDATA ||
+      db.entities?.['BTP.CONFIG_PHDATA'] ||
       db.model?.definitions?.CONFIG_PHDATA ||
+      db.model?.definitions?.['BTP.CONFIG_PHDATA'] ||
       'CONFIG_PHDATA'
     const rows = await db.run(SELECT.from(entity).columns('HOLIDAY_DT'))
     return new Set(

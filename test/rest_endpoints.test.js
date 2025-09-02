@@ -64,4 +64,36 @@ describe('REST service endpoints', () => {
     const data = await res.json();
     assert.ok(data.estimatedCompletionDate);
   });
+
+  it('accounts for public holidays when calculating SLA', async () => {
+    // insert a holiday on 2024-01-02
+    let res = await fetch('http://localhost:4005/rest/btp/core/CONFIG_PHDATA', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        HOLIDAY_DT: '2024-01-02',
+        DESCRIPTION: 'New Year',
+        CREATED_BY: 'tester@example.com',
+        UPDATED_BY: 'tester@example.com',
+      }),
+    });
+    assert.ok(res.ok, 'failed to insert public holiday');
+
+    res = await fetch('http://localhost:4005/rest/btp/core/calculateSLA', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        taskType: 'TYPE',
+        projectType: 'PROJ',
+        createdAt: '2024-01-01T00:00:00Z',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    // With Jan 2 marked as holiday the SLA should extend by one extra day
+    assert.strictEqual(
+      new Date(data.estimatedCompletionDate).toISOString(),
+      new Date('2024-01-04T16:00:00.000Z').toISOString()
+    );
+  });
 });
