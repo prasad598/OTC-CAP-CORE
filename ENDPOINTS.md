@@ -123,7 +123,8 @@ Retrieves authorization matrix records.
 
 Generates an Excel report from `TE_REPORT_VIEW` based on the provided filter
 criteria and emails the file to the logged-in user. Optional comma-separated
-`TO_EMAILS` and `CC_EMAILS` lists may be supplied.
+`TO_EMAILS` and `CC_EMAILS` lists may be supplied. Draft records
+(`STATUS_CD` of `DRF`) are always excluded.
 
 ```json
 {
