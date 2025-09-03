@@ -108,13 +108,10 @@ service ReportService {
   entity TE_REPORT_VIEW as select from core.TE_SR as sr
     left outer join (
     select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, TASK_STATUS, PROCESSOR, UPDATED_DATETIME }
-    where t.TASK_TYPE = 'TE_RESO_LEAD' and t.TASK_STATUS != 'COMPLETED'
-      and t.UPDATED_DATETIME = (
+    where t.UPDATED_DATETIME = (
         select max(x.UPDATED_DATETIME)
         from core.MON_WF_TASK as x
         where x.REQ_TXN_ID = t.REQ_TXN_ID
-          and x.TASK_TYPE = 'TE_RESO_LEAD'
-          and x.TASK_STATUS != 'COMPLETED'
       )
     ) as task on sr.REQ_TXN_ID = task.REQ_TXN_ID
     left outer join core.CORE_USERS as user on sr.CREATED_BY = user.USER_EMAIL and user.language = 'EN'
