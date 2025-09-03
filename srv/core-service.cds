@@ -134,6 +134,7 @@ service ReportService {
 
     sr.ENTITY_CD        as ENTITY_CD,
     entity.DESC         as ENTITY,
+    entity.FIELD3       as DBAGBA,
 
     sr.CREATED_BY       as CREATED_BY,
     user.USER_ID        as CREATED_BY_EMPID,

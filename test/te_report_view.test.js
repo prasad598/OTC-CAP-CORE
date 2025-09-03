@@ -25,6 +25,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
         USER_FNAME: 'Test',
         USER_LNAME: 'User',
         IS_ACTIVE: 'Y',
+        DBAGBA: 'D123',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
@@ -35,21 +36,35 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
         USER_FNAME: 'Processor',
         USER_LNAME: 'User',
         IS_ACTIVE: 'Y',
+        DBAGBA: 'D456',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       }
     ])
 
-    await INSERT.into(CONFIG_LDATA).entries({
-      REQUEST_TYPE: 'RT',
-      OBJECT: 'SRV_CAT',
-      CODE: 'CAT1',
-      language: 'EN',
-      DESC: 'Category One',
-      SEQUENCE: 1,
-      CREATED_BY: 'tester',
-      UPDATED_BY: 'tester'
-    })
+    await INSERT.into(CONFIG_LDATA).entries([
+      {
+        REQUEST_TYPE: 'RT',
+        OBJECT: 'SRV_CAT',
+        CODE: 'CAT1',
+        language: 'EN',
+        DESC: 'Category One',
+        SEQUENCE: 1,
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
+      },
+      {
+        REQUEST_TYPE: 'RT',
+        OBJECT: 'ENTITY',
+        CODE: 'ENT1',
+        language: 'EN',
+        DESC: 'Entity One',
+        FIELD3: 'D999',
+        SEQUENCE: 1,
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
+      }
+    ])
 
     await INSERT.into(TE_SR).entries({
       REQ_TXN_ID: id,
@@ -58,6 +73,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       REQUEST_ID: 'REQ-0001',
       REPORT_NO: 'REP-0001',
       SRV_CAT_CD: 'CAT1',
+      ENTITY_CD: 'ENT1',
       CREATED_BY: 'u1@example.com',
       PROCESSOR: 'p1@example.com',
       UPDATED_DATETIME: '2024-01-06T00:00:00Z',
@@ -81,6 +97,8 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(result.REPORT_NO, 'REP-0001')
     assert.strictEqual(result.SRV_CAT_CD, 'CAT1')
     assert.strictEqual(result.SRV_CAT, 'Category One')
+    assert.strictEqual(result.ENTITY_CD, 'ENT1')
+    assert.strictEqual(result.DBAGBA, 'D999')
     assert.strictEqual(result.CREATED_BY, 'u1@example.com')
     assert.strictEqual(result.CREATED_BY_EMPID, '100')
     assert.strictEqual(result.SR_PROCESSOR, 'p1@example.com')
