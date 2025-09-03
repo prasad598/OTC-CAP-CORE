@@ -78,7 +78,7 @@ entity CORE_COMMENTS {
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   REQ_TXN_ID         : commonTypes.uuidv4 not null;
   REQUEST_ID         : commonTypes.requestId;
-  COMMENTS           : commonTypes.shortText not null;
+  COMMENTS           : commonTypes.longText not null;
   COMMENT_TYPE       : commonTypes.commentType; // type - document , milestone
   COMMENT_EVENT      : commonTypes.commentEvent; // title - Service Request Created
   USER_TYPE          : commonTypes.userType; // role - Expense Controller
