@@ -4,6 +4,7 @@ const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
 const { sendEmail } = require('./utils/mail')
+const reportColumns = require('./utils/reportColumns.json')
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -75,7 +76,8 @@ cds.on('bootstrap', (app) => {
       } = req.body || {}
 
       const { TE_REPORT_VIEW } = cds.entities('ReportService')
-      let query = SELECT.from(TE_REPORT_VIEW)
+      const columnIds = reportColumns.map((c) => c.COLUMN_ID)
+      let query = SELECT.from(TE_REPORT_VIEW, columnIds)
       let has = false
       const add = (field, value, op = '=') => {
         if (value === undefined || value === null || value === '') return
@@ -119,11 +121,14 @@ cds.on('bootstrap', (app) => {
 
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Report')
-      if (data.length) {
-        worksheet.columns = Object.keys(data[0]).map((k) => ({
-          header: k,
-          key: k,
+      const columns = reportColumns
+        .sort((a, b) => a.INDEX - b.INDEX)
+        .map(({ COLUMN_ID, COLUMN_NAME }) => ({
+          header: COLUMN_NAME,
+          key: COLUMN_ID,
         }))
+      worksheet.columns = columns
+      if (data.length) {
         worksheet.addRows(data)
       }
       const buffer = await workbook.xlsx.writeBuffer()
@@ -133,12 +138,22 @@ cds.on('bootstrap', (app) => {
       if (userEmail && !to.includes(userEmail)) to.push(userEmail)
       const cc = (CC_EMAILS ? CC_EMAILS.split(',') : []).map((e) => e.trim())
 
+      const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, '')
+      const fileName = `BTP_CASE_MANAGEMENT_TOOL_REPORT_${timestamp}.xlsx`
+      const body =
+        'Dear Travel and Expenses Reso Team,\n\n' +
+        'Please find attached the latest BTP Case Management report for your reference. This report provides an overview of the current case status and progress for your review.\n\n' +
+        'Thank you.\n\n' +
+        'Yours sincerely\n' +
+        'Shared Services Centre - Travel & Expenses\n' +
+        'ST Engineering Management Services Pte. Ltd.'
+
       const mailResponse = await sendEmail(
-        'TE Report',
+        'BTP Case Management Report',
         to,
         cc,
-        'Generated report attached.',
-        [{ fileName: 'report.xlsx', content: buffer.toString('base64') }]
+        body,
+        [{ fileName, content: buffer.toString('base64') }]
       )
 
       res.json({ status: 'success', count: data.length, mailResponse })
