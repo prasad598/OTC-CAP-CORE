@@ -6,6 +6,7 @@ const { INSERT, UPDATE, SELECT } = cds.ql
 describe('TE_SR PATCH workflow trigger', () => {
   let srv
   let httpCallCount
+  let lastRequestData
   const wfResponse = {
     subject: 'Test Workflow',
     status: 'RUNNING',
@@ -16,8 +17,9 @@ describe('TE_SR PATCH workflow trigger', () => {
     httpCallCount = 0
     require.cache[require.resolve('@sap-cloud-sdk/http-client')] = {
       exports: {
-        executeHttpRequest: async () => {
+        executeHttpRequest: async (_, { data }) => {
           httpCallCount++
+          lastRequestData = data
           return { data: { ...wfResponse, id: `wf-${httpCallCount}` } }
         },
       },
@@ -115,6 +117,34 @@ describe('TE_SR PATCH workflow trigger', () => {
 
     const record = await SELECT.one.from(MON_WF_PROCESS).where({ REQ_TXN_ID: '125' })
     assert.ok(record)
+  })
+
+  it('includes DueCompletion derived from EC_DATE', async () => {
+    const { TE_SR } = srv.entities
+    await INSERT.into(TE_SR).entries({
+      REQ_TXN_ID: '126',
+      language: 'EN',
+      CREATED_BY: 'creator@example.com',
+      REQUESTER_ID: 'requester@example.com',
+      SRV_CAT_CD: 'REQEXM',
+    })
+
+    const req = {
+      data: { REQ_TXN_ID: '126', DECISION: 'APR', EC_DATE: '2024-01-15' },
+      user: { id: 'tester' },
+      warn: () => {},
+    }
+
+    const tx = cds.transaction(req)
+    await srv._beforePatch(req)
+    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '126' }))
+    await tx.commit()
+    await srv._afterPatch(null, req)
+
+    assert.strictEqual(
+      lastRequestData.context.caseDetails.DueCompletion,
+      new Date('2024-01-15T23:59:59.999+08:00').toISOString()
+    )
   })
 })
 
