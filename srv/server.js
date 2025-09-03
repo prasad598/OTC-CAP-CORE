@@ -88,6 +88,8 @@ cds.on('bootstrap', (app) => {
           query.and(field, op, value)
         }
       }
+      // Always exclude draft records
+      add('STATUS_CD', 'DRF', '!=')
       const simple = {
         CASE_ID,
         SRV_CAT_CD,
