@@ -172,7 +172,7 @@ Example response:
     "COMMENT_TYPE": "document",
     "COMMENT_EVENT": "Service Request Created",
     "EVENT_STATUS_CD": "In Progress",
-    "CREATED_BY_NAME": "Mr Test User"
+    "CREATED_BY_NAME": "Mr Test"
   }
 ]
 ```

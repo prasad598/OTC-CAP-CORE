@@ -551,12 +551,12 @@ module.exports = (srv) => {
       if (emails.length) {
         const users = await tx.run(
           SELECT.from(CORE_USERS)
-            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME')
             .where({ USER_EMAIL: { in: emails } })
         )
         const map = {}
         for (const u of users) {
-          const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+          const parts = [u.TITLE, u.USER_FNAME].filter(Boolean)
           map[u.USER_EMAIL] = parts.join(' ')
         }
         comments.forEach((c) => {
@@ -613,12 +613,12 @@ module.exports = (srv) => {
       if (emails.length) {
         const users = await tx.run(
           SELECT.from(CORE_USERS)
-            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+            .columns('USER_EMAIL', 'TITLE', 'USER_FNAME')
             .where({ USER_EMAIL: { in: emails } })
         )
         const map = {}
         for (const u of users) {
-          const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+          const parts = [u.TITLE, u.USER_FNAME].filter(Boolean)
           map[u.USER_EMAIL] = parts.join(' ')
         }
         comments.forEach((c) => {
@@ -1073,12 +1073,12 @@ module.exports = (srv) => {
           if (emails.length) {
             const users = await db.run(
               SELECT.from(CORE_USERS)
-                .columns('USER_EMAIL', 'TITLE', 'USER_FNAME', 'USER_LNAME')
+                .columns('USER_EMAIL', 'TITLE', 'USER_FNAME')
                 .where({ USER_EMAIL: { in: emails } })
             )
             const map = {}
             for (const u of users) {
-              const parts = [u.TITLE, u.USER_FNAME, u.USER_LNAME].filter(Boolean)
+              const parts = [u.TITLE, u.USER_FNAME].filter(Boolean)
               map[u.USER_EMAIL] = parts.join(' ')
             }
             comments.forEach((c) => {
