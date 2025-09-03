@@ -23,6 +23,7 @@ type mimeType   : String(100);
 type userType   : String(50);
 type flag       : String(1);
 type shortText  : String(255);
+type longText   : String(500);
 type requestId  : String(30);
 type uuidv4     : String(36);
 type requestType: String(30);
