@@ -17,16 +17,28 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     const { TE_REPORT_VIEW } = cds.entities('ReportService')
     const id = '11111111-1111-1111-1111-222222222222'
 
-    await INSERT.into(CORE_USERS).entries({
-      USER_EMAIL: 'u1@example.com',
-      language: 'EN',
-      USER_ID: '100',
-      USER_FNAME: 'Test',
-      USER_LNAME: 'User',
-      IS_ACTIVE: 'Y',
-      CREATED_BY: 'tester',
-      UPDATED_BY: 'tester'
-    })
+    await INSERT.into(CORE_USERS).entries([
+      {
+        USER_EMAIL: 'u1@example.com',
+        language: 'EN',
+        USER_ID: '100',
+        USER_FNAME: 'Test',
+        USER_LNAME: 'User',
+        IS_ACTIVE: 'Y',
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
+      },
+      {
+        USER_EMAIL: 'p1@example.com',
+        language: 'EN',
+        USER_ID: '200',
+        USER_FNAME: 'Processor',
+        USER_LNAME: 'User',
+        IS_ACTIVE: 'Y',
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
+      }
+    ])
 
     await INSERT.into(CONFIG_LDATA).entries({
       REQUEST_TYPE: 'RT',
@@ -47,6 +59,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       REPORT_NO: 'REP-0001',
       SRV_CAT_CD: 'CAT1',
       CREATED_BY: 'u1@example.com',
+      PROCESSOR: 'p1@example.com',
       UPDATED_DATETIME: '2024-01-06T00:00:00Z',
       EC_DATE: '2024-01-01',
       IS_CLAR_REQ_DATETIME: '2024-01-02T00:00:00Z',
@@ -70,5 +83,8 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(result.SRV_CAT, 'Category One')
     assert.strictEqual(result.CREATED_BY, 'u1@example.com')
     assert.strictEqual(result.CREATED_BY_EMPID, '100')
+    assert.strictEqual(result.SR_PROCESSOR, 'p1@example.com')
+    assert.strictEqual(result.SR_PROCESSOR_ID, '200')
+    assert.strictEqual(result.SR_PROCESSOR_NAME, 'Processor User')
   })
 })

@@ -62,6 +62,8 @@ cds.on('bootstrap', (app) => {
         CREATED_BY_EMPID,
         CREATED_BY_NAME,
         SR_PROCESSOR,
+        SR_PROCESSOR_ID,
+        SR_PROCESSOR_NAME,
         TASK_PROCESSOR,
         ASSIGNED_GROUP,
         CREATED_DATETIME,
@@ -94,6 +96,8 @@ cds.on('bootstrap', (app) => {
         CREATED_BY_EMPID,
         CREATED_BY_NAME,
         SR_PROCESSOR,
+        SR_PROCESSOR_ID,
+        SR_PROCESSOR_NAME,
         TASK_PROCESSOR,
         ASSIGNED_GROUP,
       }

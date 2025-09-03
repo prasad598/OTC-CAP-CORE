@@ -115,6 +115,7 @@ service ReportService {
       )
     ) as task on sr.REQ_TXN_ID = task.REQ_TXN_ID
     left outer join core.CORE_USERS as user on sr.CREATED_BY = user.USER_EMAIL and user.language = 'EN'
+    left outer join core.CORE_USERS as processor on sr.PROCESSOR = processor.USER_EMAIL and processor.language = 'EN'
     left outer join core.CONFIG_LDATA as cat on cat.CODE = sr.SRV_CAT_CD and cat.OBJECT = 'SRV_CAT' and cat.language = 'EN'
     left outer join core.CONFIG_LDATA as status on status.CODE = sr.STATUS_CD and status.OBJECT = 'STATUS' and status.language = 'EN'
     left outer join core.CONFIG_LDATA as entity on entity.CODE = sr.ENTITY_CD and entity.OBJECT = 'ENTITY' and entity.language = 'EN'
@@ -139,6 +140,8 @@ service ReportService {
     concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
 
     sr.PROCESSOR        as SR_PROCESSOR,
+    processor.USER_ID   as SR_PROCESSOR_ID,
+    concat(processor.USER_FNAME, ' ', processor.USER_LNAME) as SR_PROCESSOR_NAME : String,
     task.PROCESSOR      as TASK_PROCESSOR,
     task.ASSIGNED_GROUP,
     task.TASK_TYPE,
