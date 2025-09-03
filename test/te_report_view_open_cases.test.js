@@ -43,24 +43,7 @@ function initHandler(groups, emails) {
 }
 
 describe('TE_REPORT_VIEW OPEN_CASES variant', () => {
-  it('filters by TASK_PROCESSOR and STATUS PRT when only email provided', async () => {
-    const handler = initHandler([], [{ value: 'user@example.com', primary: true }])
-    const req = {
-      data: { 'user-scim-id': '123', VARIENT: 'OPEN_CASES' },
-      req: { query: { 'user-scim-id': '123', VARIENT: 'OPEN_CASES' } },
-      query: { SELECT: {} }
-    }
-    await handler(req)
-    assert.deepStrictEqual(req.query.SELECT.where, [
-      '(',
-      { ref: ['TASK_PROCESSOR'] }, '=', { val: 'user@example.com' },
-      'and',
-      { ref: ['STATUS_CD'] }, '=', { val: 'PRT' },
-      ')'
-    ])
-  })
-
-  it('filters by ASSIGNED_GROUP and email, each with STATUS PRT', async () => {
+  it('filters by ASSIGNED_GROUP with STATUS PRT', async () => {
     const handler = initHandler(
       ['STE_TE_RESO_TEAM_G1'],
       [{ value: 'user@example.com', primary: true }]
@@ -74,12 +57,6 @@ describe('TE_REPORT_VIEW OPEN_CASES variant', () => {
     assert.deepStrictEqual(req.query.SELECT.where, [
       '(',
       { ref: ['ASSIGNED_GROUP'] }, 'in', { list: [{ val: 'STE_TE_RESO_TEAM_G1' }] },
-      'and',
-      { ref: ['STATUS_CD'] }, '=', { val: 'PRT' },
-      ')',
-      'or',
-      '(',
-      { ref: ['TASK_PROCESSOR'] }, '=', { val: 'user@example.com' },
       'and',
       { ref: ['STATUS_CD'] }, '=', { val: 'PRT' },
       ')'

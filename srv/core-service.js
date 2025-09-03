@@ -951,7 +951,7 @@ module.exports = (srv) => {
       }
       case Variant.OPEN_CASES: {
         const teamGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_TEAM_'))
-        if (!teamGroups.length && !email) {
+        if (!teamGroups.length /* && !email */) {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
@@ -969,20 +969,20 @@ module.exports = (srv) => {
             ')'
           )
         }
-        if (email) {
-          if (cond.length) cond.push('or')
-          cond.push(
-            '(',
-            { ref: ['TASK_PROCESSOR'] },
-            '=',
-            { val: email },
-            'and',
-            { ref: ['STATUS_CD'] },
-            '=',
-            { val: Status.PRT },
-            ')'
-          )
-        }
+        // if (email) {
+        //   if (cond.length) cond.push('or')
+        //   cond.push(
+        //     '(',
+        //     { ref: ['TASK_PROCESSOR'] },
+        //     '=',
+        //     { val: email },
+        //     'and',
+        //     { ref: ['STATUS_CD'] },
+        //     '=',
+        //     { val: Status.PRT },
+        //     ')'
+        //   )
+        // }
         append(cond)
         break
       }
@@ -1006,7 +1006,7 @@ module.exports = (srv) => {
       }
       case Variant.SLA_BREACH_CASES: {
         const leadGroups = groups.filter((g) => g.startsWith('STE_TE_RESO_LEAD_'))
-        if (!leadGroups.length && !email) {
+        if (!leadGroups.length /* && !email */) {
           req.query.SELECT.where = ['1', '=', '0']
           break
         }
@@ -1024,20 +1024,20 @@ module.exports = (srv) => {
             ')'
           )
         }
-        if (email) {
-          if (cond.length) cond.push('or')
-          cond.push(
-            '(',
-            { ref: ['TASK_PROCESSOR'] },
-            '=',
-            { val: email },
-            'and',
-            { ref: ['STATUS_CD'] },
-            '=',
-            { val: Status.PRL },
-            ')'
-          )
-        }
+        // if (email) {
+        //   if (cond.length) cond.push('or')
+        //   cond.push(
+        //     '(',
+        //     { ref: ['TASK_PROCESSOR'] },
+        //     '=',
+        //     { val: email },
+        //     'and',
+        //     { ref: ['STATUS_CD'] },
+        //     '=',
+        //     { val: Status.PRL },
+        //     ')'
+        //   )
+        // }
         append(cond)
         break
       }
