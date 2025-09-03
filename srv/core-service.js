@@ -74,6 +74,12 @@ async function triggerWorkflow(te_sr, user) {
     },
   }
 
+  if (te_sr.EC_DATE) {
+    workflowPayload.context.caseDetails.DueCompletion = new Date(
+      `${te_sr.EC_DATE}T23:59:59.999+08:00`
+    ).toISOString()
+  }
+
   console.log('workflowPayload', workflowPayload)
 
   try {
