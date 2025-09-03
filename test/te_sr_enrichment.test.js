@@ -64,7 +64,7 @@ describe('TE_SR enrichment', () => {
     assert.ok(Array.isArray(item.CORE_COMMENTS))
     assert.strictEqual(item.CORE_COMMENTS.length, 1)
     assert.strictEqual(item.CORE_COMMENTS[0].COMMENTS, 'test comment')
-    assert.strictEqual(item.CORE_COMMENTS[0].CREATED_BY_NAME, 'Mr Test User')
+    assert.strictEqual(item.CORE_COMMENTS[0].CREATED_BY_NAME, 'Mr Test')
 
     assert.ok(Array.isArray(item.CORE_ATTACHMENTS))
     assert.strictEqual(item.CORE_ATTACHMENTS.length, 1)

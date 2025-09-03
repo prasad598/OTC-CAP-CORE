@@ -73,7 +73,7 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.COMMENTS, payload.COMMENTS)
     assert.strictEqual(item.CREATED_BY, payload.CREATED_BY)
     assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
-    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
+    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test')
     assert.strictEqual(item.USER_TYPE, 'Requester')
     assert.strictEqual(item.COMMENT_TYPE, '')
     assert.strictEqual(item.COMMENT_EVENT, '')
@@ -106,7 +106,7 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.strictEqual(item.EVENT_STATUS_CD, 'Completed')
     assert.ok(!('TASK_TYPE' in item))
     assert.ok(!('DECISION' in item))
-    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test User')
+    assert.strictEqual(item.CREATED_BY_NAME, 'Mr Test')
     assert.strictEqual(item.CREATED_BY_MASKED, payload.CREATED_BY)
   })
 
