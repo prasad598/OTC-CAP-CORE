@@ -179,6 +179,20 @@ module.exports = (srv) => {
         })
         wfResponseCode =
           (wfResponse && (wfResponse.status || wfResponse.statusCode)) || 202
+
+        if (wfResponseCode < 200 || wfResponseCode >= 300) {
+          const err = new Error(
+            (wfResponse &&
+              wfResponse.data &&
+              (wfResponse.data.error &&
+                wfResponse.data.error.message ||
+                wfResponse.data.message)) ||
+              `Workflow service returned status ${wfResponseCode}`
+          )
+          err.status = wfResponseCode
+          err.response = wfResponse
+          return handleError(err, wfResponseCode)
+        }
       } catch (error) {
         return handleError(error)
       }
