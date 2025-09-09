@@ -177,7 +177,13 @@ module.exports = (srv) => {
           headers: { 'Content-Type': 'application/json' },
         })
       } catch (error) {
-        return req.error(502, `Workflow update failed: ${error.message}`)
+        return {
+          status: 'failed',
+          stacktrace: JSON.stringify(
+            error,
+            Object.getOwnPropertyNames(error)
+          ),
+        }
       }
 
       // Step 2: Transactional DB update
@@ -265,7 +271,13 @@ module.exports = (srv) => {
           body
         )
 
-        req.error(500, 'Technical error occurred, contact system admin')
+        return {
+          status: 'failed',
+          stacktrace: JSON.stringify(
+            error,
+            Object.getOwnPropertyNames(error)
+          ),
+        }
       }
 
       return { status: 'success' }

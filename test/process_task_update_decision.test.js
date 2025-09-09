@@ -8,7 +8,7 @@ let capturedDecision
 let processTaskUpdateHandler
 let db
 
-describe('processTaskUpdate decision handling', () => {
+describe('processTaskUpdate decision handling', { concurrency: false }, () => {
   before(async () => {
     await cds.deploy(__dirname + '/../db').to('sqlite::memory:')
     db = cds.db
@@ -95,5 +95,37 @@ describe('processTaskUpdate decision handling', () => {
     assert.strictEqual(task.PROCESSOR, 'tester2')
     assert.strictEqual(task.UPDATED_BY, 'tester2')
     assert.ok(task.COMPLETED_DATE)
+  })
+
+  it('returns failed status with stacktrace when workflow update fails', async () => {
+    const failingStub = async () => ({
+      tx: () => ({
+        send: async () => {
+          throw new Error('WF update error')
+        }
+      })
+    })
+    const originalStub = cds.connect.to
+    cds.connect.to = failingStub
+
+    const req = {
+      data: {
+        TASK_INSTANCE_ID: 'task789',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        DECISION: 'Escalate',
+        REQ_TXN_ID: 'req789',
+        UPDATED_BY: 'tester2'
+      },
+      user: { id: 'tester' },
+      error: (code, msg) => {
+        throw new Error(`${code} ${msg}`)
+      }
+    }
+
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result.status, 'failed')
+    assert.ok(result.stacktrace.includes('WF update error'))
+
+    cds.connect.to = originalStub
   })
 })

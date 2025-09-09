@@ -53,6 +53,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     UPDATED_BY       : commonTypes.emailId
   ) returns {
     status : String;
+    stacktrace : String;
   };
 
   action onTaskEvent(
