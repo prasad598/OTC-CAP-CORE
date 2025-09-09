@@ -5,6 +5,7 @@ const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
 const { sendEmail } = require('./utils/mail')
 const reportColumns = require('./utils/reportColumns.json')
+const mapError = require('./error-mapper')
 
 cds.on('bootstrap', (app) => {
   const mappings = {
@@ -221,10 +222,37 @@ cds.on('bootstrap', (app) => {
     }
   })
 
-  app.use((err, req, res, _next) => {
-    const status = err.statusCode || err.status || 500
-    const message = err.cause?.message || err.message || 'Unexpected error'
-    res.status(status).json({ error: { message } })
+  })
+
+cds.on('served', () => {
+  cds.app.use((err, req, res, _next) => {
+    const technicalError = mapError(err)
+    const status = (() => {
+      switch (technicalError.error.code) {
+        case 'VALIDATION_FAILED':
+        case 'UNIQUE_CONSTRAINT':
+        case 'FOREIGN_KEY_VIOLATION':
+        case 'NOT_NULL':
+        case 'CHECK_CONSTRAINT':
+        case 'VALUE_TOO_LONG':
+        case 'NUMERIC_OUT_OF_RANGE':
+          return 400
+        case 'NOT_FOUND':
+          return 404
+        case 'ETAG_MISMATCH':
+          return 412
+        case 'FORBIDDEN':
+          return 403
+        case 'DEADLOCK':
+          return 409
+        case 'DB_CONNECTION':
+        case 'DB_TIMEOUT':
+          return 503
+        default:
+          return 500
+      }
+    })()
+    res.status(status).json(technicalError)
   })
 })
 
