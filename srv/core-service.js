@@ -16,6 +16,7 @@ const { fetchIasUser } = require('./utils/ias')
 const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
 const { calculateSLA } = require('./utils/sla')
+const handleError = require('./utils/error')
 
 cds.on('connect', (db) => {
   if (db) {
@@ -161,12 +162,12 @@ module.exports = (srv) => {
       } = req.data
 
       const user = UPDATED_BY || (req.user && req.user.id)
-
+      let wfResponseCode
       // Step 1: Update workflow task via destination
       try {
         const wfSrv = await cds.connect.to('sap_process_automation_service')
         const wfSrvForUser = wfSrv.tx(req)
-        await wfSrvForUser.send({
+        const wfResponse = await wfSrvForUser.send({
           method: 'PATCH',
           path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
           data: {
@@ -176,14 +177,10 @@ module.exports = (srv) => {
           },
           headers: { 'Content-Type': 'application/json' },
         })
+        wfResponseCode =
+          (wfResponse && (wfResponse.status || wfResponse.statusCode)) || 202
       } catch (error) {
-        return {
-          status: 'failed',
-          stacktrace: JSON.stringify(
-            error,
-            Object.getOwnPropertyNames(error)
-          ),
-        }
+        return handleError(error)
       }
 
       // Step 2: Transactional DB update
@@ -270,17 +267,10 @@ module.exports = (srv) => {
           'srisaisatya.mamidi@stengg.com',
           body
         )
-
-        return {
-          status: 'failed',
-          stacktrace: JSON.stringify(
-            error,
-            Object.getOwnPropertyNames(error)
-          ),
-        }
+        return handleError(error, wfResponseCode)
       }
 
-      return { status: 'success' }
+      return { status: 'success', 'wf-response-code': wfResponseCode }
     })
 
     srv.on('onTaskEvent', async (req) => {

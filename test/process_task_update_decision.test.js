@@ -31,6 +31,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
       tx: () => ({
         send: async ({ data }) => {
           capturedDecision = data.decision
+          return { status: 202 }
         }
       })
     })
@@ -69,6 +70,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
 
     const result = await processTaskUpdateHandler(req)
     assert.strictEqual(result.status, 'success')
+    assert.strictEqual(result['wf-response-code'], 202)
     assert.strictEqual(capturedDecision, 'Escalate')
   })
 
@@ -87,7 +89,8 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
       }
     }
 
-    await processTaskUpdateHandler(req)
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result['wf-response-code'], 202)
     const task = await db.run(
       SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID: 'task456' })
     )
@@ -101,7 +104,12 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     const failingStub = async () => ({
       tx: () => ({
         send: async () => {
-          throw new Error('WF update error')
+          const err = new Error('WF update error')
+          err.response = {
+            status: 500,
+            data: { error: { message: 'WF update error' } }
+          }
+          throw err
         }
       })
     })
@@ -124,6 +132,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
 
     const result = await processTaskUpdateHandler(req)
     assert.strictEqual(result.status, 'failed')
+    assert.strictEqual(result['wf-response-code'], 500)
     assert.ok(result.stacktrace.includes('WF update error'))
 
     cds.connect.to = originalStub
