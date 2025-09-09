@@ -56,6 +56,7 @@ cds.on('connect', (db) => {
         delete row.REQUEST_TYPE
       }
     })
+
   }
 })
 async function triggerWorkflow(te_sr, user) {
@@ -129,6 +130,20 @@ module.exports = (srv) => {
     CONFIG_PHDATA,
     TE_SR,
   } = srv.entities
+
+  if (CONFIG_LDATA) {
+    srv.on('READ', CONFIG_LDATA, async (req, next) => {
+      if (req.query.SELECT?.orderBy) {
+        return next()
+      }
+      const q = SELECT.from(req.target)
+      if (req.query.SELECT?.columns) q.columns(req.query.SELECT.columns)
+      if (req.query.SELECT?.where) q.where(req.query.SELECT.where)
+      q.orderBy({ ref: ['SEQUENCE'] })
+      return cds.tx(req).run(q)
+    })
+  }
+
 
   if (typeof srv.on === 'function') {
     srv.on('error', (err) => {
