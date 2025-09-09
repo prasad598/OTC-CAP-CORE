@@ -5,7 +5,6 @@ const { SELECT, INSERT } = cds.ql
 
 let originalConnectTo
 let capturedDecision
-let capturedStatus
 let processTaskUpdateHandler
 let db
 
@@ -32,7 +31,6 @@ describe('processTaskUpdate decision handling', () => {
       tx: () => ({
         send: async ({ data }) => {
           capturedDecision = data.decision
-          return { status: 202 }
         }
       })
     })
@@ -55,7 +53,6 @@ describe('processTaskUpdate decision handling', () => {
   })
 
   it('passes decision to workflow service without altering case', async () => {
-    capturedStatus = undefined
     const req = {
       data: {
         TASK_INSTANCE_ID: 'task123',
@@ -65,7 +62,6 @@ describe('processTaskUpdate decision handling', () => {
         UPDATED_BY: 'tester2'
       },
       user: { id: 'tester' },
-      res: { status: (s) => (capturedStatus = s) },
       error: (code, msg) => {
         throw new Error(`${code} ${msg}`)
       }
@@ -74,7 +70,6 @@ describe('processTaskUpdate decision handling', () => {
     const result = await processTaskUpdateHandler(req)
     assert.strictEqual(result.status, 'success')
     assert.strictEqual(capturedDecision, 'Escalate')
-    assert.strictEqual(capturedStatus, 202)
   })
 
   it('updates MON_WF_TASK with completion details', async () => {

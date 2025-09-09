@@ -163,11 +163,10 @@ module.exports = (srv) => {
       const user = UPDATED_BY || (req.user && req.user.id)
 
       // Step 1: Update workflow task via destination
-      let wfResponse
       try {
         const wfSrv = await cds.connect.to('sap_process_automation_service')
         const wfSrvForUser = wfSrv.tx(req)
-        wfResponse = await wfSrvForUser.send({
+        await wfSrvForUser.send({
           method: 'PATCH',
           path: `/public/workflow/rest/v1/task-instances/${TASK_INSTANCE_ID}`,
           data: {
@@ -178,26 +177,7 @@ module.exports = (srv) => {
           headers: { 'Content-Type': 'application/json' },
         })
       } catch (error) {
-        const stacktrace = JSON.stringify(error, Object.getOwnPropertyNames(error))
-        return req.error({
-          status: 502,
-          message: `Workflow update failed: ${error.message}`,
-          stacktrace,
-        })
-      }
-
-      const status = wfResponse?.status || wfResponse?.statusCode
-      if (status !== 202) {
-        const stacktrace = JSON.stringify(wfResponse)
-        return req.error({
-          status: status || 500,
-          message: 'Workflow update failed',
-          stacktrace,
-        })
-      }
-
-      if (req.res && req.res.status) {
-        req.res.status(202)
+        return req.error(502, `Workflow update failed: ${error.message}`)
       }
 
       // Step 2: Transactional DB update
