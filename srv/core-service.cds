@@ -48,7 +48,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
     TASK_TYPE        : String,
     DECISION         : String,
     CASE_BCG_CD      : commonTypes.lookupCode,
-    SRC_PROB_CD      : String,
+    SRC_PROB         : String,
     RESO_REMARKS     : commonTypes.shortText,
     UPDATED_BY       : commonTypes.emailId
   ) returns {
