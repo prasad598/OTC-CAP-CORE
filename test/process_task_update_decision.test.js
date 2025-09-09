@@ -146,6 +146,56 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     cds.connect.to = originalStub
   })
 
+  it('aborts db updates when workflow service responds with error status', async () => {
+    const failingStub = async () => ({
+      tx: () => ({
+        send: async () => ({
+          status: 502,
+          data: { error: { message: 'Task is in final status' } }
+        })
+      })
+    })
+    const originalStub = cds.connect.to
+    cds.connect.to = failingStub
+
+    await db.run(
+      INSERT.into('BTP.MON_WF_TASK').entries({
+        TASK_INSTANCE_ID: 'taskErr',
+        REQ_TXN_ID: 'reqErr',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        TASK_STATUS: 'READY',
+        CREATED_BY: 'init',
+        UPDATED_BY: 'init'
+      })
+    )
+
+    const req = {
+      data: {
+        TASK_INSTANCE_ID: 'taskErr',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        DECISION: 'Escalate',
+        REQ_TXN_ID: 'reqErr',
+        UPDATED_BY: 'tester2'
+      },
+      user: { id: 'tester' },
+      error: (code, msg) => {
+        throw new Error(`${code} ${msg}`)
+      }
+    }
+
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result.status, 'failed')
+    assert.strictEqual(result['wf-response-code'], 502)
+    assert.ok(!('db-response-code' in result))
+
+    const task = await db.run(
+      SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID: 'taskErr' })
+    )
+    assert.strictEqual(task.TASK_STATUS, 'READY')
+
+    cds.connect.to = originalStub
+  })
+
   it('returns db-response-code when db transaction fails', async () => {
     const originalTx = cds.transaction
     cds.transaction = () => ({
