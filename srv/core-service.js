@@ -187,6 +187,7 @@ module.exports = (srv) => {
       const tx = cds.transaction(req)
       const now = new Date()
       let wfInstanceId
+      let dbResponseCode
       try {
         const existingTask = await tx.run(
           SELECT.one.from(MON_WF_TASK).where({ TASK_INSTANCE_ID })
@@ -250,7 +251,14 @@ module.exports = (srv) => {
             )
           }
         }
+
+        await tx.commit()
+        dbResponseCode = 200
       } catch (error) {
+        await tx.rollback(error)
+        dbResponseCode =
+          error.statusCode || error.status || (error.code && Number(error.code)) || 500
+
         const body = [
           `Exception: ${error.message}`,
           `REQ_TXN_ID: ${REQ_TXN_ID}`,
@@ -267,10 +275,14 @@ module.exports = (srv) => {
           'srisaisatya.mamidi@stengg.com',
           body
         )
-        return handleError(error, wfResponseCode)
+        return handleError(error, wfResponseCode, dbResponseCode)
       }
 
-      return { status: 'success', 'wf-response-code': wfResponseCode }
+      return {
+        status: 'success',
+        'wf-response-code': wfResponseCode,
+        'db-response-code': dbResponseCode,
+      }
     })
 
     srv.on('onTaskEvent', async (req) => {

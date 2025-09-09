@@ -1,5 +1,5 @@
-module.exports = function handleError(error, wfResponseCode) {
-  const statusCode =
+module.exports = function handleError(error, wfResponseCode, dbResponseCode) {
+  const wfCode =
     wfResponseCode ||
     (error && error.response && error.response.status) ||
     error.status ||
@@ -10,10 +10,16 @@ module.exports = function handleError(error, wfResponseCode) {
       error: { message: error.message }
     }
 
-  return {
+  const result = {
     status: 'failed',
-    'wf-response-code': statusCode,
+    'wf-response-code': wfCode,
     ...responseData,
     stacktrace: JSON.stringify(error, Object.getOwnPropertyNames(error))
   }
+
+  if (dbResponseCode !== undefined) {
+    result['db-response-code'] = dbResponseCode
+  }
+
+  return result
 }

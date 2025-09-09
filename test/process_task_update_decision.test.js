@@ -25,6 +25,11 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
       })
     )
 
+    // stub mail utility to avoid external calls
+    require.cache[require.resolve('../srv/utils/mail')] = {
+      exports: { sendEmail: async () => ({}) }
+    }
+
     // stub remote workflow service
     originalConnectTo = cds.connect.to
     cds.connect.to = async () => ({
@@ -71,6 +76,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     const result = await processTaskUpdateHandler(req)
     assert.strictEqual(result.status, 'success')
     assert.strictEqual(result['wf-response-code'], 202)
+    assert.strictEqual(result['db-response-code'], 200)
     assert.strictEqual(capturedDecision, 'Escalate')
   })
 
@@ -91,6 +97,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
 
     const result = await processTaskUpdateHandler(req)
     assert.strictEqual(result['wf-response-code'], 202)
+    assert.strictEqual(result['db-response-code'], 200)
     const task = await db.run(
       SELECT.one.from('BTP.MON_WF_TASK').where({ TASK_INSTANCE_ID: 'task456' })
     )
@@ -134,7 +141,42 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     assert.strictEqual(result.status, 'failed')
     assert.strictEqual(result['wf-response-code'], 500)
     assert.ok(result.stacktrace.includes('WF update error'))
+    assert.ok(!('db-response-code' in result))
 
     cds.connect.to = originalStub
+  })
+
+  it('returns db-response-code when db transaction fails', async () => {
+    const originalTx = cds.transaction
+    cds.transaction = () => ({
+      run: async () => {
+        const err = new Error('DB failure')
+        err.status = 500
+        throw err
+      },
+      rollback: async () => {},
+      commit: async () => {}
+    })
+
+    const req = {
+      data: {
+        TASK_INSTANCE_ID: 'task999',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        DECISION: 'Escalate',
+        REQ_TXN_ID: 'req999',
+        UPDATED_BY: 'tester2'
+      },
+      user: { id: 'tester' },
+      error: (code, msg) => {
+        throw new Error(`${code} ${msg}`)
+      }
+    }
+
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result.status, 'failed')
+    assert.strictEqual(result['wf-response-code'], 202)
+    assert.strictEqual(result['db-response-code'], 500)
+
+    cds.transaction = originalTx
   })
 })
