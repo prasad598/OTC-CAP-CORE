@@ -193,6 +193,9 @@ module.exports = (srv) => {
           SELECT.one.from(MON_WF_TASK).where({ TASK_INSTANCE_ID })
         )
         wfInstanceId = existingTask && existingTask.WF_INSTANCE_ID
+        console.log(
+          `Fetched MON_WF_TASK for TASK_INSTANCE_ID ${TASK_INSTANCE_ID}`
+        )
 
         await tx.run(
           UPDATE(MON_WF_TASK)
@@ -206,6 +209,9 @@ module.exports = (srv) => {
               UPDATED_DATETIME: now,
             })
             .where({ TASK_INSTANCE_ID })
+        )
+        console.log(
+          `Updated MON_WF_TASK for TASK_INSTANCE_ID ${TASK_INSTANCE_ID}`
         )
 
         if (
@@ -238,6 +244,7 @@ module.exports = (srv) => {
           await tx.run(
             UPDATE(TE_SR).set(teSrUpdate).where({ REQ_TXN_ID })
           )
+          console.log(`Updated TE_SR for REQ_TXN_ID ${REQ_TXN_ID}`)
 
           if (statusCd === Status.RSL && wfInstanceId) {
             await tx.run(
@@ -249,13 +256,23 @@ module.exports = (srv) => {
                 })
                 .where({ WF_INSTANCE_ID: wfInstanceId })
             )
+            console.log(
+              `Updated MON_WF_PROCESS for WF_INSTANCE_ID ${wfInstanceId}`
+            )
           }
         }
 
         await tx.commit()
+        console.log(
+          `processTaskUpdate DB transaction committed for REQ_TXN_ID ${REQ_TXN_ID}`
+        )
         dbResponseCode = 200
       } catch (error) {
         await tx.rollback(error)
+        console.error(
+          `processTaskUpdate DB transaction failed for REQ_TXN_ID ${REQ_TXN_ID}`,
+          error
+        )
         dbResponseCode =
           error.statusCode || error.status || (error.code && Number(error.code)) || 500
 
