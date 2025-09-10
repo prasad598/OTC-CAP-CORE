@@ -49,7 +49,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
         CODE: 'CAT1',
         language: 'EN',
         DESC: 'Category One',
-        SEQUENCE: 1,
+        SEQUENCE: '1',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
@@ -60,7 +60,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
         language: 'EN',
         DESC: 'Entity One',
         FIELD3: 'D999',
-        SEQUENCE: 1,
+        SEQUENCE: '1',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       }
