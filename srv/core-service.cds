@@ -32,7 +32,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
   entity AUTH_MATRIX @(path: 'auth-matrix') as projection on core.AUTH_MATRIX;
 
-  entity CONFIG_LDATA @(path: 'config-ldata') as select from core.CONFIG_LDATA { * } order by SEQUENCE asc;
+  entity CONFIG_LDATA @(path: 'config-ldata') as select from core.CONFIG_LDATA { * };
 
   entity CONFIG_PHDATA @(path: 'config-phdata') as projection on core.CONFIG_PHDATA;
 
@@ -157,7 +157,7 @@ service ReportService {
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
   } order by sr.UPDATED_DATETIME desc;
 
-  entity CONFIG_LDATA as select from core.CONFIG_LDATA { * } order by SEQUENCE asc;
+  entity CONFIG_LDATA as select from core.CONFIG_LDATA { * };
 }
 
 service WorkflowService {
