@@ -10,13 +10,24 @@ describe('CONFIG_LDATA default ordering', () => {
       __dirname + '/../db',
       __dirname + '/../srv'
     ]).to('sqlite::memory:')
+    await cds.serve('RestService').from(__dirname + '/../srv/core-service.cds')
   })
 
   it('orders results by SEQUENCE ascending by default', async () => {
     const { CONFIG_LDATA: CONFIG_LDATA_DB } = cds.entities('BTP')
-    const { CONFIG_LDATA } = cds.entities('RestService')
+    const srv = await cds.connect.to('RestService')
+    const { CONFIG_LDATA } = srv.entities
 
     await INSERT.into(CONFIG_LDATA_DB).entries([
+      {
+        REQUEST_TYPE: 'RT',
+        OBJECT: 'OBJ',
+        CODE: '010',
+        DESC: 'ten',
+        SEQUENCE: 10,
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
+      },
       {
         REQUEST_TYPE: 'RT',
         OBJECT: 'OBJ',
@@ -34,11 +45,20 @@ describe('CONFIG_LDATA default ordering', () => {
         SEQUENCE: 1,
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
+      },
+      {
+        REQUEST_TYPE: 'RT',
+        OBJECT: 'OTHER',
+        CODE: '999',
+        DESC: 'other',
+        SEQUENCE: 5,
+        CREATED_BY: 'tester',
+        UPDATED_BY: 'tester'
       }
     ])
 
-    const results = await SELECT.from(CONFIG_LDATA)
-    assert.strictEqual(results.length, 2)
-    assert.deepStrictEqual(results.map(r => r.CODE), ['001', '002'])
+    const results = await srv.run(SELECT.from(CONFIG_LDATA).where({ OBJECT: 'OBJ' }))
+    assert.strictEqual(results.length, 3)
+    assert.deepStrictEqual(results.map(r => r.CODE), ['001', '002', '010'])
   })
 })
