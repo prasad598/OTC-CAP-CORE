@@ -951,11 +951,7 @@ module.exports = (srv) => {
   })
 
   srv.on('READ', 'TE_REPORT_VIEW', async (req, next) => {
-    console.log('PRASAD Request data:', JSON.stringify(req.data))
-    console.log('PRASAD Raw query:', JSON.stringify(req.query))
-    console.log('PRASAD Logged-in user ID:', JSON.stringify(req.user?.id))
-    console.log('PRASAD User roles:', JSON.stringify(req.user?.roles))
-    console.log('PRASAD User attributes:', JSON.stringify(req.user?.attr))
+    console.log('PRASAD User roles:', JSON.stringify(req.user))
     return next()
   })
 
