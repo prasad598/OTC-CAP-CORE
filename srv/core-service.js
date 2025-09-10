@@ -1210,7 +1210,7 @@ module.exports = (srv) => {
     })
 
     srv.on('userInfo', async (req) => {
-      console.dir(req, { depth: null })
+      console.log('PRASAD', JSON.stringify(req));
       try {
         return await fetchIasUser(req)
       } catch (error) {
