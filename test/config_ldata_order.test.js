@@ -24,7 +24,7 @@ describe('CONFIG_LDATA default ordering', () => {
         OBJECT: 'OBJ',
         CODE: '010',
         DESC: 'ten',
-        SEQUENCE: 10,
+        SEQUENCE: '010',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
@@ -33,7 +33,7 @@ describe('CONFIG_LDATA default ordering', () => {
         OBJECT: 'OBJ',
         CODE: '002',
         DESC: 'two',
-        SEQUENCE: 2,
+        SEQUENCE: '002',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
@@ -42,7 +42,7 @@ describe('CONFIG_LDATA default ordering', () => {
         OBJECT: 'OBJ',
         CODE: '001',
         DESC: 'one',
-        SEQUENCE: 1,
+        SEQUENCE: '001',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       },
@@ -51,7 +51,7 @@ describe('CONFIG_LDATA default ordering', () => {
         OBJECT: 'OTHER',
         CODE: '999',
         DESC: 'other',
-        SEQUENCE: 5,
+        SEQUENCE: '005',
         CREATED_BY: 'tester',
         UPDATED_BY: 'tester'
       }

@@ -147,7 +147,7 @@ describe('Mass create & delete', () => {
           OBJECT: 'OBJ',
           CODE: '001',
           DESC: 'one',
-          SEQUENCE: 1,
+          SEQUENCE: '1',
           CREATED_BY: 'tester',
           UPDATED_BY: 'tester',
         },
@@ -156,7 +156,7 @@ describe('Mass create & delete', () => {
           OBJECT: 'OBJ',
           CODE: '002',
           DESC: 'two',
-          SEQUENCE: 2,
+          SEQUENCE: '2',
           CREATED_BY: 'tester',
           UPDATED_BY: 'tester',
         },
@@ -176,8 +176,8 @@ describe('Mass create & delete', () => {
     assert.ok(codes.includes('001'));
     assert.ok(codes.includes('002'));
     const seqMap = Object.fromEntries(list.map((r) => [r.CODE, r.SEQUENCE]));
-    assert.strictEqual(seqMap['001'], 1);
-    assert.strictEqual(seqMap['002'], 2);
+    assert.strictEqual(seqMap['001'], '1');
+    assert.strictEqual(seqMap['002'], '2');
 
     res = await fetch(`${base}/massDeleteConfigLdata`, {
       method: 'POST',

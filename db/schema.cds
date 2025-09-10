@@ -192,7 +192,7 @@ entity CONFIG_LDATA : Auditable {
   FIELD4            : commonTypes.field50;
   FIELD5            : commonTypes.field50;
   FIELD6            : commonTypes.field100;
-  SEQUENCE          : Integer;
+  SEQUENCE          : String(3);
   IS_ACTIVE         : commonTypes.flag;
 }
 
