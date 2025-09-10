@@ -1210,6 +1210,7 @@ module.exports = (srv) => {
     })
 
     srv.on('userInfo', async (req) => {
+      console.dir(req, { depth: null })
       try {
         return await fetchIasUser(req)
       } catch (error) {
