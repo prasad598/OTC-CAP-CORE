@@ -945,9 +945,18 @@ module.exports = (srv) => {
       return
     }
 
-    req.data.TASK_INSTANCE_ID = task.id
-    req.data.TASK_STATUS = 'COMPLETED'
-    req.data.COMPLETED_DATE = new Date()
+  req.data.TASK_INSTANCE_ID = task.id
+  req.data.TASK_STATUS = 'COMPLETED'
+  req.data.COMPLETED_DATE = new Date()
+  })
+
+  srv.on('READ', 'TE_REPORT_VIEW', async (req, next) => {
+    console.log('PRASAD Request data:', JSON.stringify(req.data))
+    console.log('PRASAD Raw query:', JSON.stringify(req.query))
+    console.log('PRASAD Logged-in user ID:', JSON.stringify(req.user?.id))
+    console.log('PRASAD User roles:', JSON.stringify(req.user?.roles))
+    console.log('PRASAD User attributes:', JSON.stringify(req.user?.attr))
+    return next()
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
