@@ -151,6 +151,11 @@ cds.on('bootstrap', (app) => {
         'Shared Services Centre - Travel & Expenses\n' +
         'ST Engineering Management Services Pte. Ltd.'
 
+      console.log(
+        '[sendReport] Request payload:',
+        JSON.stringify({ params: req.body || {}, to, cc })
+      )
+
       const mailResponse = await sendEmail(
         'BTP Case Management Report',
         to,
@@ -159,8 +164,14 @@ cds.on('bootstrap', (app) => {
         [{ fileName, content: buffer.toString('base64') }]
       )
 
+      console.log(
+        '[sendReport] Mail response:',
+        JSON.stringify(mailResponse ?? {})
+      )
+
       res.json({ status: 'success', count: data.length, mailResponse })
     } catch (err) {
+      console.error('[sendReport] Error:', err)
       res.status(500).json({ error: { message: err.message } })
     }
   })
