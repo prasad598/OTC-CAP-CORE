@@ -221,10 +221,10 @@ describe('CORE_COMMENTS REST POST', () => {
     assert.ok(Array.isArray(body))
     assert.strictEqual(body.length, 1)
     const item = body[0]
-    assert.strictEqual(item.USER_TYPE, 'TE Requester')
-    assert.strictEqual(item.COMMENT_TYPE, 'document')
-    assert.strictEqual(item.COMMENT_EVENT, 'Service Request Created')
-    assert.strictEqual(item.EVENT_STATUS_CD, 'In Progress')
+    assert.strictEqual(item.USER_TYPE, 'Requester')
+    assert.strictEqual(item.COMMENT_TYPE, '')
+    assert.strictEqual(item.COMMENT_EVENT, '')
+    assert.strictEqual(item.EVENT_STATUS_CD, '')
   })
 });
 

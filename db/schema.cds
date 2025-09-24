@@ -83,6 +83,12 @@ entity CORE_COMMENTS {
   COMMENT_EVENT      : commonTypes.commentEvent; // title - Service Request Created
   USER_TYPE          : commonTypes.userType; // role - Expense Controller
   EVENT_STATUS_CD    : commonTypes.lookupCode;
+  @cds.persistence.skip
+  TASK_TYPE  : commonTypes.taskType;
+  @cds.persistence.skip
+  DECISION   : commonTypes.decision;
+  @cds.persistence.skip
+  REQUEST_TYPE : commonTypes.requestType;
   CREATED_BY           : commonTypes.emailId; // author
   CREATED_BY_MASKED    : commonTypes.emailId; // unmasked copy of author
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
@@ -138,6 +144,12 @@ entity TE_SR : Auditable {
   DECISION             : commonTypes.decision @cds.persistence.skip;
 
   virtual user_scim_id : String @cds.odata.name:'user-scim-id';
+  @cds.persistence.skip
+  virtual logged_user_id    : commonTypes.id;
+  @cds.persistence.skip
+  virtual logged_user_email : commonTypes.emailId;
+  @cds.persistence.skip
+  virtual logged_user_name  : commonTypes.shortText;
 
   PROCESSOR            : commonTypes.emailId;
 

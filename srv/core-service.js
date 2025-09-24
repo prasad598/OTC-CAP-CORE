@@ -1,5 +1,5 @@
 const cds = require('@sap/cds')
-const { SELECT, UPDATE, INSERT, DELETE } = cds.ql
+const { SELECT, UPDATE, INSERT, DELETE, UPSERT } = cds.ql
 const { generateCustomRequestId } = require('./utils/sequence')
 const { generateReqNextStatus } = require('./utils/status')
 const {
@@ -9,7 +9,7 @@ const {
   Status,
   Variant
 } = require('./utils/enums')
-const { buildCommentPayload, deriveCommentDetails } = require('./utils/comments')
+const { deriveCommentDetails } = require('./utils/comments')
 const { sendEmail } = require('./utils/mail')
 const { executeHttpRequest } = require('@sap-cloud-sdk/http-client')
 const { fetchIasUser } = require('./utils/ias')
@@ -18,47 +18,60 @@ const { normalizeVariant } = require('./utils/variant')
 const { calculateSLA } = require('./utils/sla')
 const handleError = require('./utils/error')
 
-cds.on('connect', (db) => {
-  if (db) {
-    db.before('INSERT', 'BTP.CORE_COMMENTS', async (req) => {
-      const data = req.data ?? req
-      const rows = Array.isArray(data) ? data : [data]
-      for (const row of rows) {
-        const {
-          TASK_TYPE,
-          DECISION,
-          COMMENTS,
-          REQ_TXN_ID,
-          CREATED_BY,
-          ...existing
-        } = row
-        const needsEnrichment =
-          TASK_TYPE !== undefined ||
-          DECISION !== undefined ||
-          existing.USER_TYPE === undefined ||
-          existing.COMMENT_TYPE === undefined ||
-          existing.COMMENT_EVENT === undefined ||
-          existing.EVENT_STATUS_CD === undefined
-        if (needsEnrichment) {
-          const payload = await buildCommentPayload(
-            COMMENTS,
-            REQ_TXN_ID,
-            CREATED_BY,
-            TASK_TYPE,
-            DECISION,
-            db,
-            existing
-          )
-          Object.assign(row, payload)
-        }
-        delete row.TASK_TYPE
-        delete row.DECISION
-        delete row.REQUEST_TYPE
+const registeredCommentHooks = new WeakSet()
+const enrichCommentRows = async (input) => {
+  const rows = Array.isArray(input) ? input : [input]
+  for (const row of rows) {
+    const {
+      TASK_TYPE,
+      DECISION,
+      COMMENTS,
+      REQ_TXN_ID,
+      CREATED_BY,
+      ...existing
+    } = row
+    const needsEnrichment =
+      TASK_TYPE !== undefined ||
+      DECISION !== undefined ||
+      existing.USER_TYPE == null ||
+      existing.COMMENT_TYPE == null ||
+      existing.COMMENT_EVENT == null ||
+      existing.EVENT_STATUS_CD == null ||
+      existing.CREATED_BY_MASKED == null
+    if (needsEnrichment) {
+      const payload = {
+        ...existing,
+        REQ_TXN_ID,
+        REQUEST_ID: existing.REQUEST_ID ?? null,
+        COMMENTS,
+        CREATED_BY,
+        language: existing.language || 'EN',
       }
-    })
-
+      Object.assign(
+        payload,
+        deriveCommentDetails(TASK_TYPE, DECISION, CREATED_BY)
+      )
+      Object.assign(row, payload)
+    }
+    delete row.TASK_TYPE
+    delete row.DECISION
+    delete row.REQUEST_TYPE
   }
-})
+}
+
+const registerCommentHooks = (db) => {
+  if (!db || registeredCommentHooks.has(db)) return
+  registeredCommentHooks.add(db)
+  db.before(['CREATE', 'INSERT'], async (req) => {
+    const targetName = req?.target?.name || ''
+    if (!/CORE_COMMENTS$/i.test(targetName)) return
+    const data = req.data ?? req
+    await enrichCommentRows(data)
+  })
+}
+
+if (cds.db) registerCommentHooks(cds.db)
+cds.on('connect', registerCommentHooks)
 async function triggerWorkflow(te_sr, user) {
   const workflowPayload = {
     definitionId:
@@ -131,7 +144,12 @@ module.exports = (srv) => {
     TE_SR,
   } = srv.entities
 
-  if (CONFIG_LDATA) {
+  srv.before('CREATE', 'CORE_COMMENTS', async (req) => {
+    if (!req?.data) return
+    await enrichCommentRows(req.data)
+  })
+
+  if (CONFIG_LDATA && typeof srv.on === 'function') {
     srv.on('READ', CONFIG_LDATA, async (req, next) => {
       if (req.query.SELECT?.orderBy) {
         return next()
@@ -675,6 +693,11 @@ module.exports = (srv) => {
           .where({ REQ_TXN_ID: key })
           .orderBy('CREATED_DATETIME desc')
       )
+      comments.forEach((c) => {
+        delete c.TASK_TYPE
+        delete c.DECISION
+        delete c.REQUEST_TYPE
+      })
       const emails = [...new Set(comments.map((c) => c.CREATED_BY).filter(Boolean))]
       if (emails.length) {
         const users = await tx.run(
@@ -703,8 +726,37 @@ module.exports = (srv) => {
   srv.before('CREATE', 'TE_SR', async (req) => {
     const tx = cds.transaction(req)
     const user = req.user && req.user.id
+
+    const readPayload = (field) => {
+      if (!req.data) return undefined
+      if (req.data[field] !== undefined) return req.data[field]
+      const camel = field.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+      return req.data[camel]
+    }
+
+    const parseNameParts = (value) => {
+      if (!value || typeof value !== 'string') return {}
+      const trimmed = value.trim()
+      if (!trimmed) return {}
+      const [first, ...rest] = trimmed.split(/\s+/)
+      return { first, last: rest.length ? rest.join(' ') : undefined }
+    }
+
+    const sanitize = (entry) =>
+      Object.fromEntries(
+        Object.entries(entry).filter(([, value]) => value !== undefined && value !== null)
+      )
+
+    const requester = {
+      email: readPayload('logged_user_email'),
+      employeeId: readPayload('logged_user_id'),
+      name: readPayload('logged_user_name'),
+      firstName: undefined,
+      lastName: undefined,
+    }
+
     const scimId = req.data['user-scim-id'] || req.data.user_scim_id
-    if (scimId) {
+    if (scimId && (!requester.email || !requester.employeeId || !requester.name)) {
       try {
         const jwt = retrieveJwt(req)
         const { data } = await executeHttpRequest(
@@ -712,34 +764,69 @@ module.exports = (srv) => {
           { method: 'GET', url: `/scim/Users/${scimId}` }
         )
         console.log('SCIM user data:', data)
-        const email = (data.emails || []).find((e) => e.primary)?.value
-        if (email) {
-          const existing = await tx.run(
-            SELECT.one.from(CORE_USERS).where({
-              USER_EMAIL: email,
-              language: 'EN'
-            })
-          )
-          if (!existing) {
-            const enterprise =
-              data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
-            await tx.run(
-              INSERT.into(CORE_USERS).entries({
-                USER_EMAIL: email,
-                language: 'EN',
-                USER_ID: enterprise.employeeNumber,
-                USER_HP: data.phoneNumbers?.find(
-                  (p) => p.primary && p.type === 'work'
-                )?.value,
-                USER_FNAME: data.name?.givenName,
-                USER_LNAME: data.name?.familyName,
-                IS_ACTIVE: 'Y',
-                CREATED_BY: user,
-                UPDATED_BY: user,
-              })
-            )
-          }
+        const primaryEmail = (data.emails || []).find((e) => e.primary)?.value
+        if (primaryEmail && !requester.email) {
+          requester.email = primaryEmail
         }
+        const enterprise =
+          data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
+        if (enterprise.employeeNumber && !requester.employeeId) {
+          requester.employeeId = enterprise.employeeNumber
+        }
+        const givenName = data.name?.givenName
+        const familyName = data.name?.familyName
+        if (!requester.name) {
+          requester.name =
+            data.displayName ||
+            [givenName, familyName].filter(Boolean).join(' ')
+        }
+        requester.firstName = givenName || requester.firstName
+        requester.lastName = familyName || requester.lastName
+      } catch (error) {
+        req.warn(`Failed to sync CORE_USERS: ${error.message}`)
+      }
+    }
+
+    if (!requester.firstName || !requester.lastName) {
+      const parts = parseNameParts(requester.name)
+      if (!requester.firstName) requester.firstName = parts.first
+      if (!requester.lastName) requester.lastName = parts.last
+    }
+
+    const fullName =
+      (typeof requester.name === 'string' ? requester.name.trim() : '') ||
+      [requester.firstName, requester.lastName].filter(Boolean).join(' ').trim()
+
+    if (fullName) requester.name = fullName
+
+    if (requester.email) {
+      if (!req.data.CREATED_BY) req.data.CREATED_BY = requester.email
+      if (!req.data.REQUESTER_ID) req.data.REQUESTER_ID = requester.email
+      if (!req.data.REQ_FOR_EMAIL) req.data.REQ_FOR_EMAIL = requester.email
+    }
+    if (requester.name && !req.data.REQ_FOR_NAME) {
+      req.data.REQ_FOR_NAME = requester.name
+    }
+
+    if (requester.email) {
+      try {
+        const existing = await tx.run(
+          SELECT.one.from(CORE_USERS).where({
+            USER_EMAIL: requester.email,
+            language: 'EN',
+          })
+        )
+        const entry = sanitize({
+          USER_EMAIL: requester.email,
+          language: 'EN',
+          USER_ID: requester.employeeId,
+          USER_FNAME: requester.firstName || requester.name,
+          USER_LNAME: requester.lastName,
+          IS_ACTIVE: 'Y',
+          CREATED_BY: existing?.CREATED_BY || user || requester.email,
+          UPDATED_BY: user || requester.email,
+        })
+        await tx.run(UPSERT.into(CORE_USERS).entries(entry))
       } catch (error) {
         req.warn(`Failed to sync CORE_USERS: ${error.message}`)
       }
