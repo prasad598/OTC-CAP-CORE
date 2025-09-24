@@ -55,10 +55,7 @@ function deriveCommentDetails(taskType, decision, createdBy) {
   }
 
   if (taskType === TaskType.TE_REQUESTER) {
-    result.USER_TYPE = UserType.TE_REQUESTER
-    result.COMMENT_TYPE = CommentType.DOCUMENT
-    result.COMMENT_EVENT = CommentEvent.SERVICE_REQUEST_CREATED
-    result.EVENT_STATUS_CD = EventStatus.IN_PROGRESS
+    result.USER_TYPE = UserType.REQUESTER
   } else if (taskType === TaskType.TE_RESO_TEAM && decision === Decision.APR) {
     result.USER_TYPE = UserType.RESOLUTION_TEAM
     result.COMMENT_TYPE = CommentType.MILESTONE
