@@ -75,6 +75,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       SRV_CAT_CD: 'CAT1',
       ENTITY_CD: 'ENT1',
       CREATED_BY: 'u1@example.com',
+      CREATED_BY_EMPID: 'EMP777',
       PROCESSOR: 'p1@example.com',
       UPDATED_DATETIME: '2024-01-06T00:00:00Z',
       EC_DATE: '2024-01-01',
@@ -100,7 +101,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(result.ENTITY_CD, 'ENT1')
     assert.strictEqual(result.DBAGBA, 'D999')
     assert.strictEqual(result.CREATED_BY, 'u1@example.com')
-    assert.strictEqual(result.CREATED_BY_EMPID, '100')
+    assert.strictEqual(result.CREATED_BY_EMPID, 'EMP777')
     assert.strictEqual(result.SR_PROCESSOR, 'p1@example.com')
     assert.strictEqual(result.SR_PROCESSOR_ID, '200')
     assert.strictEqual(result.SR_PROCESSOR_NAME, 'Processor User')
