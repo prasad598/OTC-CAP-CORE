@@ -154,6 +154,8 @@ entity TE_SR : Auditable {
   PROCESSOR            : commonTypes.emailId;
 
   REQUESTER_ID         : commonTypes.emailId;
+  CREATED_BY_EMPID     : commonTypes.id;
+  CREATED_BY_NAME      : commonTypes.shortText;
   SRV_CAT_CD           : commonTypes.lookupCode;
   SR_DETAILS           : commonTypes.shortText;
   CASE_REQ_ID          : String(14);

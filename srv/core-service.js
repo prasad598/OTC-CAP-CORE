@@ -805,8 +805,12 @@ module.exports = (srv) => {
       req.data.REQUESTER_ID = requester.email
       req.data.REQ_FOR_EMAIL = requester.email
     }
+    if (requester.employeeId) {
+      req.data.CREATED_BY_EMPID = requester.employeeId
+    }
     if (requester.name) {
       req.data.REQ_FOR_NAME = requester.name
+      req.data.CREATED_BY_NAME = requester.name
     }
 
     if (requester.email) {
@@ -880,15 +884,21 @@ module.exports = (srv) => {
     const now = new Date()
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = now
     const tx = cds.transaction(req)
-    try {
-      const { REQUEST_ID, DRAFT_ID } = await tx.run(
-        SELECT.one
-          .from(TE_SR)
-          .columns('REQUEST_ID', 'DRAFT_ID')
-          .where({ REQ_TXN_ID })
-      )
+      try {
+        const { REQUEST_ID, DRAFT_ID, CREATED_BY_EMPID, CREATED_BY_NAME } = await tx.run(
+          SELECT.one
+            .from(TE_SR)
+            .columns('REQUEST_ID', 'DRAFT_ID', 'CREATED_BY_EMPID', 'CREATED_BY_NAME')
+            .where({ REQ_TXN_ID })
+        )
       req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
       req.data.DRAFT_ID = DRAFT_ID
+      if (req.data.CREATED_BY_EMPID === undefined && CREATED_BY_EMPID !== undefined) {
+        req.data.CREATED_BY_EMPID = CREATED_BY_EMPID
+      }
+      if (req.data.CREATED_BY_NAME === undefined && CREATED_BY_NAME !== undefined) {
+        req.data.CREATED_BY_NAME = CREATED_BY_NAME
+      }
       if (req.data.DECISION) {
         const decisionUpper = req.data.DECISION.toUpperCase()
         if (['SUB', 'SUBMIT'].includes(decisionUpper)) {
