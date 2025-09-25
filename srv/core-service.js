@@ -755,6 +755,11 @@ module.exports = (srv) => {
       lastName: undefined,
     }
 
+    if (requester.employeeId !== undefined && requester.employeeId !== null) {
+      const normalizedId = String(requester.employeeId).trim()
+      requester.employeeId = normalizedId || undefined
+    }
+
     const scimId = req.data['user-scim-id'] || req.data.user_scim_id
     if (scimId && (!requester.email || !requester.employeeId || !requester.name)) {
       try {
