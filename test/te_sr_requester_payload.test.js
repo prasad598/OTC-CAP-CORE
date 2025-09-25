@@ -1,7 +1,7 @@
 const cds = require('@sap/cds')
 const assert = require('assert')
 const { describe, it, before, beforeEach } = require('node:test')
-const { SELECT } = cds.ql
+const { INSERT, SELECT } = cds.ql
 
 describe('TE_SR requester payload handling', () => {
   let srv
@@ -18,7 +18,10 @@ describe('TE_SR requester payload handling', () => {
         },
       },
     }
-    await cds.deploy(__dirname + '/../db').to('sqlite::memory:')
+    await cds.deploy([
+      __dirname + '/../db',
+      __dirname + '/../srv',
+    ]).to('sqlite::memory:')
     const db = cds.db
     const entities = cds.entities('BTP')
     srv = {
@@ -70,5 +73,47 @@ describe('TE_SR requester payload handling', () => {
     assert.strictEqual(record.USER_ID, 'EMP1001')
     assert.strictEqual(record.USER_FNAME, 'Payload')
     assert.strictEqual(record.USER_LNAME, 'User')
+  })
+
+  it('binds logged user fields to TE_REPORT_VIEW audit columns', async () => {
+    const req = {
+      data: {
+        DECISION: 'draft',
+        SRV_CAT_CD: 'REQEXM',
+        logged_user_email: 'payload.user@example.com',
+        logged_user_id: 'EMP1001',
+        logged_user_name: 'Payload User',
+      },
+      user: { id: 'tester' },
+      warn: (msg) => {
+        throw new Error(`Unexpected warning: ${msg}`)
+      },
+    }
+
+    const tx = cds.transaction(req)
+    await srv._beforeCreate(req)
+
+    const persisted = {
+      ...req.data,
+    }
+    delete persisted.logged_user_email
+    delete persisted.logged_user_id
+    delete persisted.logged_user_name
+    delete persisted.DECISION
+
+    await tx.run(
+      INSERT.into('BTP.TE_SR').entries(persisted)
+    )
+    await tx.commit()
+
+    const { TE_REPORT_VIEW } = cds.entities('ReportService')
+    const result = await SELECT.one
+      .from(TE_REPORT_VIEW)
+      .where({ CREATED_BY: 'payload.user@example.com' })
+
+    assert.ok(result)
+    assert.strictEqual(result.CREATED_BY, 'payload.user@example.com')
+    assert.strictEqual(result.CREATED_BY_EMPID, 'EMP1001')
+    assert.strictEqual(result.CREATED_BY_NAME, 'Payload User')
   })
 })

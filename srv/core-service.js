@@ -800,11 +800,12 @@ module.exports = (srv) => {
     if (fullName) requester.name = fullName
 
     if (requester.email) {
-      if (!req.data.CREATED_BY) req.data.CREATED_BY = requester.email
-      if (!req.data.REQUESTER_ID) req.data.REQUESTER_ID = requester.email
-      if (!req.data.REQ_FOR_EMAIL) req.data.REQ_FOR_EMAIL = requester.email
+      req.data.CREATED_BY = requester.email
+      req.data.UPDATED_BY = requester.email
+      req.data.REQUESTER_ID = requester.email
+      req.data.REQ_FOR_EMAIL = requester.email
     }
-    if (requester.name && !req.data.REQ_FOR_NAME) {
+    if (requester.name) {
       req.data.REQ_FOR_NAME = requester.name
     }
 
