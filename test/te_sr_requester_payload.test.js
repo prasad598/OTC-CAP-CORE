@@ -77,6 +77,31 @@ describe('TE_SR requester payload handling', () => {
     assert.strictEqual(record.USER_LNAME, 'User')
   })
 
+  it('ignores SCIM user identifier when payload contains requester fields', async () => {
+    const req = {
+      data: {
+        DECISION: 'draft',
+        SRV_CAT_CD: 'REQEXM',
+        logged_user_email: 'payload.user@example.com',
+        logged_user_id: 'EMP1001',
+        logged_user_name: 'Payload User',
+        'user-scim-id': 'some-user-id',
+      },
+      user: { id: 'tester' },
+      warn: (msg) => {
+        throw new Error(`Unexpected warning: ${msg}`)
+      },
+    }
+
+    const tx = cds.transaction(req)
+    await srv._beforeCreate(req)
+    await tx.commit()
+
+    assert.strictEqual(scimCallCount, 0)
+    assert.strictEqual(req.data.CREATED_BY_EMPID, 'EMP1001')
+    assert.strictEqual(req.data.CREATED_BY_NAME, 'Payload User')
+  })
+
   it('binds logged user fields to TE_REPORT_VIEW audit columns', async () => {
     const req = {
       data: {
