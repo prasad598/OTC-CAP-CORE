@@ -760,38 +760,6 @@ module.exports = (srv) => {
       requester.employeeId = normalizedId || undefined
     }
 
-    const scimId = req.data['user-scim-id'] || req.data.user_scim_id
-    if (scimId && (!requester.email || !requester.employeeId || !requester.name)) {
-      try {
-        const jwt = retrieveJwt(req)
-        const { data } = await executeHttpRequest(
-          { destinationName: 'CIS_SCIM_API', jwt },
-          { method: 'GET', url: `/scim/Users/${scimId}` }
-        )
-        console.log('SCIM user data:', data)
-        const primaryEmail = (data.emails || []).find((e) => e.primary)?.value
-        if (primaryEmail && !requester.email) {
-          requester.email = primaryEmail
-        }
-        const enterprise =
-          data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
-        if (enterprise.employeeNumber && !requester.employeeId) {
-          requester.employeeId = enterprise.employeeNumber
-        }
-        const givenName = data.name?.givenName
-        const familyName = data.name?.familyName
-        if (!requester.name) {
-          requester.name =
-            data.displayName ||
-            [givenName, familyName].filter(Boolean).join(' ')
-        }
-        requester.firstName = givenName || requester.firstName
-        requester.lastName = familyName || requester.lastName
-      } catch (error) {
-        req.warn(`Failed to sync CORE_USERS: ${error.message}`)
-      }
-    }
-
     if (!requester.firstName || !requester.lastName) {
       const parts = parseNameParts(requester.name)
       if (!requester.firstName) requester.firstName = parts.first
