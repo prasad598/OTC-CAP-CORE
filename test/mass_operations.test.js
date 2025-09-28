@@ -45,6 +45,7 @@ describe('Mass create & delete', () => {
           USER_FNAME: 'A',
           USER_LNAME: 'A',
           IS_ACTIVE: 'Y',
+          ENTITY: 'Entity One',
           CREATED_BY: 'tester',
           UPDATED_BY: 'tester',
         },
@@ -54,6 +55,7 @@ describe('Mass create & delete', () => {
           USER_FNAME: 'B',
           USER_LNAME: 'B',
           IS_ACTIVE: 'Y',
+          ENTITY: 'Entity Two',
           CREATED_BY: 'tester',
           UPDATED_BY: 'tester',
         },
@@ -72,6 +74,10 @@ describe('Mass create & delete', () => {
     const emails = list.map((u) => u.USER_EMAIL);
     assert.ok(emails.includes('user1@example.com'));
     assert.ok(emails.includes('user2@example.com'));
+    const user1 = list.find((u) => u.USER_EMAIL === 'user1@example.com');
+    const user2 = list.find((u) => u.USER_EMAIL === 'user2@example.com');
+    assert.strictEqual(user1.ENTITY, 'Entity One');
+    assert.strictEqual(user2.ENTITY, 'Entity Two');
 
     res = await fetch(`${base}/massDeleteUsers`, {
       method: 'POST',
