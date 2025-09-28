@@ -804,6 +804,9 @@ module.exports = (srv) => {
           CREATED_BY: existing?.CREATED_BY || user || requester.email,
           UPDATED_BY: user || requester.email,
         })
+        console.log(
+          `CORE_USERS UPSERT payload: ${JSON.stringify({ action: 'UPSERT', entry })}`
+        )
         await tx.run(UPSERT.into(CORE_USERS).entries(entry))
       } catch (error) {
         req.warn(`Failed to sync CORE_USERS: ${error.message}`)
