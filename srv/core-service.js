@@ -753,9 +753,20 @@ module.exports = (srv) => {
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
-    const payload = req.data
-    const reqObj = JSON.parse(payload.req)
-    console.log('Requester:', reqObj.CREATED_BY_FNAME)
+    const payload = req.data || {}
+
+    // Parse "req" field if present
+    let reqObj = {}
+    try {
+      if (payload.req != null) {
+        reqObj = typeof payload.req === 'string' ? JSON.parse(payload.req) : payload.req
+      }
+    } catch (e) {
+      req.warn(`Failed to parse payload.req: ${e.message}`)
+      reqObj = {}
+    }
+
+    console.debug('Requester (fname):', reqObj.CREATED_BY_FNAME)
 
     const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
