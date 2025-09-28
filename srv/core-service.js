@@ -748,11 +748,12 @@ module.exports = (srv) => {
       )
 
     const requester = {
-      email: readPayload('logged_user_email'),
-      employeeId: readPayload('logged_user_id'),
-      name: readPayload('logged_user_name'),
-      firstName: undefined,
-      lastName: undefined,
+      email: readPayload('req.data.CREATED_BY'),
+      employeeId: readPayload('req.data.CREATED_BY_EMPID'),
+      name: undefined,
+      firstName: readPayload('req.data.CREATED_BY_FNAME'),
+      lastName: readPayload('req.data.CREATED_BY_LNAME'),
+      entity: readPayload('req.data.CREATED_BY_ENTITY')
     }
 
     if (requester.employeeId !== undefined && requester.employeeId !== null) {
