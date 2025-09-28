@@ -749,10 +749,12 @@ module.exports = (srv) => {
   }
 
   srv.before('CREATE', 'TE_SR', async (req) => {
-    const tx = cds.transaction(req)
-    const user = req.user && req.user.id
-    console.log('TE_SR CREATE payload:', JSON.stringify(req))
-    console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
+    const tx = cds.tx(req)
+    const user = req.user?.id
+    console.log(
+      'TE_SR CREATE req.data:',
+      JSON.stringify(req.data || {}, null, 2)
+    )
 
     const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
@@ -763,28 +765,27 @@ module.exports = (srv) => {
       }
     }
 
-    const rawBody = req._?.req?.body
-    let createdByFname = null
-    try {
-      if (rawBody) {
-        const outer = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody
-        const innerReq =
-          typeof outer.req === 'string' ? JSON.parse(outer.req) : outer.req
-        createdByFname = innerReq?.CREATED_BY_FNAME ?? null
+    let createdByFname = req.data?.CREATED_BY_FNAME ?? null
+
+    if (!createdByFname) {
+      try {
+        const raw = req._?.req?.body
+        if (raw) {
+          const outer = typeof raw === 'string' ? JSON.parse(raw) : raw
+          const innerReq =
+            typeof outer.req === 'string' ? JSON.parse(outer.req) : outer.req
+          createdByFname = innerReq?.CREATED_BY_FNAME ?? createdByFname
+        }
+      } catch (e) {
+        req.warn(`Failed to parse raw body for CREATED_BY_FNAME: ${e.message}`)
       }
-    } catch (e) {
-      req.warn(`Failed to parse raw request body: ${e.message}`)
     }
 
-    if (createdByFname == null) {
-      createdByFname = req.data?.CREATED_BY_FNAME ?? null
-    }
-
-    if (createdByFname != null) {
+    if (createdByFname) {
       req.data.CREATED_BY_FNAME = createdByFname
     }
 
-    console.debug('CREATED_BY_FNAME:', createdByFname)
+    console.log('CREATED_BY_FNAME:', createdByFname ?? '(not provided)')
 
     const sanitize = (entry) =>
       Object.fromEntries(
@@ -793,7 +794,6 @@ module.exports = (srv) => {
 
     const {
       CREATED_BY,
-      CREATED_BY_FNAME,
       CREATED_BY_LNAME,
       CREATED_BY_EMPID,
       CREATED_BY_ENTITY
@@ -811,16 +811,14 @@ module.exports = (srv) => {
           USER_EMAIL: CREATED_BY,
           language: 'EN',
           USER_ID: CREATED_BY_EMPID,
-          USER_FNAME: CREATED_BY_FNAME,
+          USER_FNAME: createdByFname,
           USER_LNAME: CREATED_BY_LNAME,
           ENTITY: CREATED_BY_ENTITY,
           IS_ACTIVE: 'Y',
           CREATED_BY: existing?.CREATED_BY || user || CREATED_BY,
           UPDATED_BY: user || CREATED_BY,
         })
-        console.log(
-          `CORE_USERS UPSERT payload: ${JSON.stringify({ action: 'UPSERT', entry })}`
-        )
+        console.log('CORE_USERS UPSERT entry:', JSON.stringify(entry))
         await tx.run(UPSERT.into(CORE_USERS).entries(entry))
       } catch (error) {
         req.warn(`Failed to sync CORE_USERS: ${error.message}`)
