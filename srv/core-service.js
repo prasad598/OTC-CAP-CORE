@@ -756,9 +756,33 @@ module.exports = (srv) => {
       entity: readPayload('CREATED_BY_ENTITY')
     }
 
+    if (!requester.email) {
+      requester.email =
+        req.data?.logged_user_email ??
+        req.data?.loggedUserEmail ??
+        req.data?.loggedUser?.email
+    }
+    if (!requester.employeeId) {
+      requester.employeeId =
+        req.data?.logged_user_id ??
+        req.data?.loggedUserId ??
+        req.data?.loggedUser?.id
+    }
+    if (!requester.name) {
+      requester.name =
+        req.data?.logged_user_name ??
+        req.data?.loggedUserName ??
+        req.data?.loggedUser?.name
+    }
+
     if (requester.employeeId !== undefined && requester.employeeId !== null) {
       const normalizedId = String(requester.employeeId).trim()
       requester.employeeId = normalizedId || undefined
+    }
+
+    if (requester.entity !== undefined && requester.entity !== null) {
+      const normalizedEntity = String(requester.entity).trim()
+      requester.entity = normalizedEntity || undefined
     }
 
     if (!requester.firstName || !requester.lastName) {
@@ -782,9 +806,18 @@ module.exports = (srv) => {
     if (requester.employeeId) {
       req.data.CREATED_BY_EMPID = requester.employeeId
     }
+    if (requester.firstName) {
+      req.data.CREATED_BY_FNAME = requester.firstName
+    }
+    if (requester.lastName) {
+      req.data.CREATED_BY_LNAME = requester.lastName
+    }
     if (requester.name) {
       req.data.REQ_FOR_NAME = requester.name
       req.data.CREATED_BY_NAME = requester.name
+    }
+    if (requester.entity) {
+      req.data.CREATED_BY_ENTITY = requester.entity
     }
 
     if (requester.email) {
@@ -801,6 +834,7 @@ module.exports = (srv) => {
           USER_ID: requester.employeeId,
           USER_FNAME: requester.firstName || requester.name,
           USER_LNAME: requester.lastName,
+          ENTITY: requester.entity,
           IS_ACTIVE: 'Y',
           CREATED_BY: existing?.CREATED_BY || user || requester.email,
           UPDATED_BY: user || requester.email,

@@ -152,6 +152,13 @@ entity TE_SR : Auditable {
   @cds.persistence.skip
   virtual logged_user_name  : commonTypes.shortText;
 
+  @cds.persistence.skip
+  virtual CREATED_BY_FNAME  : commonTypes.fName;
+  @cds.persistence.skip
+  virtual CREATED_BY_LNAME  : commonTypes.fName;
+  @cds.persistence.skip
+  virtual CREATED_BY_ENTITY : commonTypes.entity;
+
   PROCESSOR            : commonTypes.emailId;
 
   REQUESTER_ID         : commonTypes.emailId;
