@@ -18,6 +18,12 @@ const { normalizeVariant } = require('./utils/variant')
 const { calculateSLA } = require('./utils/sla')
 const handleError = require('./utils/error')
 
+const VIRTUAL_REQUESTER_FIELDS = [
+  'CREATED_BY_FNAME',
+  'CREATED_BY_LNAME',
+  'CREATED_BY_ENTITY',
+]
+
 const registeredCommentHooks = new WeakSet()
 const enrichCommentRows = async (input) => {
   const rows = Array.isArray(input) ? input : [input]
@@ -728,6 +734,20 @@ module.exports = (srv) => {
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
+
+    const rawPayloadSources = [
+      req?.req?.body,
+      req?._?.req?.body,
+      req?._?.data,
+    ]
+    for (const source of rawPayloadSources) {
+      if (!source || typeof source !== 'object') continue
+      for (const field of VIRTUAL_REQUESTER_FIELDS) {
+        if (req.data[field] === undefined && field in source) {
+          req.data[field] = source[field]
+        }
+      }
+    }
 
     const sanitize = (entry) =>
       Object.fromEntries(

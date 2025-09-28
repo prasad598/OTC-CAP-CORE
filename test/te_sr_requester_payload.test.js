@@ -115,6 +115,48 @@ describe('TE_SR requester payload handling', () => {
     assert.strictEqual(record.ENTITY, 'ENTITY01')
   })
 
+  it('uses virtual requester fields from raw payload when missing in req.data', async () => {
+    const req = {
+      data: {
+        DECISION: 'draft',
+        SRV_CAT_CD: 'REQEXM',
+        CREATED_BY: 'virtual.user@example.com',
+        CREATED_BY_EMPID: 'EMP3003',
+      },
+      req: {
+        body: {
+          CREATED_BY_FNAME: 'Virtual',
+          CREATED_BY_LNAME: 'User',
+          CREATED_BY_ENTITY: 'ENTITY02',
+        },
+      },
+      user: { id: 'tester' },
+      warn: (msg) => {
+        throw new Error(`Unexpected warning: ${msg}`)
+      },
+    }
+
+    const tx = cds.transaction(req)
+    await srv._beforeCreate(req)
+    await tx.commit()
+
+    assert.strictEqual(req.data.CREATED_BY, 'virtual.user@example.com')
+    assert.strictEqual(req.data.CREATED_BY_EMPID, 'EMP3003')
+    assert.strictEqual(req.data.CREATED_BY_FNAME, 'Virtual')
+    assert.strictEqual(req.data.CREATED_BY_LNAME, 'User')
+    assert.strictEqual(req.data.CREATED_BY_ENTITY, 'ENTITY02')
+
+    const record = await SELECT.one
+      .from('BTP.CORE_USERS')
+      .where({ USER_EMAIL: 'virtual.user@example.com', language: 'EN' })
+
+    assert.ok(record)
+    assert.strictEqual(record.USER_ID, 'EMP3003')
+    assert.strictEqual(record.USER_FNAME, 'Virtual')
+    assert.strictEqual(record.USER_LNAME, 'User')
+    assert.strictEqual(record.ENTITY, 'ENTITY02')
+  })
+
   it('ignores SCIM user identifier when payload contains requester fields', async () => {
     const req = {
       data: {
