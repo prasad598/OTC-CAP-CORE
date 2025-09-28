@@ -49,6 +49,7 @@ entity CORE_USERS : Auditable {
   USER_FNAME     : commonTypes.fName;
   USER_LNAME     : commonTypes.fName;
   IS_ACTIVE      : commonTypes.booleanYN;
+  ENTITY         : commonTypes.entity;
   DBAGBA         : commonTypes.field50;
 }
 
