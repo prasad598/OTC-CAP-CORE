@@ -727,117 +727,37 @@ module.exports = (srv) => {
     const tx = cds.transaction(req)
     const user = req.user && req.user.id
 
-    const readPayload = (field) => {
-      if (!req.data) return undefined
-      if (req.data[field] !== undefined) return req.data[field]
-      const camel = field.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-      return req.data[camel]
-    }
-
-    const parseNameParts = (value) => {
-      if (!value || typeof value !== 'string') return {}
-      const trimmed = value.trim()
-      if (!trimmed) return {}
-      const [first, ...rest] = trimmed.split(/\s+/)
-      return { first, last: rest.length ? rest.join(' ') : undefined }
-    }
-
     const sanitize = (entry) =>
       Object.fromEntries(
         Object.entries(entry).filter(([, value]) => value !== undefined && value !== null)
       )
 
-    const requester = {
-      email: readPayload('CREATED_BY'),
-      employeeId: readPayload('CREATED_BY_EMPID'),
-      name: undefined,
-      firstName: readPayload('CREATED_BY_FNAME'),
-      lastName: readPayload('CREATED_BY_LNAME'),
-      entity: readPayload('CREATED_BY_ENTITY')
-    }
+    const {
+      CREATED_BY,
+      CREATED_BY_FNAME,
+      CREATED_BY_LNAME,
+      CREATED_BY_EMPID,
+      CREATED_BY_ENTITY
+    } = req.data || {}
 
-    if (!requester.email) {
-      requester.email =
-        req.data?.logged_user_email ??
-        req.data?.loggedUserEmail ??
-        req.data?.loggedUser?.email
-    }
-    if (!requester.employeeId) {
-      requester.employeeId =
-        req.data?.logged_user_id ??
-        req.data?.loggedUserId ??
-        req.data?.loggedUser?.id
-    }
-    if (!requester.name) {
-      requester.name =
-        req.data?.logged_user_name ??
-        req.data?.loggedUserName ??
-        req.data?.loggedUser?.name
-    }
-
-    if (requester.employeeId !== undefined && requester.employeeId !== null) {
-      const normalizedId = String(requester.employeeId).trim()
-      requester.employeeId = normalizedId || undefined
-    }
-
-    if (requester.entity !== undefined && requester.entity !== null) {
-      const normalizedEntity = String(requester.entity).trim()
-      requester.entity = normalizedEntity || undefined
-    }
-
-    if (!requester.firstName || !requester.lastName) {
-      const parts = parseNameParts(requester.name)
-      if (!requester.firstName) requester.firstName = parts.first
-      if (!requester.lastName) requester.lastName = parts.last
-    }
-
-    const fullName =
-      (typeof requester.name === 'string' ? requester.name.trim() : '') ||
-      [requester.firstName, requester.lastName].filter(Boolean).join(' ').trim()
-
-    if (fullName) requester.name = fullName
-
-    if (requester.email) {
-      req.data.CREATED_BY = requester.email
-      req.data.UPDATED_BY = requester.email
-      req.data.REQUESTER_ID = requester.email
-      req.data.REQ_FOR_EMAIL = requester.email
-    }
-    if (requester.employeeId) {
-      req.data.CREATED_BY_EMPID = requester.employeeId
-    }
-    if (requester.firstName) {
-      req.data.CREATED_BY_FNAME = requester.firstName
-    }
-    if (requester.lastName) {
-      req.data.CREATED_BY_LNAME = requester.lastName
-    }
-    if (requester.name) {
-      req.data.REQ_FOR_NAME = requester.name
-      req.data.CREATED_BY_NAME = requester.name
-    }
-    if (requester.entity) {
-      req.data.CREATED_BY_ENTITY = requester.entity
-    }
-
-    if (requester.email) {
+    if (CREATED_BY) {
       try {
         const existing = await tx.run(
           SELECT.one.from(CORE_USERS).where({
-            USER_EMAIL: requester.email,
+            USER_EMAIL: CREATED_BY,
             language: 'EN',
           })
         )
         const entry = sanitize({
-          USER_EMAIL: requester.email,
+          USER_EMAIL: CREATED_BY,
           language: 'EN',
-          USER_ID: requester.employeeId,
-          USER_FNAME: requester.firstName || requester.name,
-          USER_LNAME: requester.lastName,
-          ENTITY: requester.entity,
+          USER_ID: CREATED_BY_EMPID,
+          USER_FNAME: CREATED_BY_FNAME,
+          USER_LNAME: CREATED_BY_LNAME,
+          ENTITY: CREATED_BY_ENTITY,
           IS_ACTIVE: 'Y',
-          CREATED_BY: existing?.CREATED_BY || user || requester.email,
-          UPDATED_BY: user || requester.email,
+          CREATED_BY: existing?.CREATED_BY || user || CREATED_BY,
+          UPDATED_BY: user || CREATED_BY,
         })
         console.log(
           `CORE_USERS UPSERT payload: ${JSON.stringify({ action: 'UPSERT', entry })}`
