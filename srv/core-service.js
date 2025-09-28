@@ -753,15 +753,9 @@ module.exports = (srv) => {
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
-    const payload = req.data || {}
-    let reqObj
-    try {
-      reqObj =
-        typeof payload.req === 'string' ? payload.req : JSON.stringify(payload.req)
-    } catch (error) {
-      reqObj = `Error stringifying req payload: ${error.message}`
-    }
-    console.log(`PRASAD-123 ${reqObj}`)
+    const payload = req.data
+    const reqObj = JSON.parse(payload.req)
+    console.log('Requester:', reqObj.CREATED_BY_FNAME)
 
     const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
