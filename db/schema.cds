@@ -146,13 +146,6 @@ entity TE_SR : Auditable {
 
   virtual user_scim_id : String @cds.odata.name:'user-scim-id';
   @cds.persistence.skip
-  virtual logged_user_id    : commonTypes.id;
-  @cds.persistence.skip
-  virtual logged_user_email : commonTypes.emailId;
-  @cds.persistence.skip
-  virtual logged_user_name  : commonTypes.shortText;
-
-  @cds.persistence.skip
   virtual CREATED_BY_FNAME  : commonTypes.fName;
   @cds.persistence.skip
   virtual CREATED_BY_LNAME  : commonTypes.fName;
