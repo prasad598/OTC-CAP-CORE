@@ -727,6 +727,7 @@ module.exports = (srv) => {
     const tx = cds.transaction(req)
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
+    console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
 
     const sanitize = (entry) =>
       Object.fromEntries(
