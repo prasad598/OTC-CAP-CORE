@@ -754,6 +754,15 @@ module.exports = (srv) => {
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
 
+    const rawPayloadSources = extractRawPayloadSources(req)
+    for (const source of rawPayloadSources) {
+      for (const field of VIRTUAL_REQUESTER_FIELDS) {
+        if (req.data[field] === undefined && field in source) {
+          req.data[field] = source[field]
+        }
+      }
+    }
+
     const rawBody = req._?.req?.body
     let createdByFname = null
     try {
@@ -767,24 +776,15 @@ module.exports = (srv) => {
       req.warn(`Failed to parse raw request body: ${e.message}`)
     }
 
-    if (!createdByFname) {
+    if (createdByFname == null) {
       createdByFname = req.data?.CREATED_BY_FNAME ?? null
     }
 
-    console.debug('CREATED_BY_FNAME:', createdByFname)
-
-    if (createdByFname != null && req.data.CREATED_BY_FNAME === undefined) {
+    if (createdByFname != null) {
       req.data.CREATED_BY_FNAME = createdByFname
     }
 
-    const rawPayloadSources = extractRawPayloadSources(req)
-    for (const source of rawPayloadSources) {
-      for (const field of VIRTUAL_REQUESTER_FIELDS) {
-        if (req.data[field] === undefined && field in source) {
-          req.data[field] = source[field]
-        }
-      }
-    }
+    console.debug('CREATED_BY_FNAME:', createdByFname)
 
     const sanitize = (entry) =>
       Object.fromEntries(
