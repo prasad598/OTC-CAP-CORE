@@ -753,6 +753,9 @@ module.exports = (srv) => {
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
+    const payload = req.data
+    const reqObj = JSON.parse(payload.req)
+    console.log('Requester:', reqObj.REQUESTER_ID)
 
     const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
