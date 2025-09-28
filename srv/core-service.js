@@ -25,6 +25,25 @@ const VIRTUAL_REQUESTER_FIELDS = [
 ]
 
 const registeredCommentHooks = new WeakSet()
+const extractRawPayloadSources = (req) => {
+  const sources = []
+  const add = (value) => {
+    if (!value || typeof value !== 'object') return
+    if (sources.includes(value)) return
+    sources.push(value)
+    if (value.d && typeof value.d === 'object') {
+      add(value.d)
+    }
+  }
+
+  add(req?.data)
+  add(req?.req?.body)
+  add(req?._?.req?.body)
+  add(req?._?.data)
+  add(req?.context?.http?.req?.body)
+  return sources
+}
+
 const enrichCommentRows = async (input) => {
   const rows = Array.isArray(input) ? input : [input]
   for (const row of rows) {
@@ -735,13 +754,8 @@ module.exports = (srv) => {
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
 
-    const rawPayloadSources = [
-      req?.req?.body,
-      req?._?.req?.body,
-      req?._?.data,
-    ]
+    const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
-      if (!source || typeof source !== 'object') continue
       for (const field of VIRTUAL_REQUESTER_FIELDS) {
         if (req.data[field] === undefined && field in source) {
           req.data[field] = source[field]
