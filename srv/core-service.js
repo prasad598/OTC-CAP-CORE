@@ -777,6 +777,9 @@ module.exports = (srv) => {
       }
     }
 
+    const fname = req.data?.CREATED_BY_FNAME ?? null
+    console.debug('CREATED_BY_FNAME (from req.data):', fname)
+
     const sanitize = (entry) =>
       Object.fromEntries(
         Object.entries(entry).filter(([, value]) => value !== undefined && value !== null)
