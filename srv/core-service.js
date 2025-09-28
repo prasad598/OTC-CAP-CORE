@@ -753,20 +753,29 @@ module.exports = (srv) => {
     const user = req.user && req.user.id
     console.log('TE_SR CREATE payload:', JSON.stringify(req))
     console.log('TE_SR CREATE REQ payload:', JSON.stringify(req.data))
-    const payload = req.data || {}
 
-    // Parse "req" field if present
-    let reqObj = {}
+    const rawBody = req._?.req?.body
+    let createdByFname = null
     try {
-      if (payload.req != null) {
-        reqObj = typeof payload.req === 'string' ? JSON.parse(payload.req) : payload.req
+      if (rawBody) {
+        const outer = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody
+        const innerReq =
+          typeof outer.req === 'string' ? JSON.parse(outer.req) : outer.req
+        createdByFname = innerReq?.CREATED_BY_FNAME ?? null
       }
     } catch (e) {
-      req.warn(`Failed to parse payload.req: ${e.message}`)
-      reqObj = {}
+      req.warn(`Failed to parse raw request body: ${e.message}`)
     }
 
-    console.debug('Requester (fname):', reqObj.CREATED_BY_FNAME)
+    if (!createdByFname) {
+      createdByFname = req.data?.CREATED_BY_FNAME ?? null
+    }
+
+    console.debug('CREATED_BY_FNAME:', createdByFname)
+
+    if (createdByFname != null && req.data.CREATED_BY_FNAME === undefined) {
+      req.data.CREATED_BY_FNAME = createdByFname
+    }
 
     const rawPayloadSources = extractRawPayloadSources(req)
     for (const source of rawPayloadSources) {
@@ -776,9 +785,6 @@ module.exports = (srv) => {
         }
       }
     }
-
-    const fname = req.data?.CREATED_BY_FNAME ?? null
-    console.debug('CREATED_BY_FNAME (from req.data):', fname)
 
     const sanitize = (entry) =>
       Object.fromEntries(
