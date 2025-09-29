@@ -17,6 +17,10 @@ const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { normalizeVariant } = require('./utils/variant')
 const { calculateSLA } = require('./utils/sla')
 const handleError = require('./utils/error')
+const {
+  TIMESTAMP_FIELDS,
+  applyTimeZoneToResults,
+} = require('./utils/timezone')
 
 const VIRTUAL_REQUESTER_FIELDS = [
   'CREATED_BY_FNAME',
@@ -38,10 +42,26 @@ const extractRawPayloadSources = (req) => {
 
   add(req?.data)
   add(req?.req?.body)
+  add(req?.req?.query)
   add(req?._?.req?.body)
   add(req?._?.data)
   add(req?.context?.http?.req?.body)
   return sources
+}
+
+const extractRequestedTimeZone = (req) => {
+  const sources = extractRawPayloadSources(req)
+  for (const source of sources) {
+    const value =
+      source.TIMEZONE ??
+      source.timezone ??
+      source.timeZone ??
+      (typeof source.get === 'function' ? source.get('TIMEZONE') : undefined)
+    if (value !== undefined && value !== null && value !== '') {
+      return value
+    }
+  }
+  return undefined
 }
 
 const enrichCommentRows = async (input) => {
@@ -1180,6 +1200,12 @@ module.exports = (srv) => {
     //   'TE_REPORT_VIEW query before execution:',
     //   JSON.stringify(req.query, null, 2)
     // )
+  })
+
+  srv.after('READ', 'TE_REPORT_VIEW', async (results, req) => {
+    if (results == null) return
+    const requestedTimeZone = extractRequestedTimeZone(req)
+    applyTimeZoneToResults(results, TIMESTAMP_FIELDS, requestedTimeZone)
   })
 
   srv.after('READ', 'TE_SR', async (results, req) => {
