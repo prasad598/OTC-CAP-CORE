@@ -32,5 +32,11 @@ describe('timezone utilities', () => {
     applyTimeZoneToResults(record, TIMESTAMP_FIELDS)
     assert.match(record.CREATED_DATETIME, /\+08:00$/)
   })
+
+  it('does not convert EC_DATE values', () => {
+    const record = { EC_DATE: '2024-01-01' }
+    applyTimeZoneToResults(record, TIMESTAMP_FIELDS, 'UTC')
+    assert.strictEqual(record.EC_DATE, '2024-01-01')
+  })
 })
 
