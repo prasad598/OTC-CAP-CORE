@@ -849,19 +849,16 @@ module.exports = (srv) => {
     if (!req.data.UPDATED_DATETIME) req.data.UPDATED_DATETIME = now
     const tx = cds.transaction(req)
       try {
-        const { REQUEST_ID, DRAFT_ID, CREATED_BY_EMPID, CREATED_BY_NAME } = await tx.run(
+        const { REQUEST_ID, DRAFT_ID, CREATED_BY_EMPID } = await tx.run(
           SELECT.one
             .from(TE_SR)
-            .columns('REQUEST_ID', 'DRAFT_ID', 'CREATED_BY_EMPID', 'CREATED_BY_NAME')
+            .columns('REQUEST_ID', 'DRAFT_ID', 'CREATED_BY_EMPID')
             .where({ REQ_TXN_ID })
         )
       req.data.REQUEST_ID = req.data.REQUEST_ID || REQUEST_ID
       req.data.DRAFT_ID = DRAFT_ID
       if (req.data.CREATED_BY_EMPID === undefined && CREATED_BY_EMPID !== undefined) {
         req.data.CREATED_BY_EMPID = CREATED_BY_EMPID
-      }
-      if (req.data.CREATED_BY_NAME === undefined && CREATED_BY_NAME !== undefined) {
-        req.data.CREATED_BY_NAME = CREATED_BY_NAME
       }
       if (req.data.DECISION) {
         const decisionUpper = req.data.DECISION.toUpperCase()

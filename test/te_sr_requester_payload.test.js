@@ -65,7 +65,6 @@ describe('TE_SR requester payload handling', () => {
     assert.strictEqual(req.data.REQ_FOR_EMAIL, 'payload.user@example.com')
     assert.strictEqual(req.data.REQ_FOR_NAME, 'Payload User')
     assert.strictEqual(req.data.CREATED_BY_EMPID, 'EMP1001')
-    assert.strictEqual(req.data.CREATED_BY_NAME, 'Payload User')
 
     const record = await SELECT.one
       .from('BTP.CORE_USERS')
@@ -179,7 +178,6 @@ describe('TE_SR requester payload handling', () => {
 
     assert.strictEqual(scimCallCount, 0)
     assert.strictEqual(req.data.CREATED_BY_EMPID, 'EMP1001')
-    assert.strictEqual(req.data.CREATED_BY_NAME, 'Payload User')
   })
 
   it('binds logged user fields to TE_REPORT_VIEW audit columns', async () => {
@@ -221,7 +219,6 @@ describe('TE_SR requester payload handling', () => {
     assert.ok(result)
     assert.strictEqual(result.CREATED_BY, 'payload.user@example.com')
     assert.strictEqual(result.CREATED_BY_EMPID, 'EMP1001')
-    assert.strictEqual(result.CREATED_BY_NAME, 'Payload User')
 
     const persistedRecord = await SELECT.one
       .from('BTP.TE_SR')
@@ -229,6 +226,5 @@ describe('TE_SR requester payload handling', () => {
 
     assert.ok(persistedRecord)
     assert.strictEqual(persistedRecord.CREATED_BY_EMPID, 'EMP1001')
-    assert.strictEqual(persistedRecord.CREATED_BY_NAME, 'Payload User')
   })
 })
