@@ -10,13 +10,12 @@
   { "INDEX": 9, "COLUMN_ID": "CREATED_DATETIME", "COLUMN_NAME": "Creation Date" },
   { "INDEX": 10, "COLUMN_ID": "CREATED_BY_EMPID", "COLUMN_NAME": "Raised By" },
   { "INDEX": 11, "COLUMN_ID": "CREATED_BY", "COLUMN_NAME": "Raised By Email" },
-  { "INDEX": 12, "COLUMN_ID": "CREATED_BY_NAME", "COLUMN_NAME": "Raised By Name" },
-  { "INDEX": 13, "COLUMN_ID": "SR_PROCESSOR_ID", "COLUMN_NAME": "Processor" },
-  { "INDEX": 14, "COLUMN_ID": "SR_PROCESSOR", "COLUMN_NAME": "Processor Email" },
-  { "INDEX": 15, "COLUMN_ID": "SR_PROCESSOR_NAME", "COLUMN_NAME": "Processor Name" },
-  { "INDEX": 16, "COLUMN_ID": "EC_DATE", "COLUMN_NAME": "Due Completion Date" },
-  { "INDEX": 17, "COLUMN_ID": "ESCALATED_DATETIME", "COLUMN_NAME": "Escalated Date" },
-  { "INDEX": 18, "COLUMN_ID": "IS_CLAR_REQ_DATETIME", "COLUMN_NAME": "Clarification Required Date" },
-  { "INDEX": 19, "COLUMN_ID": "RESOLVED_DATETIME", "COLUMN_NAME": "Resolved Date" },
-  { "INDEX": 20, "COLUMN_ID": "CLOSED_DATETIME", "COLUMN_NAME": "Closed Date" }
+  { "INDEX": 12, "COLUMN_ID": "SR_PROCESSOR_ID", "COLUMN_NAME": "Processor" },
+  { "INDEX": 13, "COLUMN_ID": "SR_PROCESSOR", "COLUMN_NAME": "Processor Email" },
+  { "INDEX": 14, "COLUMN_ID": "SR_PROCESSOR_NAME", "COLUMN_NAME": "Processor Name" },
+  { "INDEX": 15, "COLUMN_ID": "EC_DATE", "COLUMN_NAME": "Due Completion Date" },
+  { "INDEX": 16, "COLUMN_ID": "ESCALATED_DATETIME", "COLUMN_NAME": "Escalated Date" },
+  { "INDEX": 17, "COLUMN_ID": "IS_CLAR_REQ_DATETIME", "COLUMN_NAME": "Clarification Required Date" },
+  { "INDEX": 18, "COLUMN_ID": "RESOLVED_DATETIME", "COLUMN_NAME": "Resolved Date" },
+  { "INDEX": 19, "COLUMN_ID": "CLOSED_DATETIME", "COLUMN_NAME": "Closed Date" }
 ]

@@ -137,7 +137,6 @@ service ReportService {
 
     sr.CREATED_BY       as CREATED_BY,
     coalesce(sr.CREATED_BY_EMPID, user.USER_ID) as CREATED_BY_EMPID : commonTypes.id,
-    coalesce(sr.CREATED_BY_NAME, concat(user.USER_FNAME, ' ', user.USER_LNAME)) as CREATED_BY_NAME : String,
 
     sr.PROCESSOR        as SR_PROCESSOR,
     processor.USER_ID   as SR_PROCESSOR_ID,
