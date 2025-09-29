@@ -761,6 +761,7 @@ module.exports = (srv) => {
     )
 
     const rawPayloadSources = extractRawPayloadSources(req)
+    console.log('rawPayloadSources:', rawPayloadSources)
     for (const source of rawPayloadSources) {
       for (const field of VIRTUAL_REQUESTER_FIELDS) {
         if (req.data[field] === undefined && field in source) {
