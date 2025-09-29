@@ -1056,9 +1056,10 @@ module.exports = (srv) => {
           (req.user.email ||
             (req.user.attr && (req.user.attr.email || req.user.attr.mail)))) ||
         (req.user && req.user.id)
+      // For now work around solution in the place of "scimId" caller will fill email id
       const scimUrl = loggedInUserEmail
         ? `/scim/Users?filter=${encodeURIComponent(
-            `emails.value eq "${loggedInUserEmail}"`
+            `emails.value eq "${scimId}"`
           )}`
         : `/scim/Users/${scimId}`
       const { data } = await executeHttpRequest(
