@@ -1035,7 +1035,7 @@ module.exports = (srv) => {
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
-    console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
+    console.log('TE_REPORT_VIEW user data:', JSON.stringify(req.user, null, 2))
     const scimId =
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
