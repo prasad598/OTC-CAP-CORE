@@ -88,7 +88,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     const result = await SELECT.one.from(TE_REPORT_VIEW).where({ REQ_TXN_ID: id })
     assert.ok(result)
     assert.strictEqual(new Date(result.UPDATED_DATETIME).toISOString(), '2024-01-06T00:00:00.000Z')
-    assert.strictEqual(new Date(result.EC_DATE).toISOString(), '2024-01-01T00:00:00.000Z')
+    assert.strictEqual(result.EC_DATE, '2024-01-01')
     assert.strictEqual(new Date(result.IS_CLAR_REQ_DATETIME).toISOString(), '2024-01-02T00:00:00.000Z')
     assert.strictEqual(new Date(result.ESCALATED_DATETIME).toISOString(), '2024-01-03T00:00:00.000Z')
     assert.strictEqual(new Date(result.RESOLVED_DATETIME).toISOString(), '2024-01-04T00:00:00.000Z')
