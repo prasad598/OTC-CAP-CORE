@@ -136,6 +136,7 @@ service ReportService {
     entity.FIELD3       as DBAGBA,
 
     sr.CREATED_BY       as CREATED_BY,
+    concat(user.USER_FNAME, ' ', user.USER_LNAME) as CREATED_BY_NAME : String,
     coalesce(sr.CREATED_BY_EMPID, user.USER_ID) as CREATED_BY_EMPID : commonTypes.id,
 
     sr.PROCESSOR        as SR_PROCESSOR,

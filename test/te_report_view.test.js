@@ -101,6 +101,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
     assert.strictEqual(result.ENTITY_CD, 'ENT1')
     assert.strictEqual(result.DBAGBA, 'D999')
     assert.strictEqual(result.CREATED_BY, 'u1@example.com')
+    assert.strictEqual(result.CREATED_BY_NAME, 'Test User')
     assert.strictEqual(result.CREATED_BY_EMPID, 'EMP777')
     assert.strictEqual(result.SR_PROCESSOR, 'p1@example.com')
     assert.strictEqual(result.SR_PROCESSOR_ID, '200')
