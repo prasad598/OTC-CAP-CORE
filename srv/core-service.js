@@ -756,6 +756,10 @@ module.exports = (srv) => {
       JSON.stringify(req)
     )
     console.log(
+      'TE_SR CREATE req.req:',
+      JSON.stringify(req?.data?.req ?? null, null, 2)
+    )
+    console.log(
       'TE_SR CREATE req.data:',
       JSON.stringify(req.data || {}, null, 2)
     )
