@@ -145,18 +145,14 @@ entity TE_SR : Auditable {
   DECISION             : commonTypes.decision @cds.persistence.skip;
 
   virtual user_scim_id : String @cds.odata.name:'user-scim-id';
-  @cds.persistence.skip
-  virtual CREATED_BY_FNAME  : commonTypes.fName;
-  @cds.persistence.skip
-  virtual CREATED_BY_LNAME  : commonTypes.fName;
-  @cds.persistence.skip
-  virtual CREATED_BY_ENTITY : commonTypes.entity;
+  CREATED_BY_FNAME  : commonTypes.fName;
+  CREATED_BY_LNAME  : commonTypes.fName;
+  CREATED_BY_ENTITY : commonTypes.entity;
 
   PROCESSOR            : commonTypes.emailId;
 
   REQUESTER_ID         : commonTypes.emailId;
   CREATED_BY_EMPID     : commonTypes.id;
-  CREATED_BY_NAME      : commonTypes.shortText;
   SRV_CAT_CD           : commonTypes.lookupCode;
   SR_DETAILS           : commonTypes.shortText;
   CASE_REQ_ID          : String(14);
