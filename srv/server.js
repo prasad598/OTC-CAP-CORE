@@ -5,6 +5,11 @@ const { retrieveJwt } = require('@sap-cloud-sdk/connectivity')
 const { json } = require('express')
 const { sendEmail } = require('./utils/mail')
 const reportColumns = require('./utils/reportColumns.json')
+const {
+  TIMESTAMP_FIELDS,
+  applyTimeZoneToResults,
+  normalizeTimeZone,
+} = require('./utils/timezone')
 const mapError = require('./error-mapper')
 
 cds.on('bootstrap', (app) => {
@@ -52,6 +57,8 @@ cds.on('bootstrap', (app) => {
         return
       }
 
+      const payload = req.body || {}
+
       const {
         TO_EMAILS,
         CC_EMAILS,
@@ -73,7 +80,10 @@ cds.on('bootstrap', (app) => {
         ESCALATED_DATETIME,
         RESOLVED_DATETIME,
         CLOSED_DATETIME,
-      } = req.body || {}
+        TIMEZONE,
+      } = payload
+
+      const resolvedTimeZone = normalizeTimeZone(TIMEZONE || payload.timezone)
 
       const { TE_REPORT_VIEW } = cds.entities('ReportService')
       const columnIds = reportColumns.map((c) => c.COLUMN_ID)
@@ -119,6 +129,7 @@ cds.on('bootstrap', (app) => {
       }
 
       const data = await cds.run(query)
+      applyTimeZoneToResults(data, TIMESTAMP_FIELDS, resolvedTimeZone)
 
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Report')
@@ -141,7 +152,7 @@ cds.on('bootstrap', (app) => {
 
       const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, '')
       const fileName = `BTP_CASE_MANAGEMENT_TOOL_REPORT_${timestamp}.xlsx`
-      const body =
+      const emailBody =
         'Dear Travel and Expenses Reso Team,\n\n' +
         'Please find attached the latest BTP Case Management report for your reference. This report provides an overview of the current case status and progress for your review.\n\n' +
         'Thank you.\n\n' +
@@ -151,14 +162,14 @@ cds.on('bootstrap', (app) => {
 
       console.log(
         '[sendReport] Request payload:',
-        JSON.stringify({ params: req.body || {}, to, cc })
+        JSON.stringify({ params: req.body || {}, to, cc, timeZone: resolvedTimeZone })
       )
 
       const mailResponse = await sendEmail(
         'BTP Case Management Report',
         to,
         cc,
-        body,
+        emailBody,
         [{ fileName, content: buffer.toString('base64') }]
       )
 
