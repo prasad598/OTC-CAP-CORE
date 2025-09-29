@@ -1035,7 +1035,7 @@ module.exports = (srv) => {
   })
 
   srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
-    // console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
+    console.log('TE_REPORT_VIEW input parameters:', JSON.stringify(req.data, null, 2))
     const scimId =
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
@@ -1051,16 +1051,32 @@ module.exports = (srv) => {
     let email
     try {
       const jwt = retrieveJwt(req)
+      const loggedInUserEmail =
+        (req.user &&
+          (req.user.email ||
+            (req.user.attr && (req.user.attr.email || req.user.attr.mail)))) ||
+        (req.user && req.user.id)
+      const scimUrl = loggedInUserEmail
+        ? `/scim/Users?filter=${encodeURIComponent(
+            `emails.value eq "${loggedInUserEmail}"`
+          )}`
+        : `/scim/Users/${scimId}`
       const { data } = await executeHttpRequest(
         { destinationName: 'CIS_SCIM_API', jwt },
-        { method: 'GET', url: `/scim/Users/${scimId}` }
+        { method: 'GET', url: scimUrl }
       )
       console.log('SCIM user data:', data)
-      const rawGroups = (data && data.groups) || []
+      const userData = Array.isArray(data?.Resources)
+        ? data.Resources[0]
+        : Array.isArray(data?.resources)
+        ? data.resources[0]
+        : data
+      const rawGroups = (userData && userData.groups) || []
       groups = rawGroups
         .map((g) => (typeof g === 'string' ? g : g.display || g.value))
         .filter((g) => g && g.startsWith('STE_TE_'))
-      email = (data.emails || []).find((e) => e.primary)?.value
+      email =
+        (userData?.emails || []).find((e) => e.primary)?.value || loggedInUserEmail
       // console.log('TE_REPORT_VIEW groups:', groups)
       // console.log('TE_REPORT_VIEW email:', email)
     } catch (error) {
