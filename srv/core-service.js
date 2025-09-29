@@ -752,6 +752,10 @@ module.exports = (srv) => {
     const tx = cds.tx(req)
     const user = req.user?.id
     console.log(
+      'TE_SR CREATE req ',
+      JSON.stringify(req)
+    )
+    console.log(
       'TE_SR CREATE req.data:',
       JSON.stringify(req.data || {}, null, 2)
     )
