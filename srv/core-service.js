@@ -1049,39 +1049,44 @@ module.exports = (srv) => {
 
     let groups = []
     let email
-    try {
-      const jwt = retrieveJwt(req)
-      const loggedInUserEmail =
-        (req.user &&
-          (req.user.email ||
-            (req.user.attr && (req.user.attr.email || req.user.attr.mail)))) ||
-        (req.user && req.user.id)
-      // For now work around solution in the place of "scimId" caller will fill email id
-      const scimUrl = loggedInUserEmail
-        ? `/scim/Users?filter=${encodeURIComponent(
-            `emails.value eq "${scimId}"`
-          )}`
-        : `/scim/Users/${scimId}`
-      const { data } = await executeHttpRequest(
-        { destinationName: 'CIS_SCIM_API', jwt },
-        { method: 'GET', url: scimUrl }
-      )
-      console.log('SCIM user data:', data)
-      const userData = Array.isArray(data?.Resources)
-        ? data.Resources[0]
-        : Array.isArray(data?.resources)
-        ? data.resources[0]
-        : data
-      const rawGroups = (userData && userData.groups) || []
-      groups = rawGroups
-        .map((g) => (typeof g === 'string' ? g : g.display || g.value))
-        .filter((g) => g && g.startsWith('STE_TE_'))
-      email =
-        (userData?.emails || []).find((e) => e.primary)?.value || loggedInUserEmail
-      // console.log('TE_REPORT_VIEW groups:', groups)
-      // console.log('TE_REPORT_VIEW email:', email)
-    } catch (error) {
-      return req.error(502, `Failed to fetch user info: ${error.message}`)
+    const scimIdIsEmail = typeof scimId === 'string' && scimId.includes('@')
+
+    if (variant === Variant.MY_CASES && scimIdIsEmail) {
+      email = scimId
+    } else {
+      try {
+        const jwt = retrieveJwt(req)
+        const loggedInUserEmail =
+          (req.user &&
+            (req.user.email ||
+              (req.user.attr && (req.user.attr.email || req.user.attr.mail)))) ||
+          (req.user && req.user.id)
+        const scimUrl = loggedInUserEmail
+          ? `/scim/Users?filter=${encodeURIComponent(
+              `emails.value eq "${scimId}"`
+            )}`
+          : `/scim/Users/${scimId}`
+        const { data } = await executeHttpRequest(
+          { destinationName: 'CIS_SCIM_API', jwt },
+          { method: 'GET', url: scimUrl }
+        )
+        console.log('SCIM user data:', data)
+        const userData = Array.isArray(data?.Resources)
+          ? data.Resources[0]
+          : Array.isArray(data?.resources)
+          ? data.resources[0]
+          : data
+        const rawGroups = (userData && userData.groups) || []
+        groups = rawGroups
+          .map((g) => (typeof g === 'string' ? g : g.display || g.value))
+          .filter((g) => g && g.startsWith('STE_TE_'))
+        email =
+          (userData?.emails || []).find((e) => e.primary)?.value || loggedInUserEmail
+        // console.log('TE_REPORT_VIEW groups:', groups)
+        // console.log('TE_REPORT_VIEW email:', email)
+      } catch (error) {
+        return req.error(502, `Failed to fetch user info: ${error.message}`)
+      }
     }
 
     const append = (cond) => {
