@@ -192,28 +192,34 @@ cds.on('bootstrap', (app) => {
         res.status(401).json({ error: { message: 'Missing JWT' } })
         return
       }
+      const filter = `emails.value eq "${req.params.id}"`
       const { data } = await executeHttpRequest(
         { destinationName: 'CIS_SCIM_API', jwt },
-        { method: 'GET', url: `/scim/Users/${req.params.id}` }
+        { method: 'GET', url: `/scim/Users?filter=${encodeURIComponent(filter)}` }
       )
-      const primaryEmail = data.emails?.find((e) => e.primary)?.value
-      const workPhone = data.phoneNumbers?.find(
+      const user = Array.isArray(data?.Resources) ? data.Resources[0] : data
+      if (!user) {
+        res.status(404).json({ error: { message: 'User not found' } })
+        return
+      }
+      const primaryEmail = user.emails?.find((e) => e.primary)?.value
+      const workPhone = user.phoneNumbers?.find(
         (p) => p.primary && p.type === 'work'
       )?.value
       const enterprise =
-        data['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
-      const givenName = data.name?.givenName
-      const familyName = data.name?.familyName
+        user['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'] || {}
+      const givenName = user.name?.givenName
+      const familyName = user.name?.familyName
       const payload = {
-        id: data.id,
+        id: user.id,
         fullName: [givenName, familyName].filter(Boolean).join(' '),
-        honorificPrefix: data.name?.honorificPrefix,
+        honorificPrefix: user.name?.honorificPrefix,
         email: primaryEmail,
         entity: enterprise.organization,
         employeeId: enterprise.employeeNumber,
         mobile: workPhone,
         dbagba: enterprise.division,
-        groups: (data.groups || []).map((g) => g.display),
+        groups: (user.groups || []).map((g) => g.display),
       }
 
       const { CORE_USERS } = cds.entities('BTP')
@@ -227,10 +233,10 @@ cds.on('bootstrap', (app) => {
               USER_EMAIL: primaryEmail,
               USER_ID: enterprise.employeeNumber,
               USER_HP: workPhone,
-              TITLE: data.name?.honorificPrefix,
+              TITLE: user.name?.honorificPrefix,
               USER_FNAME: givenName,
               USER_LNAME: familyName,
-              IS_ACTIVE: data.active ? 'Y' : 'N',
+              IS_ACTIVE: user.active ? 'Y' : 'N',
             })
           )
         }
