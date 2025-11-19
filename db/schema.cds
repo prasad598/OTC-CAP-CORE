@@ -173,6 +173,7 @@ entity TE_SR : Auditable {
   ESCALATED_DATETIME   : commonTypes.dateTime;
   RESOLVED_DATETIME    : commonTypes.dateTime;
   CLOSED_DATETIME      : commonTypes.dateTime;
+  RESUBMIT_DATETIME    : commonTypes.dateTime;
 }
 
 entity CORE_REQ_SEQ : Auditable {
