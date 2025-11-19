@@ -28,6 +28,17 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
 
     await db.run(
       INSERT.into('BTP.MON_WF_TASK').entries({
+        TASK_INSTANCE_ID: 'taskNoSubmit',
+        REQ_TXN_ID: 'reqNoSubmit',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        TASK_STATUS: 'READY',
+        CREATED_BY: 'init',
+        UPDATED_BY: 'init'
+      })
+    )
+
+    await db.run(
+      INSERT.into('BTP.MON_WF_TASK').entries({
         TASK_INSTANCE_ID: 'taskSubmit',
         REQ_TXN_ID: 'reqSubmit',
         TASK_TYPE: 'TE_REQUESTER',
@@ -40,7 +51,30 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     await db.run(
       INSERT.into('BTP.TE_SR').entries({
         REQ_TXN_ID: 'reqSubmit',
+        language: 'EN',
         REQUEST_ID: 'CASE-123',
+        STATUS_CD: 'DRF',
+        UPDATED_BY: 'init',
+        UPDATED_DATETIME: new Date().toISOString()
+      })
+    )
+
+    await db.run(
+      INSERT.into('BTP.TE_SR').entries({
+        REQ_TXN_ID: 'req456',
+        language: 'EN',
+        REQUEST_ID: 'CASE-456',
+        STATUS_CD: 'DRF',
+        UPDATED_BY: 'init',
+        UPDATED_DATETIME: new Date().toISOString()
+      })
+    )
+
+    await db.run(
+      INSERT.into('BTP.TE_SR').entries({
+        REQ_TXN_ID: 'reqNoSubmit',
+        language: 'EN',
+        REQUEST_ID: 'CASE-789',
         STATUS_CD: 'DRF',
         UPDATED_BY: 'init',
         UPDATED_DATETIME: new Date().toISOString()
@@ -157,6 +191,34 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
       record.UPDATED_DATETIME
     )
     assert.strictEqual(record.EC_DATE, expected)
+    assert.ok(record.RESUBMIT_DATETIME)
+    const resubmitTime = new Date(record.RESUBMIT_DATETIME).getTime()
+    const updatedTime = new Date(record.UPDATED_DATETIME).getTime()
+    assert.strictEqual(resubmitTime, updatedTime)
+  })
+
+  it('does not set RESUBMIT_DATETIME for non-submit decisions', async () => {
+    const req = {
+      data: {
+        TASK_INSTANCE_ID: 'taskNoSubmit',
+        TASK_TYPE: 'TE_RESO_TEAM',
+        DECISION: 'approve',
+        REQ_TXN_ID: 'reqNoSubmit',
+        UPDATED_BY: 'tester4'
+      },
+      user: { id: 'tester4' },
+      error: (code, msg) => {
+        throw new Error(`${code} ${msg}`)
+      }
+    }
+
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result['db-response-code'], 200)
+
+    const record = await db.run(
+      SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: 'reqNoSubmit' })
+    )
+    assert.strictEqual(record.RESUBMIT_DATETIME, null)
   })
 
   it('returns failed status with stacktrace when workflow update fails', async () => {

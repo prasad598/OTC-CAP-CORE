@@ -334,6 +334,7 @@ module.exports = (srv) => {
               tx
             )
             teSrUpdate.EC_DATE = est
+            teSrUpdate.RESUBMIT_DATETIME = now
           }
           if (decision === Decision.APR) {
             teSrUpdate.RESOLVED_DATETIME = now
