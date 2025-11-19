@@ -2,6 +2,7 @@ const cds = require('@sap/cds')
 const assert = require('assert')
 const { describe, it, before, after } = require('node:test')
 const { SELECT, INSERT } = cds.ql
+const { calculateSLA } = require('../srv/utils/sla')
 
 let originalConnectTo
 let capturedDecision
@@ -22,6 +23,27 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
         TASK_STATUS: 'READY',
         CREATED_BY: 'init',
         UPDATED_BY: 'init'
+      })
+    )
+
+    await db.run(
+      INSERT.into('BTP.MON_WF_TASK').entries({
+        TASK_INSTANCE_ID: 'taskSubmit',
+        REQ_TXN_ID: 'reqSubmit',
+        TASK_TYPE: 'TE_REQUESTER',
+        TASK_STATUS: 'READY',
+        CREATED_BY: 'init',
+        UPDATED_BY: 'init'
+      })
+    )
+
+    await db.run(
+      INSERT.into('BTP.TE_SR').entries({
+        REQ_TXN_ID: 'reqSubmit',
+        REQUEST_ID: 'CASE-123',
+        STATUS_CD: 'DRF',
+        UPDATED_BY: 'init',
+        UPDATED_DATETIME: new Date().toISOString()
       })
     )
 
@@ -105,6 +127,36 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     assert.strictEqual(task.PROCESSOR, 'tester2')
     assert.strictEqual(task.UPDATED_BY, 'tester2')
     assert.ok(task.COMPLETED_DATE)
+  })
+
+  it('calculates EC_DATE for submit decisions', async () => {
+    const req = {
+      data: {
+        TASK_INSTANCE_ID: 'taskSubmit',
+        TASK_TYPE: 'TE_REQUESTER',
+        DECISION: 'submit',
+        REQ_TXN_ID: 'reqSubmit',
+        UPDATED_BY: 'tester3'
+      },
+      user: { id: 'tester3' },
+      error: (code, msg) => {
+        throw new Error(`${code} ${msg}`)
+      }
+    }
+
+    const result = await processTaskUpdateHandler(req)
+    assert.strictEqual(result['db-response-code'], 200)
+
+    const record = await db.run(
+      SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: 'reqSubmit' })
+    )
+    assert.ok(record.EC_DATE)
+    const expected = await calculateSLA(
+      'TE',
+      'TE_RESO_TEAM',
+      record.UPDATED_DATETIME
+    )
+    assert.strictEqual(record.EC_DATE, expected)
   })
 
   it('returns failed status with stacktrace when workflow update fails', async () => {
