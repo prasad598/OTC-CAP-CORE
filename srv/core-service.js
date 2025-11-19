@@ -326,6 +326,15 @@ module.exports = (srv) => {
             UPDATED_DATETIME: now,
             PROCESSOR: user,
           }
+          if (decision === Decision.SUB) {
+            const est = await calculateSLA(
+              RequestType.TE,
+              TaskType.TE_RESO_TEAM,
+              now,
+              tx
+            )
+            teSrUpdate.EC_DATE = est
+          }
           if (decision === Decision.APR) {
             teSrUpdate.RESOLVED_DATETIME = now
           } else if (decision === Decision.REJ) {
