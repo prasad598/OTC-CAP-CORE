@@ -151,6 +151,7 @@ service ReportService {
     sr.ESCALATED_DATETIME   as ESCALATED_DATETIME,
     sr.RESOLVED_DATETIME    as RESOLVED_DATETIME,
     sr.CLOSED_DATETIME      as CLOSED_DATETIME,
+    sr.RESUBMIT_DATETIME    as RESUBMIT_DATETIME,
     virtual VARIENT     : commonTypes.reportVariant,
     virtual user_scim_id : String @cds.odata.name:'user-scim-id'
   } order by sr.UPDATED_DATETIME desc;
