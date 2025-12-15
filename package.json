@@ -1,8 +1,8 @@
 {
-  "name": "STE-BTP-CAP-CORE",
+  "name": "OTC-CAP-CORE",
   "version": "1.0.0",
   "description": "A simple CAP project.",
-  "repository": "https://github.com/prasad598/STE-BTP-CAP-CORE",
+  "repository": "https://github.com/prasad598/OTC-CAP-CORE",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {

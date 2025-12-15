@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { INSERT, UPDATE, SELECT } = cds.ql
 
-describe('TE_SR PATCH workflow trigger', () => {
+describe('OTC_SR PATCH workflow trigger', () => {
   let srv
   let httpCallCount
   let lastRequestData
@@ -31,10 +31,10 @@ describe('TE_SR PATCH workflow trigger', () => {
       entities,
       transaction: () => db,
       before: (event, entity, handler) => {
-        if (event === 'PATCH' && entity === 'TE_SR') srv._beforePatch = handler
+        if (event === 'PATCH' && entity === 'OTC_SR') srv._beforePatch = handler
       },
       after: (event, entity, handler) => {
-        if (event === 'PATCH' && entity === 'TE_SR') srv._afterPatch = handler
+        if (event === 'PATCH' && entity === 'OTC_SR') srv._afterPatch = handler
       },
       on: () => {},
     }
@@ -42,8 +42,8 @@ describe('TE_SR PATCH workflow trigger', () => {
   })
 
   it('triggers workflow when REQUEST_ID missing', async () => {
-    const { TE_SR, MON_WF_PROCESS } = srv.entities
-    await INSERT.into(TE_SR).entries({
+    const { OTC_SR, MON_WF_PROCESS } = srv.entities
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: '123',
       language: 'EN',
       CREATED_BY: 'creator@example.com',
@@ -55,7 +55,7 @@ describe('TE_SR PATCH workflow trigger', () => {
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
-    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '123' }))
+    await tx.run(UPDATE(OTC_SR).set(req.data).where({ REQ_TXN_ID: '123' }))
     await tx.commit()
     await srv._afterPatch(null, req)
 
@@ -66,8 +66,8 @@ describe('TE_SR PATCH workflow trigger', () => {
   })
 
   it('triggers workflow even when REQUEST_ID provided and DECISION is APR', async () => {
-    const { TE_SR, MON_WF_PROCESS } = srv.entities
-    await INSERT.into(TE_SR).entries({
+    const { OTC_SR, MON_WF_PROCESS } = srv.entities
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: '124',
       language: 'EN',
       CREATED_BY: 'creator@example.com',
@@ -83,7 +83,7 @@ describe('TE_SR PATCH workflow trigger', () => {
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
-    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '124' }))
+    await tx.run(UPDATE(OTC_SR).set(req.data).where({ REQ_TXN_ID: '124' }))
     await tx.commit()
 
     const prevCalls = httpCallCount
@@ -93,8 +93,8 @@ describe('TE_SR PATCH workflow trigger', () => {
   })
 
   it('triggers workflow when REQ_TXN_ID supplied via params only', async () => {
-    const { TE_SR, MON_WF_PROCESS } = srv.entities
-    await INSERT.into(TE_SR).entries({
+    const { OTC_SR, MON_WF_PROCESS } = srv.entities
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: '125',
       language: 'EN',
       CREATED_BY: 'creator@example.com',
@@ -111,7 +111,7 @@ describe('TE_SR PATCH workflow trigger', () => {
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
-    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '125' }))
+    await tx.run(UPDATE(OTC_SR).set(req.data).where({ REQ_TXN_ID: '125' }))
     await tx.commit()
     await srv._afterPatch(null, req)
 
@@ -120,8 +120,8 @@ describe('TE_SR PATCH workflow trigger', () => {
   })
 
   it('includes DueCompletion derived from EC_DATE', async () => {
-    const { TE_SR } = srv.entities
-    await INSERT.into(TE_SR).entries({
+    const { OTC_SR } = srv.entities
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: '126',
       language: 'EN',
       CREATED_BY: 'creator@example.com',
@@ -137,7 +137,7 @@ describe('TE_SR PATCH workflow trigger', () => {
 
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
-    await tx.run(UPDATE(TE_SR).set(req.data).where({ REQ_TXN_ID: '126' }))
+    await tx.run(UPDATE(OTC_SR).set(req.data).where({ REQ_TXN_ID: '126' }))
     await tx.commit()
     await srv._afterPatch(null, req)
 

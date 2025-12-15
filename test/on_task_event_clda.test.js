@@ -40,7 +40,7 @@ describe('onTaskEvent CLDA patch handling', () => {
     )
 
     await db.run(
-      INSERT.into('BTP.TE_SR').entries({
+      INSERT.into('BTP.OTC_SR').entries({
         REQ_TXN_ID: '1234',
         STATUS_CD: 'PRT',
         CREATED_BY: 'init',
@@ -101,7 +101,7 @@ describe('onTaskEvent CLDA patch handling', () => {
     assert.strictEqual(task.PROCESSOR, 'BTP_SPA_ADMIN')
     assert.strictEqual(task.DECISION, 'CLDA')
 
-    const sr = await SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: '1234' })
+    const sr = await SELECT.one.from('BTP.OTC_SR').where({ REQ_TXN_ID: '1234' })
     assert.strictEqual(sr.STATUS_CD, 'CLD')
     assert.strictEqual(sr.PROCESSOR, 'BTP_SPA_ADMIN')
     assert.strictEqual(sr.UPDATED_BY, 'BTP_SPA_ADMIN')

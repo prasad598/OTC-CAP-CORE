@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { SELECT } = cds.ql
 
-describe('TE_SR workflow process logging', () => {
+describe('OTC_SR workflow process logging', () => {
   let srv
   const wfResponse = {
     id: 'd297522a-7416-11f0-9c99-eeee0a88d3d0',
@@ -23,7 +23,7 @@ describe('TE_SR workflow process logging', () => {
       entities,
       transaction: () => db,
       after: (event, entity, handler) => {
-        if (event === 'CREATE' && entity === 'TE_SR') srv._afterCreate = handler
+        if (event === 'CREATE' && entity === 'OTC_SR') srv._afterCreate = handler
       },
       before: () => {},
       on: () => {},

@@ -2,7 +2,7 @@ const cds = require('@sap/cds')
 const assert = require('assert')
 const { describe, it, before } = require('node:test')
 
-describe('TE_SR id generation based on decision', () => {
+describe('OTC_SR id generation based on decision', () => {
   let srv
   before(async () => {
     cds.SELECT = cds.ql.SELECT
@@ -13,10 +13,10 @@ describe('TE_SR id generation based on decision', () => {
       entities,
       transaction: () => db,
       before: (event, entity, handler) => {
-        if (event === 'CREATE' && entity === 'TE_SR') srv._beforeCreate = handler
+        if (event === 'CREATE' && entity === 'OTC_SR') srv._beforeCreate = handler
       },
       on: (event, entity, handler) => {
-        if (event === 'PATCH' && entity === 'TE_SR') srv._onPatch = handler
+        if (event === 'PATCH' && entity === 'OTC_SR') srv._onPatch = handler
       },
       after: () => {},
     }

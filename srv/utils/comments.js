@@ -106,7 +106,7 @@ async function buildCommentPayload(
   tx = cds.db,
   extra = {}
 ) {
-  const teSrEntity = resolveEntity(tx, 'TE_SR')
+  const teSrEntity = resolveEntity(tx, 'OTC_SR')
 
   let { REQUEST_ID, REQUEST_TYPE: _REQUEST_TYPE, ...rest } = extra
   if (!REQUEST_ID) {

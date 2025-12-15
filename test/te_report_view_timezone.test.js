@@ -27,7 +27,7 @@ function initAfterHandler() {
       AUTH_MATRIX: {},
       CONFIG_LDATA: {},
       CONFIG_PHDATA: {},
-      TE_SR: {},
+      OTC_SR: {},
     },
     before: () => {},
     on: () => {},

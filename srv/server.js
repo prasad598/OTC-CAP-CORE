@@ -18,7 +18,7 @@ cds.on('bootstrap', (app) => {
     '/rest/btp/core/comments': '/rest/btp/core/CORE_COMMENTS',
     '/rest/btp/core/workflow-process': '/rest/btp/core/MON_WF_PROCESS',
     '/rest/btp/core/workflow-task': '/rest/btp/core/MON_WF_TASK',
-    '/rest/btp/core/te-servicerequest': '/rest/btp/core/TE_SR',
+    '/rest/btp/core/te-servicerequest': '/rest/btp/core/OTC_SR',
     '/rest/btp/core/users': '/rest/btp/core/CORE_USERS',
     '/rest/btp/core/user-info': '/rest/btp/core/userInfo()',
     '/rest/btp/core/auth-matrix': '/rest/btp/core/AUTH_MATRIX',

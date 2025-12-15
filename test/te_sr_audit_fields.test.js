@@ -19,7 +19,7 @@ const waitFor = (proc, matcher) =>
     proc.on('error', reject);
   });
 
-describe('TE_SR audit timestamps', () => {
+describe('OTC_SR audit timestamps', () => {
   before(async () => {
     srv = spawn('node', ['node_modules/.bin/cds-serve'], {
       cwd: __dirname + '/..',

@@ -11,7 +11,7 @@ module.exports = async function () {
     'BTP.CONFIG_LDATA': CONFIG_LDATA,
     'BTP.MON_WF_PROCESS': MON_WF_PROCESS,
     'BTP.MON_WF_TASK': MON_WF_TASK,
-    'BTP.TE_SR': TE_SR,
+    'BTP.OTC_SR': OTC_SR,
   } = db.entities
 
   this.on('purgeAllData', async req => {
@@ -25,7 +25,7 @@ module.exports = async function () {
         CONFIG_LDATA,
         MON_WF_PROCESS,
         MON_WF_TASK,
-        TE_SR,
+        OTC_SR,
       ].filter(Boolean)
 
       for (const entity of entities) {

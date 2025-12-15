@@ -13,7 +13,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
   })
 
   it('returns DRAFT_ID, CASE_ID, and REPORT_NO', async () => {
-    const { TE_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
+    const { OTC_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
     const { TE_REPORT_VIEW } = cds.entities('ReportService')
     const id = '11111111-1111-1111-1111-222222222222'
 
@@ -66,7 +66,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       }
     ])
 
-    await INSERT.into(TE_SR).entries({
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: id,
       language: 'EN',
       DRAFT_ID: 'TE-DRFT-00001',

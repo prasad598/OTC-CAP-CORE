@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before, beforeEach } = require('node:test')
 const { INSERT, SELECT } = cds.ql
 
-describe('TE_SR requester payload handling', () => {
+describe('OTC_SR requester payload handling', () => {
   let srv
   let scimCallCount
 
@@ -28,7 +28,7 @@ describe('TE_SR requester payload handling', () => {
       entities,
       transaction: () => db,
       before: (event, entity, handler) => {
-        if (event === 'CREATE' && entity === 'TE_SR') srv._beforeCreate = handler
+        if (event === 'CREATE' && entity === 'OTC_SR') srv._beforeCreate = handler
       },
       after: () => {},
       on: () => {},
@@ -207,7 +207,7 @@ describe('TE_SR requester payload handling', () => {
     delete persisted.DECISION
 
     await tx.run(
-      INSERT.into('BTP.TE_SR').entries(persisted)
+      INSERT.into('BTP.OTC_SR').entries(persisted)
     )
     await tx.commit()
 
@@ -221,7 +221,7 @@ describe('TE_SR requester payload handling', () => {
     assert.strictEqual(result.CREATED_BY_EMPID, 'EMP1001')
 
     const persistedRecord = await SELECT.one
-      .from('BTP.TE_SR')
+      .from('BTP.OTC_SR')
       .where({ REQ_TXN_ID: req.data.REQ_TXN_ID })
 
     assert.ok(persistedRecord)

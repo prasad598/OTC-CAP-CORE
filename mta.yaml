@@ -1,5 +1,5 @@
 _schema-version: 3.3.0
-ID: STE-BTP-CAP-CORE
+ID: OTC-CAP-CORE
 version: 1.0.0
 description: "A simple CAP project."
 parameters:
@@ -11,7 +11,7 @@ build-parameters:
         - npm ci
         - npx cds build --production
 modules:
-  - name: STE-BTP-CAP-CORE-srv
+  - name: OTC-CAP-CORE-srv
     type: nodejs
     path: gen/srv
     parameters:
@@ -24,19 +24,19 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: STE-BTP-CAP-CORE-auth
-      - name: STE-BTP-CAP-CORE-db
-      - name: STE-BTP-CAP-CORE-destination
+      - name: OTC-CAP-CORE-auth
+      - name: OTC-CAP-CORE-db
+      - name: OTC-CAP-CORE-destination
 
-  - name: STE-BTP-CAP-CORE-db-deployer
+  - name: OTC-CAP-CORE-db-deployer
     type: hdb
     path: gen/db
     parameters:
       buildpack: nodejs_buildpack
     requires:
-      - name: STE-BTP-CAP-CORE-db
+      - name: OTC-CAP-CORE-db
 
-  - name: STE-BTP-CAP-CORE
+  - name: OTC-CAP-CORE
     type: approuter.nodejs
     path: app/router
     parameters:
@@ -50,8 +50,8 @@ modules:
           name: srv-api # must be used in xs-app.json as well
           url: ~{srv-url}
           forwardAuthToken: true
-      - name: STE-BTP-CAP-CORE-auth
-      - name: STE-BTP-CAP-CORE-destination
+      - name: OTC-CAP-CORE-auth
+      - name: OTC-CAP-CORE-destination
     provides:
       - name: app-api
         properties:
@@ -59,28 +59,28 @@ modules:
           app-uri: ${default-uri}
 
 resources:
-  - name: STE-BTP-CAP-CORE-auth
+  - name: OTC-CAP-CORE-auth
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
       service-plan: application
       path: ./xs-security.json
       config:
-        xsappname: STE-BTP-CAP-CORE
+        xsappname: OTC-CAP-CORE
         tenant-mode: dedicated
         oauth2-configuration:
           redirect-uris:
             - https://*~{app-api/app-uri}/**
     requires:
       - name: app-api
-  - name: STE-BTP-CAP-CORE-db
+  - name: OTC-CAP-CORE-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
       config:
         schema: BTP
-  - name: STE-BTP-CAP-CORE-destination
+  - name: OTC-CAP-CORE-destination
     type: org.cloudfoundry.managed-service
     requires:
       - name: srv-api
@@ -94,12 +94,12 @@ resources:
                 HTML5.DynamicDestination: true
                 HTML5.ForwardAuthToken: true
                 HTML5.Timeout: 30000
-                Name: STE-BTP-CAP-CORE-SRV
+                Name: OTC-CAP-CORE-SRV
                 ProxyType: Internet
                 Type: HTTP
                 URL: ~{srv-api/srv-url}
             existing_destinations_policy: update
         version: 1.0.0
       service: destination
-      service-name: STE-BTP-CAP-CORE-destination
+      service-name: OTC-CAP-CORE-destination
       service-plan: lite

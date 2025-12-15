@@ -13,7 +13,7 @@ describe('TE_REPORT_VIEW default ordering', () => {
   })
 
   it('orders results by UPDATED_DATETIME descending by default', async () => {
-    const { TE_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
+    const { OTC_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
     const { TE_REPORT_VIEW } = cds.entities('ReportService')
 
     await INSERT.into(CORE_USERS).entries({
@@ -41,7 +41,7 @@ describe('TE_REPORT_VIEW default ordering', () => {
     const id1 = '11111111-1111-1111-1111-222222222223'
     const id2 = '11111111-1111-1111-1111-222222222224'
 
-    await INSERT.into(TE_SR).entries([
+    await INSERT.into(OTC_SR).entries([
       {
         REQ_TXN_ID: id1,
         language: 'EN',

@@ -9,7 +9,7 @@ describe('postComment utility', () => {
   before(async () => {
     cds.SELECT = cds.ql.SELECT;
     await cds.deploy(__dirname + '/../db').to('sqlite::memory:');
-    await INSERT.into('BTP.TE_SR').entries({
+    await INSERT.into('BTP.OTC_SR').entries({
       REQ_TXN_ID: '11111111-1111-1111-1111-111111111111',
       REQUEST_ID: 'CASE1',
       STATUS_CD: 'DRF',

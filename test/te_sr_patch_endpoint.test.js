@@ -18,7 +18,7 @@ const waitFor = (proc, matcher) =>
     proc.on('error', reject);
   });
 
-describe('TE_SR PATCH alias', () => {
+describe('OTC_SR PATCH alias', () => {
   before(async () => {
     srv = spawn('node', ['node_modules/.bin/cds-serve'], {
       cwd: __dirname + '/..',

@@ -137,7 +137,7 @@ entity MON_WF_TASK : Auditable {
   IS_DELETED            : commonTypes.flag;
 }
 
-entity TE_SR : Auditable {
+entity OTC_SR : Auditable {
   key REQ_TXN_ID       : commonTypes.uuidv4 @Core.Computed : true;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
   DRAFT_ID             : String(30);

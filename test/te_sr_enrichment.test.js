@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { INSERT } = cds.ql
 
-describe('TE_SR enrichment', () => {
+describe('OTC_SR enrichment', () => {
   let srv
   before(async () => {
     cds.SELECT = cds.ql.SELECT
@@ -14,18 +14,18 @@ describe('TE_SR enrichment', () => {
       entities,
       transaction: () => db,
       after: (event, entity, handler) => {
-        if (event === 'READ' && entity === 'TE_SR') srv._afterRead = handler
+        if (event === 'READ' && entity === 'OTC_SR') srv._afterRead = handler
       },
       before: () => {},
     }
     require('../srv/core-service')(srv)
   })
 
-  it('enriches TE_SR with CORE_COMMENTS, CORE_ATTACHMENTS and MON_WF_PROCESS', async () => {
-    const { TE_SR, CORE_COMMENTS, CORE_ATTACHMENTS, CORE_USERS, MON_WF_PROCESS } = srv.entities
+  it('enriches OTC_SR with CORE_COMMENTS, CORE_ATTACHMENTS and MON_WF_PROCESS', async () => {
+    const { OTC_SR, CORE_COMMENTS, CORE_ATTACHMENTS, CORE_USERS, MON_WF_PROCESS } = srv.entities
     const id = '11111111-1111-1111-1111-111111111111'
 
-    await INSERT.into(TE_SR).entries({ REQ_TXN_ID: id, language: 'EN' })
+    await INSERT.into(OTC_SR).entries({ REQ_TXN_ID: id, language: 'EN' })
     await INSERT.into(CORE_USERS).entries({
       USER_EMAIL: 'tester',
       TITLE: 'Mr',
@@ -82,10 +82,10 @@ describe('TE_SR enrichment', () => {
   })
 
   it('fetches MON_WF_TASK records ordered by created time', async () => {
-    const { TE_SR, MON_WF_TASK } = srv.entities
+    const { OTC_SR, MON_WF_TASK } = srv.entities
     const id = '22222222-2222-2222-2222-222222222222'
 
-    await INSERT.into(TE_SR).entries({
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: id,
       language: 'EN',
       STATUS_CD: 'PRT'
@@ -124,10 +124,10 @@ describe('TE_SR enrichment', () => {
   })
 
   it('fetches MON_WF_TASK records regardless of status', async () => {
-    const { TE_SR, MON_WF_TASK } = srv.entities
+    const { OTC_SR, MON_WF_TASK } = srv.entities
     const id = '33333333-3333-3333-3333-333333333333'
 
-    await INSERT.into(TE_SR).entries({
+    await INSERT.into(OTC_SR).entries({
       REQ_TXN_ID: id,
       language: 'EN',
       STATUS_CD: 'SUB'

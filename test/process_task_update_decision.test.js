@@ -49,7 +49,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     )
 
     await db.run(
-      INSERT.into('BTP.TE_SR').entries({
+      INSERT.into('BTP.OTC_SR').entries({
         REQ_TXN_ID: 'reqSubmit',
         language: 'EN',
         REQUEST_ID: 'CASE-123',
@@ -60,7 +60,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     )
 
     await db.run(
-      INSERT.into('BTP.TE_SR').entries({
+      INSERT.into('BTP.OTC_SR').entries({
         REQ_TXN_ID: 'req456',
         language: 'EN',
         REQUEST_ID: 'CASE-456',
@@ -71,7 +71,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     )
 
     await db.run(
-      INSERT.into('BTP.TE_SR').entries({
+      INSERT.into('BTP.OTC_SR').entries({
         REQ_TXN_ID: 'reqNoSubmit',
         language: 'EN',
         REQUEST_ID: 'CASE-789',
@@ -182,7 +182,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     assert.strictEqual(result['db-response-code'], 200)
 
     const record = await db.run(
-      SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: 'reqSubmit' })
+      SELECT.one.from('BTP.OTC_SR').where({ REQ_TXN_ID: 'reqSubmit' })
     )
     assert.ok(record.EC_DATE)
     const expected = await calculateSLA(
@@ -216,7 +216,7 @@ describe('processTaskUpdate decision handling', { concurrency: false }, () => {
     assert.strictEqual(result['db-response-code'], 200)
 
     const record = await db.run(
-      SELECT.one.from('BTP.TE_SR').where({ REQ_TXN_ID: 'reqNoSubmit' })
+      SELECT.one.from('BTP.OTC_SR').where({ REQ_TXN_ID: 'reqNoSubmit' })
     )
     assert.strictEqual(record.RESUBMIT_DATETIME, null)
   })

@@ -38,7 +38,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 
   entity MON_WF_TASK @(path: 'workflow-task') as projection on core.MON_WF_TASK;
 
-  entity TE_SR @(path: 'te-servicerequest') as projection on core.TE_SR;
+  entity OTC_SR @(path: 'te-servicerequest') as projection on core.OTC_SR;
 
   action processTaskUpdate(
     REQ_TXN_ID       : UUID,
@@ -104,7 +104,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 service ReportService {
   
   @readonly
-  entity TE_REPORT_VIEW as select from core.TE_SR as sr
+  entity TE_REPORT_VIEW as select from core.OTC_SR as sr
     left outer join (
     select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, TASK_STATUS, PROCESSOR, UPDATED_DATETIME }
     where t.UPDATED_DATETIME = (

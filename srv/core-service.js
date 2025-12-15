@@ -117,7 +117,7 @@ const registerCommentHooks = (db) => {
 
 if (cds.db) registerCommentHooks(cds.db)
 cds.on('connect', registerCommentHooks)
-async function triggerWorkflow(te_sr, user) {
+async function triggerWorkflow(OTC_SR, user) {
   const workflowPayload = {
     definitionId:
       'us10.stengg-sap-btp-qas.stecasemanagement.caseManagementMainProcess',
@@ -125,18 +125,18 @@ async function triggerWorkflow(te_sr, user) {
       caseDetails: {
         CaseType: 'TE',
         Priority: 'HIGH',
-        RequestId: te_sr.REQUEST_ID,
-        RequesterEmail: te_sr.CREATED_BY,
-        RequesterId: te_sr.REQUESTER_ID,
-        SRCategory: te_sr.SRV_CAT_CD,
-        TransactionId: te_sr.REQ_TXN_ID,
+        RequestId: OTC_SR.REQUEST_ID,
+        RequesterEmail: OTC_SR.CREATED_BY,
+        RequesterId: OTC_SR.REQUESTER_ID,
+        SRCategory: OTC_SR.SRV_CAT_CD,
+        TransactionId: OTC_SR.REQ_TXN_ID,
       },
     },
   }
 
-  if (te_sr.EC_DATE) {
+  if (OTC_SR.EC_DATE) {
     workflowPayload.context.caseDetails.DueCompletion = new Date(
-      `${te_sr.EC_DATE}T23:59:59.999+08:00`
+      `${OTC_SR.EC_DATE}T23:59:59.999+08:00`
     ).toISOString()
   }
 
@@ -163,8 +163,8 @@ async function triggerWorkflow(te_sr, user) {
         WF_SUBJ: payload.subject,
         WF_STATUS: payload.status,
         REQUEST_TYPE: RequestType.TE,
-        REQUEST_ID: te_sr.REQUEST_ID,
-        REQ_TXN_ID: te_sr.REQ_TXN_ID,
+        REQUEST_ID: OTC_SR.REQUEST_ID,
+        REQ_TXN_ID: OTC_SR.REQ_TXN_ID,
         CREATED_BY: user,
         CREATED_DATETIME: now,
         UPDATED_BY: user,
@@ -186,7 +186,7 @@ module.exports = (srv) => {
     AUTH_MATRIX,
     CONFIG_LDATA,
     CONFIG_PHDATA,
-    TE_SR,
+    OTC_SR,
   } = srv.entities
 
   srv.before('CREATE', 'CORE_COMMENTS', async (req) => {
@@ -344,9 +344,9 @@ module.exports = (srv) => {
             teSrUpdate.ESCALATED_DATETIME = now
           }
           await tx.run(
-            UPDATE(TE_SR).set(teSrUpdate).where({ REQ_TXN_ID })
+            UPDATE(OTC_SR).set(teSrUpdate).where({ REQ_TXN_ID })
           )
-          console.log(`Updated TE_SR for REQ_TXN_ID ${REQ_TXN_ID}`)
+          console.log(`Updated OTC_SR for REQ_TXN_ID ${REQ_TXN_ID}`)
 
           if (statusCd === Status.RSL && wfInstanceId) {
             await tx.run(
@@ -566,7 +566,7 @@ module.exports = (srv) => {
             }
 
             await tx.run(
-              UPDATE(TE_SR).set(teSrUpdate).where({ REQ_TXN_ID })
+              UPDATE(OTC_SR).set(teSrUpdate).where({ REQ_TXN_ID })
             )
 
             if (statusCd === Status.CLD || statusCd === Status.RSL) {
@@ -778,9 +778,9 @@ module.exports = (srv) => {
 
   }
 
-  srv.before('CREATE', 'TE_SR', async (req) => {
+  srv.before('CREATE', 'OTC_SR', async (req) => {
     const tx = cds.tx(req)
-    console.log('TE_SR CREATE req ', JSON.stringify(req))
+    console.log('OTC_SR CREATE req ', JSON.stringify(req))
 
     const rawPayloadSources = extractRawPayloadSources(req)
     console.log('rawPayloadSources:', rawPayloadSources)
@@ -866,11 +866,11 @@ module.exports = (srv) => {
         req.data.EC_DATE = est
       }
     } catch (error) {
-      req.error(500, `Failed to prepare TE_SR: ${error.message}`)
+      req.error(500, `Failed to prepare OTC_SR: ${error.message}`)
     }
   })
 
-  srv.before('PATCH', 'TE_SR', async (req) => {
+  srv.before('PATCH', 'OTC_SR', async (req) => {
     const REQ_TXN_ID =
       req.data?.REQ_TXN_ID ?? req.params?.[0]?.REQ_TXN_ID
     if (!REQ_TXN_ID) return
@@ -881,7 +881,7 @@ module.exports = (srv) => {
       try {
         const { REQUEST_ID, DRAFT_ID, CREATED_BY_EMPID } = await tx.run(
           SELECT.one
-            .from(TE_SR)
+            .from(OTC_SR)
             .columns('REQUEST_ID', 'DRAFT_ID', 'CREATED_BY_EMPID')
             .where({ REQ_TXN_ID })
         )
@@ -922,11 +922,11 @@ module.exports = (srv) => {
         req.data.EC_DATE = est
       }
     } catch (error) {
-      req.error(500, `Failed to prepare TE_SR: ${error.message}`)
+      req.error(500, `Failed to prepare OTC_SR: ${error.message}`)
     }
   })
 
-  srv.after('CREATE', 'TE_SR', async (data, req) => {
+  srv.after('CREATE', 'OTC_SR', async (data, req) => {
     if (!data || !data.REQUEST_ID) return
     try {
       await triggerWorkflow(data, req.user && req.user.id)
@@ -935,20 +935,20 @@ module.exports = (srv) => {
     }
   })
 
-  srv.after('PATCH', 'TE_SR', async (_, req) => {
-    console.log('TE_SR PATCH request data:', JSON.stringify(req.data))
+  srv.after('PATCH', 'OTC_SR', async (_, req) => {
+    console.log('OTC_SR PATCH request data:', JSON.stringify(req.data))
     const REQ_TXN_ID =
       req.data?.REQ_TXN_ID ?? req.params?.[0]?.REQ_TXN_ID
     if (!REQ_TXN_ID) return
     try {
       const tx = srv.transaction(req)
       const latest = await tx.run(
-        SELECT.one.from(TE_SR).where({ REQ_TXN_ID })
+        SELECT.one.from(OTC_SR).where({ REQ_TXN_ID })
       )
       if (latest) {
         const payload = { ...latest, ...req.data, REQ_TXN_ID }
         await triggerWorkflow(payload, req.user && req.user.id)
-        console.log(`Workflow triggered for TE_SR ${REQ_TXN_ID}`)
+        console.log(`Workflow triggered for OTC_SR ${REQ_TXN_ID}`)
       }
     } catch (error) {
       console.error(
@@ -1240,7 +1240,7 @@ module.exports = (srv) => {
     applyTimeZoneToResults(results, TIMESTAMP_FIELDS, requestedTimeZone)
   })
 
-  srv.after('READ', 'TE_SR', async (results, req) => {
+  srv.after('READ', 'OTC_SR', async (results, req) => {
     if (results == null) return
     const db = srv.transaction(req)
     const list = Array.isArray(results) ? results : [results]

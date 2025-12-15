@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { calculateSLA } = require('../srv/utils/sla')
 
-describe('TE_SR EC_DATE handling', () => {
+describe('OTC_SR EC_DATE handling', () => {
   let srv
   before(async () => {
     cds.SELECT = cds.ql.SELECT
@@ -14,8 +14,8 @@ describe('TE_SR EC_DATE handling', () => {
       entities,
       transaction: () => db,
       before: (event, entity, handler) => {
-        if (event === 'CREATE' && entity === 'TE_SR') srv._beforeCreate = handler
-        if (event === 'PATCH' && entity === 'TE_SR') srv._beforePatch = handler
+        if (event === 'CREATE' && entity === 'OTC_SR') srv._beforeCreate = handler
+        if (event === 'PATCH' && entity === 'OTC_SR') srv._beforePatch = handler
       },
       on: () => {},
       after: () => {},
@@ -34,8 +34,8 @@ describe('TE_SR EC_DATE handling', () => {
   })
 
   it('sets EC_DATE on patch when submitted', async () => {
-    const { TE_SR } = srv.entities
-    await cds.run(cds.ql.INSERT.into(TE_SR).entries({ REQ_TXN_ID: '123', language: 'EN' }))
+    const { OTC_SR } = srv.entities
+    await cds.run(cds.ql.INSERT.into(OTC_SR).entries({ REQ_TXN_ID: '123', language: 'EN' }))
     const req = { data: { REQ_TXN_ID: '123', DECISION: 'submit' } }
     const tx = cds.transaction(req)
     await srv._beforePatch(req)
