@@ -35,6 +35,7 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: OTC-CAP-CORE-db
+      - name: STE-BTP-CAP-CORE-grantor
 
   - name: OTC-CAP-CORE
     type: approuter.nodejs
@@ -80,6 +81,10 @@ resources:
       service-plan: hdi-shared
       config:
         schema: BTP
+  - name: STE-BTP-CAP-CORE-grantor
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: ste_btp_cap_core
   - name: OTC-CAP-CORE-destination
     type: org.cloudfoundry.managed-service
     requires:

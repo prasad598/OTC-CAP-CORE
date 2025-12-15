@@ -38,6 +38,29 @@ After adding tests, execute them with:
 npm test
 ```
 
+## Using the shared STE_BTP_CAP_CORE tables
+
+This project now consumes the common workflow, comment, attachment, and user
+tables from the existing **STE_BTP_CAP_CORE** HDI container via cross-container
+synonyms. To enable this in your landscape:
+
+1. **Grantor (STE_BTP_CAP_CORE) container**
+   - Ensure the STE HDI instance exposes a grantor binding (service name
+     `ste_btp_cap_core`). If it is not yet configured, create or update the
+     grantor role to include the shared objects (for example
+     `BTP_MON_WF_PROCESS`, `BTP_MON_WF_TASK`, `BTP_CORE_COMMENTS`,
+     `BTP_CORE_ATTACHMENTS`, `BTP_CORE_USERS`).
+   - Grant the consumer access by running `hdi-shared` procedures (or the
+     cockpit) to provide `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and
+     `REFERENCES` on those objects to the consumer container.
+
+2. **Consumer (this OTC project) container**
+   - Bind the STE grantor service instance to the MTA using the existing
+     service name `ste_btp_cap_core` (see `mta.yaml`).
+   - Deploy the app; the HDI deployer will create synonyms for the shared STE
+     objects, and the CAP entities annotated with `@cds.persistence.exists`
+     will resolve to the remote tables instead of creating local copies.
+
 
 ## API Endpoints
 
