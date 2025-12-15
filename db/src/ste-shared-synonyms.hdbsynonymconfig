@@ -1,0 +1,51 @@
+{
+  "description": "Synonyms pointing to shared STE_BTP_CAP_CORE tables",
+  "format-version": "1.0",
+  "names": {
+    "BTP_CORE_ATTACHMENTS": {
+      "target": {
+        "object": "BTP_CORE_ATTACHMENTS",
+        "schema": null,
+        "catalog": {
+          "hdi-service": "STE-BTP-CAP-CORE-grantor"
+        }
+      }
+    },
+    "BTP_CORE_COMMENTS": {
+      "target": {
+        "object": "BTP_CORE_COMMENTS",
+        "schema": null,
+        "catalog": {
+          "hdi-service": "STE-BTP-CAP-CORE-grantor"
+        }
+      }
+    },
+    "BTP_CORE_USERS": {
+      "target": {
+        "object": "BTP_CORE_USERS",
+        "schema": null,
+        "catalog": {
+          "hdi-service": "STE-BTP-CAP-CORE-grantor"
+        }
+      }
+    },
+    "BTP_MON_WF_PROCESS": {
+      "target": {
+        "object": "BTP_MON_WF_PROCESS",
+        "schema": null,
+        "catalog": {
+          "hdi-service": "STE-BTP-CAP-CORE-grantor"
+        }
+      }
+    },
+    "BTP_MON_WF_TASK": {
+      "target": {
+        "object": "BTP_MON_WF_TASK",
+        "schema": null,
+        "catalog": {
+          "hdi-service": "STE-BTP-CAP-CORE-grantor"
+        }
+      }
+    }
+  }
+}

@@ -40,6 +40,7 @@ aspect RequestReference {
   REQUEST_TYPE : commonTypes.requestType;
 }
 
+@cds.persistence.exists
 entity CORE_USERS : Auditable {
   key USER_EMAIL : commonTypes.emailId;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
@@ -53,6 +54,7 @@ entity CORE_USERS : Auditable {
   DBAGBA         : commonTypes.field50;
 }
 
+@cds.persistence.exists
 entity CORE_ATTACHMENTS {
   key UUID           : commonTypes.uuid    @Core.Computed : true;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
@@ -74,6 +76,7 @@ entity CORE_ATTACHMENTS {
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
 }
 
+@cds.persistence.exists
 entity CORE_COMMENTS {
   key UUID           : commonTypes.uuid @Core.Computed : true;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
@@ -95,6 +98,7 @@ entity CORE_COMMENTS {
   CREATED_DATETIME     : commonTypes.dateTime @cds.on.insert : $now;
 }
 
+@cds.persistence.exists
 entity MON_WF_PROCESS : Auditable, RequestReference {
   key WF_INSTANCE_ID    : commonTypes.uuidv4;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
@@ -112,6 +116,7 @@ entity MON_WF_PROCESS : Auditable, RequestReference {
   IS_DELETED            : commonTypes.flag;
 }
 
+@cds.persistence.exists
 entity MON_WF_TASK : Auditable {
   key TASK_INSTANCE_ID  : commonTypes.uuidv4;
   language : String(2) @Semantics.language default 'EN'; // ISO 639-1 language code
