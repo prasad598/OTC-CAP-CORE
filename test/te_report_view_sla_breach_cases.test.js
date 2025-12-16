@@ -29,7 +29,7 @@ function initHandler(groups, emails) {
       CONFIG_LDATA: {}
     },
     before: (event, entity, fn) => {
-      if (event === 'READ' && entity === 'TE_REPORT_VIEW') handler = fn
+      if (event === 'READ' && entity === 'OTC_REPORT_VIEW') handler = fn
     },
     after: () => {},
     on: () => {}
@@ -42,7 +42,7 @@ function initHandler(groups, emails) {
   return handler
 }
 
-describe('TE_REPORT_VIEW SLA_BREACH_CASES variant', () => {
+describe('OTC_REPORT_VIEW SLA_BREACH_CASES variant', () => {
   it('filters by ASSIGNED_GROUP with STATUS PRL', async () => {
     const handler = initHandler(
       ['STE_TE_RESO_LEAD_G1'],

@@ -29,7 +29,7 @@ function initHandler(groups, emails) {
       CONFIG_LDATA: {}
     },
     before: (event, entity, fn) => {
-      if (event === 'READ' && entity === 'TE_REPORT_VIEW') handler = fn
+      if (event === 'READ' && entity === 'OTC_REPORT_VIEW') handler = fn
     },
     after: () => {},
     on: () => {}
@@ -42,7 +42,7 @@ function initHandler(groups, emails) {
   return handler
 }
 
-describe('TE_REPORT_VIEW CLOSED_CASES variant', () => {
+describe('OTC_REPORT_VIEW CLOSED_CASES variant', () => {
   it('filters by SR_PROCESSOR and STATUS RSL when email provided', async () => {
     const handler = initHandler([], [{ value: 'user@example.com', primary: true }])
     const req = {

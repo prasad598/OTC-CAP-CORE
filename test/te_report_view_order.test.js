@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { INSERT, SELECT } = cds.ql
 
-describe('TE_REPORT_VIEW default ordering', () => {
+describe('OTC_REPORT_VIEW default ordering', () => {
   before(async () => {
     cds.SELECT = cds.ql.SELECT
     await cds.deploy([
@@ -14,7 +14,7 @@ describe('TE_REPORT_VIEW default ordering', () => {
 
   it('orders results by UPDATED_DATETIME descending by default', async () => {
     const { OTC_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
-    const { TE_REPORT_VIEW } = cds.entities('ReportService')
+    const { OTC_REPORT_VIEW } = cds.entities('ReportService')
 
     await INSERT.into(CORE_USERS).entries({
       USER_EMAIL: 'user@example.com',
@@ -64,7 +64,7 @@ describe('TE_REPORT_VIEW default ordering', () => {
       }
     ])
 
-    const results = await SELECT.from(TE_REPORT_VIEW)
+    const results = await SELECT.from(OTC_REPORT_VIEW)
     assert.strictEqual(results.length, 2)
     assert.strictEqual(results[0].REQ_TXN_ID, id2)
     assert.strictEqual(results[1].REQ_TXN_ID, id1)

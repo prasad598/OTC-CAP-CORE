@@ -1,0 +1,10 @@
+{
+  "STE-BTP-CAP-CORE-grantor": {
+    "object_owner": {
+      "container_roles": ["Role_R1G#"]
+    },
+    "application_user": {
+      "container_roles": ["Role_R1"]
+    }
+  }
+}

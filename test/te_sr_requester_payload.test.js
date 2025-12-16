@@ -180,7 +180,7 @@ describe('OTC_SR requester payload handling', () => {
     assert.strictEqual(req.data.CREATED_BY_EMPID, 'EMP1001')
   })
 
-  it('binds logged user fields to TE_REPORT_VIEW audit columns', async () => {
+  it('binds logged user fields to OTC_REPORT_VIEW audit columns', async () => {
     const req = {
       data: {
         DECISION: 'draft',
@@ -211,9 +211,9 @@ describe('OTC_SR requester payload handling', () => {
     )
     await tx.commit()
 
-    const { TE_REPORT_VIEW } = cds.entities('ReportService')
+    const { OTC_REPORT_VIEW } = cds.entities('ReportService')
     const result = await SELECT.one
-      .from(TE_REPORT_VIEW)
+      .from(OTC_REPORT_VIEW)
       .where({ CREATED_BY: 'payload.user@example.com' })
 
     assert.ok(result)

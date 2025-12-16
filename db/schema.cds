@@ -180,14 +180,14 @@ entity OTC_SR : Auditable {
   CLOSED_DATETIME      : commonTypes.dateTime;
   RESUBMIT_DATETIME    : commonTypes.dateTime;
 }
-
+@cds.persistence.exists
 entity CORE_REQ_SEQ : Auditable {
   key SEQ_YEAR       : Integer;
   key REQUEST_TYPE   : commonTypes.requestType;
   key ID_TYPE        : String(10); // DRAFT or REQUEST
   LAST_SEQ_NO        : Integer;
 }
-
+@cds.persistence.exists
 entity AUTH_MATRIX : Auditable {
   key ASSIGNED_GROUP    : commonTypes.iasGroup;
   key USER_EMAIL        : commonTypes.emailId;
@@ -197,6 +197,7 @@ entity AUTH_MATRIX : Auditable {
   FIELD3                : commonTypes.field100;
 }
 
+@cds.persistence.exists
 entity CONFIG_LDATA : Auditable {
   key REQUEST_TYPE  : commonTypes.requestType;
   key OBJECT       : String(10) not null;
@@ -213,6 +214,7 @@ entity CONFIG_LDATA : Auditable {
   IS_ACTIVE         : commonTypes.flag;
 }
 
+@cds.persistence.exists
 entity CONFIG_PHDATA : Auditable {
   key HOLIDAY_DT : Date;
   DESCRIPTION    : commonTypes.shortText;

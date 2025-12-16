@@ -2,7 +2,7 @@ const assert = require('assert')
 const Module = require('module')
 const { describe, it, before } = require('node:test')
 
-describe('TE_REPORT_VIEW TOTAL_CASES variant', () => {
+describe('OTC_REPORT_VIEW TOTAL_CASES variant', () => {
   let handler
   before(() => {
     const originalRequire = Module.prototype.require
@@ -33,7 +33,7 @@ describe('TE_REPORT_VIEW TOTAL_CASES variant', () => {
         CONFIG_LDATA: {}
       },
       before: (event, entity, fn) => {
-        if (event === 'READ' && entity === 'TE_REPORT_VIEW') handler = fn
+        if (event === 'READ' && entity === 'OTC_REPORT_VIEW') handler = fn
       },
       after: () => {},
       on: () => {}

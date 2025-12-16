@@ -3,7 +3,7 @@ const assert = require('assert')
 const { describe, it, before } = require('node:test')
 const { INSERT, SELECT } = cds.ql
 
-describe('TE_REPORT_VIEW exposes core fields', () => {
+describe('OTC_REPORT_VIEW exposes core fields', () => {
   before(async () => {
     cds.SELECT = cds.ql.SELECT
     await cds.deploy([
@@ -14,7 +14,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
 
   it('returns DRAFT_ID, CASE_ID, and REPORT_NO', async () => {
     const { OTC_SR, CONFIG_LDATA, CORE_USERS } = cds.entities('BTP')
-    const { TE_REPORT_VIEW } = cds.entities('ReportService')
+    const { OTC_REPORT_VIEW } = cds.entities('ReportService')
     const id = '11111111-1111-1111-1111-222222222222'
 
     await INSERT.into(CORE_USERS).entries([
@@ -86,7 +86,7 @@ describe('TE_REPORT_VIEW exposes core fields', () => {
       RESUBMIT_DATETIME: '2024-01-06T00:01:00Z'
     })
 
-    const result = await SELECT.one.from(TE_REPORT_VIEW).where({ REQ_TXN_ID: id })
+    const result = await SELECT.one.from(OTC_REPORT_VIEW).where({ REQ_TXN_ID: id })
     assert.ok(result)
     assert.strictEqual(new Date(result.UPDATED_DATETIME).toISOString(), '2024-01-06T00:00:00.000Z')
     assert.strictEqual(result.EC_DATE, '2024-01-01')

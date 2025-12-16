@@ -29,7 +29,7 @@ function initHandler(groups, emails) {
       CONFIG_LDATA: {}
     },
     before: (event, entity, fn) => {
-      if (event === 'READ' && entity === 'TE_REPORT_VIEW') handler = fn
+      if (event === 'READ' && entity === 'OTC_REPORT_VIEW') handler = fn
     },
     after: () => {},
     on: () => {}
@@ -42,7 +42,7 @@ function initHandler(groups, emails) {
   return handler
 }
 
-describe('TE_REPORT_VIEW default variant', () => {
+describe('OTC_REPORT_VIEW default variant', () => {
   it('leaves query unchanged for unknown variant', async () => {
     const handler = initHandler(
       ['STE_TE_RESO_TEAM_G1'],

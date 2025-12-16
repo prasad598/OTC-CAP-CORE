@@ -1039,13 +1039,13 @@ module.exports = (srv) => {
   req.data.COMPLETED_DATE = new Date()
   })
 
-  srv.on('READ', 'TE_REPORT_VIEW', async (req, next) => {
+  srv.on('READ', 'OTC_REPORT_VIEW', async (req, next) => {
     console.log('PRASAD User roles:', JSON.stringify(req.user))
     return next()
   })
 
-  srv.before('READ', 'TE_REPORT_VIEW', async (req) => {
-    console.log('TE_REPORT_VIEW user data:', JSON.stringify(req.user, null, 2))
+  srv.before('READ', 'OTC_REPORT_VIEW', async (req) => {
+    console.log('OTC_REPORT_VIEW user data:', JSON.stringify(req.user, null, 2))
     const scimId =
       req.data['user-scim-id'] ||
       req.data.user_scim_id ||
@@ -1054,7 +1054,7 @@ module.exports = (srv) => {
       req.data.VARIENT ||
       (req.req && req.req.query && req.req.query.VARIENT)
     variant = normalizeVariant(variant)
-    // console.log('TE_REPORT_VIEW scimId:', scimId, 'variant:', variant)
+    // console.log('OTC_REPORT_VIEW scimId:', scimId, 'variant:', variant)
     if (!scimId) return
 
     let groups = []
@@ -1092,8 +1092,8 @@ module.exports = (srv) => {
           .filter((g) => g && g.startsWith('STE_TE_'))
         email =
           (userData?.emails || []).find((e) => e.primary)?.value || loggedInUserEmail
-        // console.log('TE_REPORT_VIEW groups:', groups)
-        // console.log('TE_REPORT_VIEW email:', email)
+        // console.log('OTC_REPORT_VIEW groups:', groups)
+        // console.log('OTC_REPORT_VIEW email:', email)
       } catch (error) {
         return req.error(502, `Failed to fetch user info: ${error.message}`)
       }
@@ -1229,12 +1229,12 @@ module.exports = (srv) => {
     }
 
     // console.log(
-    //   'TE_REPORT_VIEW query before execution:',
+    //   'OTC_REPORT_VIEW query before execution:',
     //   JSON.stringify(req.query, null, 2)
     // )
   })
 
-  srv.after('READ', 'TE_REPORT_VIEW', async (results, req) => {
+  srv.after('READ', 'OTC_REPORT_VIEW', async (results, req) => {
     if (results == null) return
     const requestedTimeZone = extractRequestedTimeZone(req)
     applyTimeZoneToResults(results, TIMESTAMP_FIELDS, requestedTimeZone)

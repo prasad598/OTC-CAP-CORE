@@ -104,7 +104,7 @@ service RestService @(path: '/rest/btp/core', protocol: 'rest') {
 service ReportService {
   
   @readonly
-  entity TE_REPORT_VIEW as select from core.OTC_SR as sr
+  entity OTC_REPORT_VIEW as select from core.OTC_SR as sr
     left outer join (
     select from core.MON_WF_TASK as t { REQ_TXN_ID, ASSIGNED_GROUP, TASK_TYPE, TASK_STATUS, PROCESSOR, UPDATED_DATETIME }
     where t.UPDATED_DATETIME = (

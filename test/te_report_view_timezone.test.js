@@ -32,7 +32,7 @@ function initAfterHandler() {
     before: () => {},
     on: () => {},
     after: (event, entity, fn) => {
-      if (event === 'READ' && entity === 'TE_REPORT_VIEW') afterHandler = fn
+      if (event === 'READ' && entity === 'OTC_REPORT_VIEW') afterHandler = fn
     },
   }
 
@@ -44,7 +44,7 @@ function initAfterHandler() {
   return afterHandler
 }
 
-describe('TE_REPORT_VIEW timezone conversion', () => {
+describe('OTC_REPORT_VIEW timezone conversion', () => {
   it('converts timestamps to requested timezone from request payload', async () => {
     const handler = initAfterHandler()
     const rows = [

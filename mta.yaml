@@ -1,15 +1,18 @@
-_schema-version: 3.3.0
+_schema-version: "3.3.0"
 ID: OTC-CAP-CORE
 version: 1.0.0
 description: "A simple CAP project."
+
 parameters:
   enable-parallel-deployments: true
+
 build-parameters:
   before-all:
     - builder: custom
       commands:
         - npm ci
         - npx cds build --production
+
 modules:
   - name: OTC-CAP-CORE-srv
     type: nodejs
@@ -20,7 +23,7 @@ modules:
     build-parameters:
       builder: npm-ci
     provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
+      - name: srv-api
         properties:
           srv-url: ${default-url}
     requires:
@@ -35,7 +38,14 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: OTC-CAP-CORE-db
+        properties:
+          TARGET_CONTAINER: OTC-CAP-CORE-db
+
       - name: STE-BTP-CAP-CORE-grantor
+        group: SERVICE_REPLACEMENTS
+        properties:
+          key: STE-BTP-CAP-CORE-grantor
+          service: ~{grantor-service}
 
   - name: OTC-CAP-CORE
     type: approuter.nodejs
@@ -44,24 +54,26 @@ modules:
       keep-existing-routes: true
       disk-quota: 256M
       memory: 256M
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: srv-api # must be used in xs-app.json as well
-          url: ~{srv-url}
-          forwardAuthToken: true
-      - name: OTC-CAP-CORE-auth
-      - name: OTC-CAP-CORE-destination
     provides:
       - name: app-api
         properties:
           app-protocol: ${protocol}
           app-uri: ${default-uri}
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: OTC-CAP-CORE-auth
+      - name: OTC-CAP-CORE-destination
 
 resources:
   - name: OTC-CAP-CORE-auth
     type: org.cloudfoundry.managed-service
+    requires:
+      - name: app-api
     parameters:
       service: xsuaa
       service-plan: application
@@ -72,39 +84,44 @@ resources:
         oauth2-configuration:
           redirect-uris:
             - https://*~{app-api/app-uri}/**
-    requires:
-      - name: app-api
+
   - name: OTC-CAP-CORE-db
     type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-service: ${service-name}
     parameters:
       service: hana
       service-plan: hdi-shared
       config:
-        schema: BTP
+        schema: OTC_CAP_CORE_DB
+
   - name: STE-BTP-CAP-CORE-grantor
     type: org.cloudfoundry.existing-service
+    properties:
+      grantor-service: ${service-name}
     parameters:
-      service-name: ste_btp_cap_core
+      service-name: STE-BTP-CAP-CORE-db
+
   - name: OTC-CAP-CORE-destination
     type: org.cloudfoundry.managed-service
     requires:
       - name: srv-api
     parameters:
+      service: destination
+      service-plan: lite
+      service-name: OTC-CAP-CORE-destination
       config:
         HTML5Runtime_enabled: true
         init_data:
           subaccount:
             destinations:
-              - Authentication: NoAuthentication
+              - Name: OTC-CAP-CORE-SRV
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+                ProxyType: Internet
+                Authentication: NoAuthentication
                 HTML5.DynamicDestination: true
                 HTML5.ForwardAuthToken: true
                 HTML5.Timeout: 30000
-                Name: OTC-CAP-CORE-SRV
-                ProxyType: Internet
-                Type: HTTP
-                URL: ~{srv-api/srv-url}
             existing_destinations_policy: update
         version: 1.0.0
-      service: destination
-      service-name: OTC-CAP-CORE-destination
-      service-plan: lite

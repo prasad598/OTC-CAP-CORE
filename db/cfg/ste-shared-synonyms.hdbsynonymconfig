@@ -1,0 +1,57 @@
+{
+  "BTP_CORE_ATTACHMENTS": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CORE_ATTACHMENTS"
+    }
+  },
+  "BTP_CORE_COMMENTS": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CORE_COMMENTS"
+    }
+  },
+  "BTP_CORE_USERS": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CORE_USERS"
+    }
+  },
+  "BTP_MON_WF_PROCESS": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_MON_WF_PROCESS"
+    }
+  },
+  "BTP_MON_WF_TASK": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_MON_WF_TASK"
+    }
+  },
+
+  "BTP_AUTH_MATRIX": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_AUTH_MATRIX"
+    }
+  },
+  "BTP_CONFIG_LDATA": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CONFIG_LDATA"
+    }
+  },
+  "BTP_CONFIG_PHDATA": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CONFIG_PHDATA"
+    }
+  },
+  "BTP_CORE_REQ_SEQ": {
+    "target": {
+      "*.configure": "STE-BTP-CAP-CORE-grantor",
+      "object": "BTP_CORE_REQ_SEQ"
+    }
+  }
+}

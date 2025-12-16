@@ -85,9 +85,9 @@ cds.on('bootstrap', (app) => {
 
       const resolvedTimeZone = normalizeTimeZone(TIMEZONE || payload.timezone)
 
-      const { TE_REPORT_VIEW } = cds.entities('ReportService')
+      const { OTC_REPORT_VIEW } = cds.entities('ReportService')
       const columnIds = reportColumns.map((c) => c.COLUMN_ID)
-      let query = SELECT.from(TE_REPORT_VIEW, columnIds)
+      let query = SELECT.from(OTC_REPORT_VIEW, columnIds)
       let has = false
       const add = (field, value, op = '=') => {
         if (value === undefined || value === null || value === '') return
